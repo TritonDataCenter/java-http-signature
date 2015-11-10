@@ -15,7 +15,7 @@
 
     <groupId>com.joyent.http-signature</groupId>
     <artifactId>parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
 
     <name>java-http-signature</name>
@@ -49,7 +49,8 @@
         <connection>scm:git:git://github.com/joyent/java-http-signature.git</connection>
         <developerConnection>scm:git:git://github.com/joyent/java-http-signature.git</developerConnection>
         <url>git@github.com:joyent/java-http-signature.git</url>
-    </scm>
+      <tag>1.0.0</tag>
+  </scm>
     <issueManagement>
         <system>github.com</system>
         <url>https://github.com/joyent/java-http-signature/issues</url>
