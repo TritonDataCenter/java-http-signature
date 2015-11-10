@@ -6,8 +6,9 @@ the [Joyent Public Cloud](http://www.joyent.com).
 
 This project is a fork of the code that once existed as part of the 
 [Java Manta SDK](http://joyent.github.com/java-manta). Currently, this project
-interacts directly with BouncyCastle to create HTTP Signatures. In the future,
-we may use a project like [httpsig-java](https://github.com/adamcin/httpsig-java)
+interacts directly with [Bouncy Castle](https://www.bouncycastle.org/) to create 
+HTTP Signatures. In the future, we may use a project like 
+[httpsig-java](https://github.com/adamcin/httpsig-java)
 or [http-signatures-java](https://github.com/tomitribe/http-signatures-java) to
 do the signing.
 
