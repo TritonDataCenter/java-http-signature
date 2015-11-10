@@ -88,7 +88,9 @@
 
         <!-- Checks for imports                              -->
         <!-- See http://checkstyle.sf.net/config_import.html -->
-        <module name="AvoidStarImport"/>
+        <module name="AvoidStarImport">
+            <property name="allowStaticMemberImports" value="true"/>
+        </module>
         <module name="IllegalImport"/> <!-- defaults to sun.* packages -->
         <module name="RedundantImport"/>
         <module name="UnusedImports"/>
@@ -98,6 +100,7 @@
         <module name="LineLength">
             <property name="max" value="120" />
             <property name="tabWidth" value="4" />
+            <property name="ignorePattern" value="^.*\*.*@see.+$" />
         </module>
         <module name="MethodLength" />
         <module name="ParameterNumber" />

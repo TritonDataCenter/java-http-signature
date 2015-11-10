@@ -7,22 +7,53 @@ package com.joyent.http.signature;
  * @since 1.0.0
  */
 public class HttpSignatureException  extends RuntimeException {
+    /**
+     * Creates a new exception.
+     */
     public HttpSignatureException() {
     }
 
-    public HttpSignatureException(String message) {
+    /**
+     * Creates a new exception with the specified message.
+     * @param message Message to embed
+     */
+    public HttpSignatureException(final String message) {
         super(message);
     }
 
-    public HttpSignatureException(String message, Throwable cause) {
+    /**
+     * Creates a new chained exception with the specified message.
+     *
+     * @param message Message to embed
+     * @param cause exception to chain
+     */
+    public HttpSignatureException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
-    public HttpSignatureException(Throwable cause) {
+    /**
+     * Creates a new chained exception.
+     *
+     * @param cause exception to chain
+     */
+    public HttpSignatureException(final Throwable cause) {
         super(cause);
     }
 
-    public HttpSignatureException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    /**
+     * Creates a exception with the specified message, cause,
+     * suppression enabled or disabled, and writable stack trace enabled
+     * or disabled.
+     *
+     * @param message Message to embed
+     * @param cause exception to chain
+     * @param enableSuppression whether or not suppression is enabled or disabled
+     * @param writableStackTrace whether or not the stack trace should be writable
+     */
+    public HttpSignatureException(final String message,
+                                  final Throwable cause,
+                                  final boolean enableSuppression,
+                                  final boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

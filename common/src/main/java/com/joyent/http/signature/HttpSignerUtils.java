@@ -12,10 +12,21 @@ import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
 import org.bouncycastle.util.encoders.Base64;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.*;
+import java.security.InvalidKeyException;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.Security;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -64,9 +75,10 @@ public final class HttpSignerUtils {
     public static final String SIGNING_ALGORITHM = "SHA256WithRSAEncryption";
 
     /**
-     * The key format converter to use when reading key pairs.
+     * The key format CONVERTER to use when reading key pairs.
      */
-    private static final JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
+    private static final JcaPEMKeyConverter CONVERTER =
+            new JcaPEMKeyConverter().setProvider("BC");
 
     /**
      * Utility class not intended for direct instantiation.
@@ -150,7 +162,7 @@ public final class HttpSignerUtils {
             if (password == null) {
                 Security.addProvider(new BouncyCastleProvider());
                 final Object object = pemParser.readObject();
-                return converter.getKeyPair((PEMKeyPair) object);
+                return CONVERTER.getKeyPair((PEMKeyPair) object);
             } else {
                 PEMDecryptorProvider decProv = new JcePEMDecryptorProviderBuilder().build(password);
 
@@ -158,9 +170,9 @@ public final class HttpSignerUtils {
 
                 final KeyPair kp;
                 if (object instanceof PEMEncryptedKeyPair) {
-                    kp = converter.getKeyPair(((PEMEncryptedKeyPair) object).decryptKeyPair(decProv));
+                    kp = CONVERTER.getKeyPair(((PEMEncryptedKeyPair) object).decryptKeyPair(decProv));
                 } else {
-                    kp = converter.getKeyPair((PEMKeyPair) object);
+                    kp = CONVERTER.getKeyPair((PEMKeyPair) object);
                 }
 
                 return kp;
@@ -198,8 +210,13 @@ public final class HttpSignerUtils {
                                                    final String fingerprint,
                                                    final KeyPair keyPair,
                                                    final Date date) {
-        final String stringDate = date == null ?
-                defaultSignDateAsString() : DATE_FORMAT.format(date);
+        final String stringDate;
+
+        if (date == null) {
+            stringDate = defaultSignDateAsString();
+        } else {
+            stringDate = DATE_FORMAT.format(date);
+        }
 
         return createAuthorizationHeader(login, fingerprint, keyPair,
                 stringDate);

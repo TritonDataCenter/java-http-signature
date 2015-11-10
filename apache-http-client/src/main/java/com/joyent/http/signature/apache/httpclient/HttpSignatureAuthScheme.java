@@ -7,7 +7,10 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
-import org.apache.http.auth.*;
+import org.apache.http.auth.AuthenticationException;
+import org.apache.http.auth.ContextAwareAuthScheme;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.MalformedChallengeException;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HttpContext;
 
@@ -23,6 +26,9 @@ import java.util.UUID;
  */
 @SuppressWarnings("deprecation")
 public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
+    /**
+     * Name of authentication scheme.
+     */
     private static final String SCHEME_NAME = "Signatures";
 
     /**
@@ -39,7 +45,7 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
      * Creates a new instance allowing for HTTP signing.
      * @param keyPair Public/private RSA keypair object used to sign HTTP requests.
      */
-    public HttpSignatureAuthScheme(KeyPair keyPair) {
+    public HttpSignatureAuthScheme(final KeyPair keyPair) {
         if (keyPair == null) {
             throw new IllegalArgumentException("KeyPair must be present");
         }
@@ -48,7 +54,7 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
     }
 
     @Override
-    public void processChallenge(Header header) throws MalformedChallengeException {
+    public void processChallenge(final Header header) throws MalformedChallengeException {
 
     }
 
@@ -58,7 +64,7 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
     }
 
     @Override
-    public String getParameter(String name) {
+    public String getParameter(final String name) {
         return null;
     }
 
@@ -78,7 +84,7 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
     }
 
     @Override
-    public Header authenticate(final Credentials credentials, 
+    public Header authenticate(final Credentials credentials,
                                final HttpRequest request,
                                final HttpContext context)
             throws AuthenticationException {
@@ -89,7 +95,9 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
     }
 
     @Override
-    public Header authenticate(Credentials credentials, HttpRequest request) throws AuthenticationException {
+    public Header authenticate(final Credentials credentials,
+                               final HttpRequest request)
+            throws AuthenticationException {
         return authenticate(credentials, request, null);
     }
 
@@ -99,13 +107,16 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
     }
 
     /**
-     * Signs an {@link HttpRequest}.
+     * Signs an {@link HttpRequest} and returns a header with the signed
+     * authorization value.
      *
      * @param credentials Credentials containing a username and password
      * @param request The {@link HttpRequest} to sign.
+     * @return header with signed authorization value
      * @throws AuthenticationException If unable to sign the request.
      */
-    protected Header signRequestHeader(final Credentials credentials, final HttpRequest request)
+    protected Header signRequestHeader(final Credentials credentials,
+                                       final HttpRequest request)
             throws AuthenticationException {
         if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Signing request: %s", request));
@@ -146,8 +157,9 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
             authz = HttpSignerUtils.createAuthorizationHeader(
                     login, fingerprint, keyPair, stringDate);
         } catch (HttpSignatureException e) {
-            String details = String.format("Unable to authenticate [%s] with " +
-                    "fingerprint [%s] using keypair [%s]", login, fingerprint, keyPair);
+            String details = String.format("Unable to authenticate [%s] with "
+                    + "fingerprint [%s] using keypair [%s]",
+                    login, fingerprint, keyPair);
             throw new AuthenticationException(details, e);
         }
 

@@ -6,7 +6,11 @@ import com.joyent.http.signature.HttpSignerUtils;
 import org.bouncycastle.util.encoders.Base64;
 
 import java.io.UnsupportedEncodingException;
-import java.security.*;
+import java.security.InvalidKeyException;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.util.UUID;
 
 // I really really don't want to be using JUL for logging, but it is what the
@@ -29,17 +33,17 @@ public class HttpSigner {
     /**
      * The static logger instance.
      */
-    private static Logger LOG = Logger.getLogger(HttpSigner.class.getName());
+    private static final Logger LOG = Logger.getLogger(HttpSigner.class.getName());
 
     /**
      * Public/private RSA keypair object used to sign HTTP requests.
      */
-    protected final KeyPair keyPair;
+    private final KeyPair keyPair;
 
     /**
      * Login name/account name used in authorization header.
      */
-    protected final String login;
+    private final String login;
 
     /**
      * The RSA key fingerprint.
@@ -52,7 +56,7 @@ public class HttpSigner {
      * @param login Login name/account name used in authorization header
      * @param fingerprint rsa key fingerprint
      */
-    public HttpSigner(KeyPair keyPair, String login, String fingerprint) {
+    public HttpSigner(final KeyPair keyPair, final String login, final String fingerprint) {
         if (keyPair == null) {
             throw new IllegalArgumentException("KeyPair must be present");
         }
@@ -98,6 +102,12 @@ public class HttpSigner {
         request.getHeaders().setAuthorization(authzHeader);
     }
 
+    /**
+     * Verifies the signature on a Google HTTP Client request.
+     *
+     * @param request request object to verify signature from
+     * @return true if signature was verified correctly, otherwise false
+     */
     public boolean verifyRequest(final HttpRequest request) {
         if (LOG.getLevel() != null && LOG.getLevel().equals(Level.FINER)) {
             LOG.finer(String.format("Verifying request: %s", request.getHeaders()));
