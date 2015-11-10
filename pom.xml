@@ -21,8 +21,8 @@
     <packaging>pom</packaging>
 
     <name>java-http-signature</name>
-    <description>Java implementation of HTTP Signatures</description>
-    <url>https://github.com/joyent/java-manta</url>
+    <description>Java implementation of HTTP Signature</description>
+    <url>https://github.com/joyent/java-http-signature</url>
     <inceptionYear>2015</inceptionYear>
 
     <organization>
@@ -50,7 +50,7 @@
     <scm>
         <connection>scm:git:git://github.com/joyent/java-http-signature.git</connection>
         <developerConnection>scm:git:git://github.com/joyent/java-http-signature.git</developerConnection>
-        <url>git@github.com:joyent/java-manta.git</url>
+        <url>git@github.com:joyent/java-http-signature.git</url>
     </scm>
     <issueManagement>
         <system>github.com</system>
@@ -160,13 +160,6 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>${maven-dependency-plugin.version}</version>
             </plugin>
-
-            <!-- This might interfere with sonatype nexus staging plugin... leave it commented out until testing can be done. -->
-            <!--<plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-deploy-plugin</artifactId>
-              <version>${maven-deploy-plugin.version}</version>
-            </plugin>-->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
