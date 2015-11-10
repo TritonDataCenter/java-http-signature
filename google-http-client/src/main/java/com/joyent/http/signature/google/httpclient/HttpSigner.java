@@ -77,7 +77,7 @@ public class HttpSigner {
      * @throws CryptoException If unable to sign the request.
      */
     public void signRequest(final HttpRequest request) {
-        if (LOG.getLevel().equals(Level.FINER)) {
+        if (LOG.getLevel() != null && LOG.getLevel().equals(Level.FINER)) {
             LOG.finer(String.format("Signing request: %s", request.getHeaders()));
         }
 
@@ -98,10 +98,8 @@ public class HttpSigner {
         request.getHeaders().setAuthorization(authzHeader);
     }
 
-
-
     public boolean verifyRequest(final HttpRequest request) {
-        if (LOG.getLevel().equals(Level.FINER)) {
+        if (LOG.getLevel() != null && LOG.getLevel().equals(Level.FINER)) {
             LOG.finer(String.format("Verifying request: %s", request.getHeaders()));
         }
         String date = request.getHeaders().getDate();
