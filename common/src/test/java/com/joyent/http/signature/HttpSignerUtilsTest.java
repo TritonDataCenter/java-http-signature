@@ -22,13 +22,24 @@ public class HttpSignerUtilsTest {
     }
 
     @Test
-    public final void signData() {
+    public void signHeader() {
         final String now = HttpSignerUtils.defaultSignDateAsString();
         final String authzHeader = HttpSignerUtils.createAuthorizationHeader(
                 "testy", testKeyFingerprint, testKeyPair, now);
         final boolean verified = HttpSignerUtils.verifyAuthorizationHeader(
                 testKeyPair, authzHeader, now);
         Assert.assertTrue(verified, "Unable to verify signed authorization header");
+    }
+
+    @Test
+    public void signData() {
+        final byte[] data = "Hello World".getBytes();
+        final byte[] signedData = HttpSignerUtils.sign(
+                "testy", testKeyFingerprint, testKeyPair, data);
+        final boolean verified = HttpSignerUtils.verify(
+                "testy", testKeyFingerprint, testKeyPair, data, signedData);
+
+        Assert.assertTrue(verified, "Signature couldn't be verified");
     }
 
     /**
@@ -47,7 +58,7 @@ public class HttpSignerUtilsTest {
 
         // We couldn't get the key pair from the class path, so let's try
         // a directory relative to the project root.
-        Path keyPath = new File("./src/test/resources/is_rsa").toPath();
+        Path keyPath = new File("./src/test/resources/id_rsa").toPath();
         return HttpSignerUtils.getKeyPair(keyPath);
     }
 }
