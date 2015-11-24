@@ -280,7 +280,7 @@ public final class HttpSignerUtils {
         Objects.requireNonNull(data, "Data must be present");
 
         try {
-            final Signature sig = Signature.getInstance(SIGNING_ALGORITHM);
+            final Signature sig = Signature.getInstance("SHA256WITHRSA");
             sig.initSign(keyPair.getPrivate());
             sig.update(data);
             return sig.sign();

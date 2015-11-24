@@ -144,7 +144,7 @@ public class HttpSigner {
         {
             sigText.append(method).append("\n")
                    .append(uri.getHost()).append("\n")
-                   .append(uri.getPath()).append("?")
+                   .append(uri.getPath()).append("\n")
                    .append("algorithm=").append(algorithm).append("&")
                    .append("expires=").append(expires).append("&")
                    .append("keyId=").append(keyIdEncoded);
@@ -155,6 +155,7 @@ public class HttpSigner {
             final byte[] sigBytes = sigText.toString().getBytes();
             final byte[] signed = HttpSignerUtils.sign(getLogin(), getFingerprint(),
                     getKeyPair(), sigBytes);
+
             final String encoded = new String(Base64.encode(signed), charset);
             final String urlEncoded = URLEncoder.encode(encoded, charset);
 

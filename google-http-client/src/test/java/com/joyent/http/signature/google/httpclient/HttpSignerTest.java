@@ -4,6 +4,7 @@
 package com.joyent.http.signature.google.httpclient;
 
 import com.joyent.http.signature.HttpSignerUtils;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -30,6 +31,20 @@ public class HttpSignerTest {
         HttpSigner signer = new HttpSigner(testKeyPair, login, testKeyFingerprint);
         URI uri = URI.create("http://localhost/foo/bar");
         URI signedUri = signer.signURI(uri, "GET", 0L);
+
+        String expected = "http://localhost/foo/bar?algorithm=RSA-SHA256"
+                + "&expires=0&keyId=%2Fuser%2Fkeys%2F04%3A92%3A7b%3A23%3"
+                + "Abc%3A08%3A4f%3Ad7%3A3b%3A5a%3A38%3A9e%3A4a%3A17%3A2e"
+                + "%3Adf&signature=sspA6KoRAtTjKN7wI3DNoMKVVWUfs0hvbr%2F"
+                + "wa2Mu36Gz2D4ExjH0X84jRpF6XnadMZNdPc1JtTLkqLPAYpdZ9c34"
+                + "U8zC0bu0cNJw3wri1hjr0XJDwjjF9lAu%2FXEJbh0r7vUcbF5Kwjy"
+                + "hkjDr804Vp3br8IFFlxGl4%2BvsxerLU56PQPjWceHc56V5LcD7jE"
+                + "q%2FNJdA0sVMerq0j2YRKyhhD%2BgndVSh5mG%2BipjJ6glDHnUt%"
+                + "2BI3eME9do3xeua54%2FV7bIIO0%2BJz1kFPHzZL5kMKPa1XqVnra"
+                + "zHUHje3j5QJcDrpmud2nVKKM4cw6FfOjEnrLVdD5w2eiTLiWJOcmT"
+                + "USFBg%3D%3D";
+
+        Assert.assertEquals(signedUri.toString(), expected);
     }
 
     /**
