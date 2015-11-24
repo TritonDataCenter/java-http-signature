@@ -8,20 +8,26 @@ import com.joyent.http.signature.CryptoException;
 import com.joyent.http.signature.HttpSignerUtils;
 import org.bouncycastle.util.encoders.Base64;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLEncoder;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.util.Objects;
 import java.util.UUID;
-
-// I really really don't want to be using JUL for logging, but it is what the
-// google library is using, so we are sticking with it. :(
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.joyent.http.signature.HttpSignerUtils.*;
+import static com.joyent.http.signature.HttpSignerUtils.AUTHZ_PATTERN;
+import static com.joyent.http.signature.HttpSignerUtils.AUTHZ_SIGNING_STRING;
+import static com.joyent.http.signature.HttpSignerUtils.SIGNING_ALGORITHM;
+
+// I really really don't want to be using JUL for logging, but it is what the
+// google library is using, so we are sticking with it. :(
 
 /**
  * Class providing utility methods that allow you to sign a
@@ -106,6 +112,63 @@ public class HttpSigner {
     }
 
     /**
+     * Signs an arbitrary URL using the Manta-compatible HTTP signature
+     * method.
+     *
+     * @param uri URI with no query pointing to a downloadable resource
+     * @param expires epoch time in seconds when the resource will no longer
+     *                be available
+     * @return a signed version of the input URI
+     * @throws IOException thrown when we can't sign or read char data
+     */
+    public URI signURI(final URI uri, final String method, final long expires)
+            throws IOException {
+        Objects.requireNonNull(method, "Method must be present");
+        Objects.requireNonNull(uri, "URI must be present");
+
+        if (!method.equals("GET") && !method.equals("HEAD")) {
+            throw new IllegalArgumentException("Method must be HEAD or GET");
+        }
+
+        if (uri.getQuery() != null && !uri.getQuery().isEmpty()) {
+            throw new IllegalArgumentException("Query must be empty");
+        }
+
+        final String charset = "UTF-8";
+        final String algorithm = "RSA-SHA256";
+        final String keyId = String.format("/%s/keys/%s",
+                getLogin(), getFingerprint());
+        final String keyIdEncoded = URLEncoder.encode(keyId, charset);
+
+        StringBuilder sigText = new StringBuilder();
+        {
+            sigText.append(method).append("\n")
+                   .append(uri.getHost()).append("\n")
+                   .append(uri.getPath()).append("?")
+                   .append("algorithm=").append(algorithm).append("&")
+                   .append("expires=").append(expires).append("&")
+                   .append("keyId=").append(keyIdEncoded);
+        }
+
+        StringBuilder request = new StringBuilder();
+        {
+            final byte[] sigBytes = sigText.toString().getBytes();
+            final byte[] signed = HttpSignerUtils.sign(getLogin(), getFingerprint(),
+                    getKeyPair(), sigBytes);
+            final String encoded = new String(Base64.encode(signed), charset);
+            final String urlEncoded = URLEncoder.encode(encoded, charset);
+
+            request.append(uri).append("?")
+                    .append("algorithm=").append(algorithm).append("&")
+                    .append("expires=").append(expires).append("&")
+                    .append("keyId=").append(keyIdEncoded).append("&")
+                    .append("signature=").append(urlEncoded);
+        }
+
+        return URI.create(request.toString());
+    }
+
+    /**
      * Verifies the signature on a Google HTTP Client request.
      *
      * @param request request object to verify signature from
@@ -144,5 +207,17 @@ public class HttpSigner {
         } catch (final UnsupportedEncodingException e) {
             throw new CryptoException("invalid encoding", e);
         }
+    }
+
+    public KeyPair getKeyPair() {
+        return keyPair;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public String getFingerprint() {
+        return fingerprint;
     }
 }

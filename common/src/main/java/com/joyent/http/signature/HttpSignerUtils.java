@@ -31,6 +31,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
 import java.util.TimeZone;
 
 /**
@@ -235,17 +236,9 @@ public final class HttpSignerUtils {
                                                    final String fingerprint,
                                                    final KeyPair keyPair,
                                                    final String date) {
-        if (login == null) {
-            throw new IllegalArgumentException("Login must be present");
-        }
-
-        if (fingerprint == null) {
-            throw new IllegalArgumentException("Fingerprint must be present");
-        }
-
-        if (keyPair == null) {
-            throw new IllegalArgumentException("Keypair must be present");
-        }
+        Objects.requireNonNull(login, "Login must be present");
+        Objects.requireNonNull(fingerprint, "Fingerprint must be present");
+        Objects.requireNonNull(keyPair, "Keypair must be present");
 
         try {
             final Signature sig = Signature.getInstance(SIGNING_ALGORITHM);
@@ -265,6 +258,73 @@ public final class HttpSignerUtils {
             throw new CryptoException("invalid signature", e);
         } catch (final UnsupportedEncodingException e) {
             throw new CryptoException("invalid encoding", e);
+        }
+    }
+
+    /**
+     * Cryptographically signs an any data input.
+     *
+     * @param login Account/login name
+     * @param fingerprint RSA key fingerprint
+     * @param keyPair RSA public/private keypair
+     * @param data data to be signed
+     * @return signed value of data
+     */
+    public static byte[] sign(final String login,
+                              final String fingerprint,
+                              final KeyPair keyPair,
+                              final byte[] data) {
+        Objects.requireNonNull(login, "Login must be present");
+        Objects.requireNonNull(fingerprint, "Fingerprint must be present");
+        Objects.requireNonNull(keyPair, "Keypair must be present");
+        Objects.requireNonNull(data, "Data must be present");
+
+        try {
+            final Signature sig = Signature.getInstance(SIGNING_ALGORITHM);
+            sig.initSign(keyPair.getPrivate());
+            sig.update(data);
+            return sig.sign();
+        } catch (final NoSuchAlgorithmException e) {
+            throw new CryptoException("invalid algorithm", e);
+        } catch (final InvalidKeyException e) {
+            throw new CryptoException("invalid key", e);
+        } catch (final SignatureException e) {
+            throw new CryptoException("invalid signature", e);
+        }
+    }
+
+    /**
+     * Cryptographically signs an any data input.
+     *
+     * @param login Account/login name
+     * @param fingerprint RSA key fingerprint
+     * @param keyPair RSA public/private keypair
+     * @param data data that was signed
+     * @param signedData data to verify against signature
+     * @return signed value of data
+     */
+    public static boolean verify(final String login,
+                                 final String fingerprint,
+                                 final KeyPair keyPair,
+                                 final byte[] data,
+                                 final byte[] signedData) {
+        Objects.requireNonNull(login, "Login must be present");
+        Objects.requireNonNull(fingerprint, "Fingerprint must be present");
+        Objects.requireNonNull(keyPair, "Keypair must be present");
+        Objects.requireNonNull(signedData, "Data must be present");
+
+        try {
+            final Signature verify = Signature.getInstance(SIGNING_ALGORITHM);
+            verify.initVerify(keyPair.getPublic());
+            verify.update(data);
+            return verify.verify(signedData);
+
+        } catch (final NoSuchAlgorithmException e) {
+            throw new CryptoException("invalid algorithm", e);
+        } catch (final InvalidKeyException e) {
+            throw new CryptoException("invalid key", e);
+        } catch (final SignatureException e) {
+            throw new CryptoException("invalid signature", e);
         }
     }
 
@@ -296,17 +356,9 @@ public final class HttpSignerUtils {
     public static boolean verifyAuthorizationHeader(final KeyPair keyPair,
                                              final String authzHeader,
                                              final String date) {
-        if (keyPair == null) {
-            throw new IllegalArgumentException("Keypair must be present");
-        }
-
-        if (authzHeader == null) {
-            throw new IllegalArgumentException("AuthzHeader must be present");
-        }
-
-        if (date == null) {
-            throw new IllegalArgumentException("date must be present");
-        }
+        Objects.requireNonNull(keyPair, "Keypair must be present");
+        Objects.requireNonNull(authzHeader, "AuthzHeader must be present");
+        Objects.requireNonNull(date, "Date must be present");
 
         String myDate = String.format(AUTHZ_SIGNING_STRING, date);
 
