@@ -1,3 +1,6 @@
+/**
+ * Copyright (c) 2015, Joyent, Inc. All rights reserved.
+ */
 package com.joyent.http.signature.jaxrs.client;
 
 import com.joyent.http.signature.jaxrs.client.testapp.TestApplication;
