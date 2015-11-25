@@ -9,15 +9,33 @@
         <version>1.0.3-SNAPSHOT</version>
     </parent>
 
-    <artifactId>jaxrs-client</artifactId>
+    <artifactId>jaxrs-client-signature</artifactId>
     <packaging>jar</packaging>
 
     <properties>
         <!-- Dependency versions -->
+        <dependency.arquillian.version>1.1.10.Final</dependency.arquillian.version>
+        <dependency.arquillian-glassfish-embedded-3.1.version>1.0.0.CR4</dependency.arquillian-glassfish-embedded-3.1.version>
         <dependency.http-signature-common.version>${project.parent.version}</dependency.http-signature-common.version>
+        <dependency.javaee.version>7.0</dependency.javaee.version>
         <dependency.jax-rs-api.version>2.0.1</dependency.jax-rs-api.version>
+        <dependency.jersey-client.version>2.22.1</dependency.jersey-client.version>
+        <dependency.logback.version>1.1.3</dependency.logback.version>
+        <dependency.payara-embedded-web.version>4.1.1.154</dependency.payara-embedded-web.version>
         <dependency.slfj.version>1.7.13</dependency.slfj.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.jboss.arquillian</groupId>
+                <artifactId>arquillian-bom</artifactId>
+                <version>${dependency.arquillian.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -35,6 +53,71 @@
             <artifactId>slf4j-api</artifactId>
             <version>${dependency.slfj.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>${dependency.javaee.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${dependency.logback.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>fish.payara.extras</groupId>
+            <artifactId>payara-embedded-all</artifactId>
+            <version>${dependency.payara-embedded-web.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-processing</artifactId>
+            <version>${dependency.jersey-client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.container</groupId>
+            <artifactId>arquillian-glassfish-embedded-3.1</artifactId>
+            <version>${dependency.arquillian-glassfish-embedded-3.1.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.testng</groupId>
+            <artifactId>arquillian-testng-container</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>integration-tests</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                        <configuration>
+                            <argLine>-Djava.awt.headless=true</argLine><!-- prevent the annoying ForkedBooter process from stealing window focus on Mac OSX -->
+                            <skip>${maven.integration.test.skip}</skip>
+                            <suiteXmlFiles>
+                                <suiteXmlFile>src/test/resources/testng-it.xml</suiteXmlFile>
+                            </suiteXmlFiles>
+                            <systemPropertyVariables>
+                                <derby.stream.error.file>${project.build.directory}/derby.log</derby.stream.error.file><!-- prevent embedded container from logging derby activity -->
+                                <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties</java.util.logging.config.file><!-- prevent embedded container from being so verbose -->
+                            </systemPropertyVariables>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

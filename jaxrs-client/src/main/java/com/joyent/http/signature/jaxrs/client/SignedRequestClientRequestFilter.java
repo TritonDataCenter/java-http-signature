@@ -31,12 +31,12 @@ public class SignedRequestClientRequestFilter implements ClientRequestFilter {
     /**
      * Name of the authorization HTTP header.
      */
-    private static final String AUTHORIZATION_HEADER_NAME = "Authorization";
+    public static final String AUTHORIZATION_HEADER_NAME = "Authorization";
 
     /**
      * Name of the date HTTP header.
      */
-    private static final String DATE_HEADER_NAME = "Date";
+    public static final String DATE_HEADER_NAME = "Date";
 
     /**
      * Login name associated with the Joyent Cloud or Manta service.

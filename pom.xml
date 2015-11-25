@@ -74,6 +74,7 @@
         <java.min.version>1.7</java.min.version>
         <maven.min.version>3.3</maven.min.version>
         <maven.test.skip>false</maven.test.skip>
+        <maven.integration.test.skip>false</maven.integration.test.skip>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <surefire.forkCount>1</surefire.forkCount>
@@ -89,6 +90,7 @@
         <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
         <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
         <maven-enforcer-plugin.version>1.4.1</maven-enforcer-plugin.version>
+        <maven-failsafe-plugin.version>2.19</maven-failsafe-plugin.version>
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
         <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
         <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
@@ -179,6 +181,18 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven-failsafe-plugin.version}</version>
+                <configuration>
+                    <forkCount>${surefire.forkCount}</forkCount>
+                    <systemPropertyVariables>
+                        <exampleSystemPropertyName>exampleSystemPropertyValue</exampleSystemPropertyName>
+                    </systemPropertyVariables>
+                    <useSystemClassLoader>${surefire.useSystemClassLoader}</useSystemClassLoader>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

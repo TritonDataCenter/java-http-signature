@@ -1,0 +1,10 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Java HTTP Signature JAX-RS Client Test Suite" verbose="1">
+
+    <test name="Java HTTP Signature JAX-RS Client Tests">
+        <classes>
+            <class name="com.joyent.http.signature.jaxrs.client.SignedRequestClientRequestFilterIT" />
+        </classes>
+    </test>
+
+</suite>

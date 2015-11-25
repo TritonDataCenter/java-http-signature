@@ -16,7 +16,7 @@ do the signing.
 
 ### Requirements
 * [Java 1.7](http://www.oracle.com/technetwork/java/javase/downloads/index.html) or higher.
-* [Maven](https://maven.apache.org/)
+* [Maven 3.3](https://maven.apache.org/)
 
 ## Using Maven
 Add the latest dependency to your Maven `pom.xml`.
@@ -35,6 +35,15 @@ For Google HTTP Client support:
 <dependency>
     <groupId>com.joyent.http-signature</groupId>
     <artifactId>google-http-client-signature</artifactId>
+    <version>LATEST</version>
+</dependency>
+```
+
+For JAX-RS Client support:
+```xml
+<dependency>
+    <groupId>com.joyent.http-signature</groupId>
+    <artifactId>jaxrs-client-signature</artifactId>
     <version>LATEST</version>
 </dependency>
 ```
@@ -82,3 +91,26 @@ public static HttpRequestFactory buildRequestFactory() {
     return transport.createRequestFactory(initializer);
 }
 ```
+
+### JAX-RS Client Integration
+
+To use the JAX-RS Client integration, instantiate a `SignedRequestClientRequestFilter` with
+the proper credentials, then register this instance with the JAX-RS Client.
+For example:
+
+```java
+    String keyPath = "/path/to/my/rsa/key";
+    String login = "account_name";
+    String fingerprint = "b2:b2:b2:b2:b2:b2:b2:b2:f7:f7:f7:f7:f7:f7:f7:f7";
+    final SignedRequestClientRequestFilter signedRequestClientRequestFilter = new SignedRequestClientRequestFilter(
+        login,
+        fingerprint,
+        keyPath
+    );
+
+    Response response = ClientBuilder.newClient()
+        .register(signedRequestClientRequestFilter)
+        .target(endpointBaseUrl.toURI())
+        .request(MediaType.APPLICATION_JSON_TYPE)
+        .get();
+```                
