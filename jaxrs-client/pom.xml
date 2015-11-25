@@ -1,0 +1,40 @@
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>parent</artifactId>
+        <groupId>com.joyent.http-signature</groupId>
+        <version>1.0.3-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>jaxrs-client</artifactId>
+    <packaging>jar</packaging>
+
+    <properties>
+        <!-- Dependency versions -->
+        <dependency.http-signature-common.version>${project.parent.version}</dependency.http-signature-common.version>
+        <dependency.jax-rs-api.version>2.0.1</dependency.jax-rs-api.version>
+        <dependency.slfj.version>1.7.13</dependency.slfj.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.joyent.http-signature</groupId>
+            <artifactId>http-signature-common</artifactId>
+            <version>${dependency.http-signature-common.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>${dependency.jax-rs-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${dependency.slfj.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>

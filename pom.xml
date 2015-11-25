@@ -45,6 +45,7 @@
         <module>common</module>
         <module>google-http-client</module>
         <module>apache-http-client</module>
+        <module>jaxrs-client</module>
     </modules>
 
     <scm>
