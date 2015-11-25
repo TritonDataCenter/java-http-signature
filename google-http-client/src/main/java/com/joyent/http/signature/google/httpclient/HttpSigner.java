@@ -59,6 +59,7 @@ public class HttpSigner {
      */
     private final String fingerprint;
 
+
     /**
      * Creates a new instance allowing for HTTP signing.
      * @param keyPair Public/private RSA keypair object used to sign HTTP requests.
@@ -82,6 +83,7 @@ public class HttpSigner {
         this.login = login;
         this.fingerprint = fingerprint;
     }
+
 
     /**
      * Sign an {@link com.google.api.client.http.HttpRequest}.
@@ -111,11 +113,13 @@ public class HttpSigner {
         request.getHeaders().setAuthorization(authzHeader);
     }
 
+
     /**
      * Signs an arbitrary URL using the Manta-compatible HTTP signature
      * method.
      *
      * @param uri URI with no query pointing to a downloadable resource
+     * @param method HTTP request method to be used in the signature
      * @param expires epoch time in seconds when the resource will no longer
      *                be available
      * @return a signed version of the input URI
@@ -141,33 +145,29 @@ public class HttpSigner {
         final String keyIdEncoded = URLEncoder.encode(keyId, charset);
 
         StringBuilder sigText = new StringBuilder();
-        {
-            sigText.append(method).append("\n")
-                   .append(uri.getHost()).append("\n")
-                   .append(uri.getPath()).append("\n")
-                   .append("algorithm=").append(algorithm).append("&")
-                   .append("expires=").append(expires).append("&")
-                   .append("keyId=").append(keyIdEncoded);
-        }
+        sigText.append(method).append("\n")
+                .append(uri.getHost()).append("\n")
+                .append(uri.getPath()).append("\n")
+                .append("algorithm=").append(algorithm).append("&")
+                .append("expires=").append(expires).append("&")
+                .append("keyId=").append(keyIdEncoded);
+
 
         StringBuilder request = new StringBuilder();
-        {
-            final byte[] sigBytes = sigText.toString().getBytes();
-            final byte[] signed = HttpSignerUtils.sign(getLogin(), getFingerprint(),
-                    getKeyPair(), sigBytes);
+        final byte[] sigBytes = sigText.toString().getBytes();
+        final byte[] signed = HttpSignerUtils.sign(getLogin(), getFingerprint(), getKeyPair(), sigBytes);
+        final String encoded = new String(Base64.encode(signed), charset);
+        final String urlEncoded = URLEncoder.encode(encoded, charset);
 
-            final String encoded = new String(Base64.encode(signed), charset);
-            final String urlEncoded = URLEncoder.encode(encoded, charset);
-
-            request.append(uri).append("?")
-                    .append("algorithm=").append(algorithm).append("&")
-                    .append("expires=").append(expires).append("&")
-                    .append("keyId=").append(keyIdEncoded).append("&")
-                    .append("signature=").append(urlEncoded);
-        }
+        request.append(uri).append("?")
+                .append("algorithm=").append(algorithm).append("&")
+                .append("expires=").append(expires).append("&")
+                .append("keyId=").append(keyIdEncoded).append("&")
+                .append("signature=").append(urlEncoded);
 
         return URI.create(request.toString());
     }
+
 
     /**
      * Verifies the signature on a Google HTTP Client request.
@@ -210,15 +210,29 @@ public class HttpSigner {
         }
     }
 
+
+    /**
+     * @return Public/private RSA keypair object used to sign HTTP requests.
+     */
     public KeyPair getKeyPair() {
         return keyPair;
     }
 
+
+    /**
+     * @return Login name/account name used in authorization header.
+     */
     public String getLogin() {
         return login;
     }
 
+
+    /**
+     * @return The RSA key fingerprint.
+     */
     public String getFingerprint() {
         return fingerprint;
     }
+
+
 }
