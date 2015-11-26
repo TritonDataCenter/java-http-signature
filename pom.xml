@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.joyent.http-signature</groupId>
     <artifactId>java-http-signature</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.2</version>
     <packaging>pom</packaging>
 
     <name>java-http-signature</name>
@@ -52,7 +50,7 @@
         <connection>scm:git:git://github.com/joyent/java-http-signature.git</connection>
         <developerConnection>scm:git:git://github.com/joyent/java-http-signature.git</developerConnection>
         <url>git@github.com:joyent/java-http-signature.git</url>
-        <tag>HEAD</tag>
+        <tag>java-http-signature-1.0.2</tag>
     </scm>
     <issueManagement>
         <system>github.com</system>
