@@ -14,7 +14,7 @@
 
     <properties>
         <!-- Dependency versions -->
-        <dependency.http-signature-common.version>${project.parent.version}</dependency.http-signature-common.version>
+        <dependency.http-signature-common.version>1.0.2-SNAPSHOT</dependency.http-signature-common.version>
     </properties>
 
     <dependencies>
