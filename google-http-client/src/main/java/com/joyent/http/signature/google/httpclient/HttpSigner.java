@@ -126,10 +126,6 @@ public class HttpSigner {
         Objects.requireNonNull(method, "Method must be present");
         Objects.requireNonNull(uri, "URI must be present");
 
-        if (!method.equals("GET") && !method.equals("HEAD")) {
-            throw new IllegalArgumentException("Method must be HEAD or GET");
-        }
-
         if (uri.getQuery() != null && !uri.getQuery().isEmpty()) {
             throw new IllegalArgumentException("Query must be empty");
         }
