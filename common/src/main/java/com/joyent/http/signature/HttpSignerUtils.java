@@ -37,7 +37,7 @@ import java.util.TimeZone;
 /**
  *  HTTP authorization signer. This adheres to the specs of the node-http-signature spec.
  *
- * @see <a href="http://tools.ietf.org/html/draft-cavage-http-signatures-05>Signing HTTP Messages</a>
+ * @see <a href="http://tools.ietf.org/html/draft-cavage-http-signatures-05">Signing HTTP Messages</a>
  * @see <a href="https://github.com/joyent/java-manta/blob/b2a180ff8a3ec3795ccc258904888f8305619756/src/main/java/com/joyent/manta/client/crypto/HttpSigner.java">Original Version</a>
  * @author Yunong Xiao
  * @author <a href="https://github.com/dekobon">Elijah Zupancic</a>

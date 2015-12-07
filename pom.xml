@@ -1,28 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <modules>
-        <module>common</module>
-        <module>google-http-client</module>
-        <module>apache-http-client</module>
-    </modules>
-
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>9</version>
-    </parent>
 
     <groupId>com.joyent.http-signature</groupId>
-    <artifactId>parent</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <artifactId>java-http-signature</artifactId>
+    <version>1.0.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>java-http-signature</name>
     <description>Java implementation of HTTP Signature</description>
     <url>https://github.com/joyent/java-http-signature</url>
     <inceptionYear>2015</inceptionYear>
-
     <organization>
         <name>Joyent</name>
         <url>joyent.com</url>
@@ -37,20 +25,33 @@
     </licenses>
 
     <developers>
-      <developer>
+        <developer>
             <email>elijah@zupancic.name</email>
             <name>Elijah Zupancic</name>
             <organization>Joyent</organization>
             <organizationUrl>joyent.com</organizationUrl>
         </developer>
+        <developer>
+            <name>Phillip Ross</name>
+            <email>phillip.w.g.ross at gmail.com</email>
+            <organization>Luminosity Labs LLC</organization>
+            <timezone>US/Eastern</timezone>
+        </developer>
     </developers>
+
+    <modules>
+        <module>common</module>
+        <module>google-http-client</module>
+        <module>apache-http-client</module>
+        <module>jaxrs-client</module>
+    </modules>
 
     <scm>
         <connection>scm:git:git://github.com/joyent/java-http-signature.git</connection>
         <developerConnection>scm:git:git://github.com/joyent/java-http-signature.git</developerConnection>
         <url>git@github.com:joyent/java-http-signature.git</url>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
     <issueManagement>
         <system>github.com</system>
         <url>https://github.com/joyent/java-http-signature/issues</url>
@@ -67,19 +68,19 @@
     </distributionManagement>
 
     <properties>
-        <checkstyle.skip>true</checkstyle.skip>   <!-- for now, leave checkstyle turned off by default -->
+        <checkstyle.skip>false</checkstyle.skip>
         <java.min.version>1.7</java.min.version>
         <maven.min.version>3.3</maven.min.version>
         <maven.test.skip>false</maven.test.skip>
+        <maven.integration.test.skip>false</maven.integration.test.skip>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <surefire.forkCount>1</surefire.forkCount>
         <surefire.useSystemClassLoader>true</surefire.useSystemClassLoader>
         <!-- Dependency versions -->
-        <dependency.bouncycastle.version>1.53</dependency.bouncycastle.version>
-        <dependency.checkstyle.version>6.12</dependency.checkstyle.version>
+        <dependency.checkstyle.version>6.12.1</dependency.checkstyle.version>
+        <dependency.apache-httpclient.version>4.5.1</dependency.apache-httpclient.version>
         <dependency.testng.version>6.9.9</dependency.testng.version>
-        <dependency.google-http-client.version>1.20.0</dependency.google-http-client.version>
-        <dependency.httpclient.version>4.5</dependency.httpclient.version>
         <!-- Plugin versions -->
         <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
         <maven-clean-plugin.version>3.0.0</maven-clean-plugin.version>
@@ -87,6 +88,7 @@
         <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
         <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
         <maven-enforcer-plugin.version>1.4.1</maven-enforcer-plugin.version>
+        <maven-failsafe-plugin.version>2.19</maven-failsafe-plugin.version>
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
         <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
         <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
@@ -96,7 +98,6 @@
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
         <maven-resources-plugin.version>2.7</maven-resources-plugin.version>
         <maven-shade-plugin.version>2.4.2</maven-shade-plugin.version>
-        <maven-nexus-staging-plugin.version>1.6.6</maven-nexus-staging-plugin.version>
         <maven-source-plugin.version>2.4</maven-source-plugin.version>
         <maven-surefire-plugin.version>2.19</maven-surefire-plugin.version>
     </properties>
@@ -159,7 +160,11 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>${maven-dependency-plugin.version}</version>
             </plugin>
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>${maven-deploy-plugin.version}</version>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -179,6 +184,23 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven-failsafe-plugin.version}</version>
+                <configuration>
+                    <forkCount>${surefire.forkCount}</forkCount>
+                    <systemPropertyVariables>
+                        <exampleSystemPropertyName>exampleSystemPropertyValue</exampleSystemPropertyName>
+                    </systemPropertyVariables>
+                    <useSystemClassLoader>${surefire.useSystemClassLoader}</useSystemClassLoader>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>${maven-gpg-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -206,10 +228,9 @@
                 <version>${maven-release-plugin.version}</version>
                 <configuration>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
-                    <useReleaseProfile>true</useReleaseProfile>
-                    <releaseProfiles>release</releaseProfiles>
-                    <goals>deploy</goals>
+                    <localCheckout>true</localCheckout>
                     <pushChanges>false</pushChanges>
+                    <releaseProfiles>release</releaseProfiles>
                 </configuration>
             </plugin>
             <plugin>
@@ -219,29 +240,19 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>${maven-source-plugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <forkCount>${surefire.forkCount}</forkCount>
-                    <skip>${maven.test.skip}</skip>
                     <systemPropertyVariables>
                         <exampleSystemPropertyName>exampleSystemPropertyValue</exampleSystemPropertyName>
                     </systemPropertyVariables>
-                    <suiteXmlFiles>
-                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
-                    </suiteXmlFiles>
                     <useSystemClassLoader>${surefire.useSystemClassLoader}</useSystemClassLoader>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>${maven-nexus-staging-plugin.version}</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
                 </configuration>
             </plugin>
         </plugins>
@@ -258,8 +269,12 @@
     </reporting>
 
     <profiles>
-        <!-- We setup a release profile so that we don't have to build javadocs/sources and sign
-             on every run of the package goal. -->
+        <!--
+        The release profile only needs activated when cutting a release for maven central.
+        It will generate additional artifacts for javadoc and source as well as GPG signatures for each artifact.
+        This profile also assumes that the properties for the gpg plugin (such as gpg.keyname and gpg.passphrase
+        are either defined in a settings.xml file or similar facility.
+        -->
         <profile>
             <id>release</id>
             <build>
@@ -267,11 +282,10 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>${maven-gpg-plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
-                                <phase>package</phase>
+                                <phase>verify</phase>
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
@@ -281,7 +295,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>${maven-javadoc-plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
