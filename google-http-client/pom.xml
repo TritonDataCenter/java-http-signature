@@ -3,7 +3,7 @@
     <parent>
         <artifactId>java-http-signature</artifactId>
         <groupId>com.joyent.http-signature</groupId>
-        <version>1.0.3</version>
+        <version>1.0.4-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -13,7 +13,7 @@
 
     <properties>
         <!-- Dependency versions -->
-        <dependency.http-signature-common.version>1.0.3</dependency.http-signature-common.version>
+        <dependency.http-signature-common.version>1.0.4-SNAPSHOT</dependency.http-signature-common.version>
         <dependency.google-http-client.version>1.20.0</dependency.google-http-client.version>
     </properties>
 
