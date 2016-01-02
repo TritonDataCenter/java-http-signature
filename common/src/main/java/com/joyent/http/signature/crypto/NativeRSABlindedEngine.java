@@ -1,5 +1,6 @@
 package com.joyent.http.signature.crypto;
 
+import com.squareup.jnagmp.Gmp;
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.DataLengthException;
 import org.bouncycastle.crypto.engines.RSABlindedEngine;
@@ -111,7 +112,10 @@ public class NativeRSABlindedEngine extends RSABlindedEngine {
                 BigInteger m = k.getModulus();
                 BigInteger r = BigIntegers.createRandomInRange(ONE, m.subtract(ONE), random);
 
-                BigInteger blindedInput = r.modPow(e, m).multiply(input).mod(m);
+                // This is a modification to use the GMP native library method
+                BigInteger blindedModPow = Gmp.modPowSecure(r, e, m);
+
+                BigInteger blindedInput = blindedModPow.multiply(input).mod(m);
                 BigInteger blindedResult = core.processBlock(blindedInput);
 
                 BigInteger rInv = r.modInverse(m);
