@@ -12,7 +12,8 @@
 
     <properties>
         <!-- Dependency versions -->
-        <dependency.bouncycastle.version>1.53</dependency.bouncycastle.version>
+        <dependency.bouncycastle.version>1.54</dependency.bouncycastle.version>
+        <dependency.jnagmp.version>1.0.0</dependency.jnagmp.version>
     </properties>
 
     <dependencies>
@@ -29,7 +30,7 @@
         <dependency>
             <groupId>com.squareup.jnagmp</groupId>
             <artifactId>bouncycastle-rsa</artifactId>
-            <version>1.0.1</version>
+            <version>${dependency.jnagmp.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.bouncycastle</groupId>

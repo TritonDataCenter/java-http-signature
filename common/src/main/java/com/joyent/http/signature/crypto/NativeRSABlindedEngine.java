@@ -12,13 +12,36 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 
 /**
- * Created by elijah on 1/1/16.
+ * <p>This is a complete copy of {@link RSABlindedEngine} with the RSA core engine
+ * replace with a native implementation. We copied the library code here verbatim
+ * because there is no better way to for us to inherit the properties.</p>
+ *
+ * <p>Relevant copyright belongs to:<br>
+ * Copyright (c) 2000 - 2015 The Legion of the Bouncy Castle Inc. (http://www.bouncycastle.org)
+ * </p>
+ *
+ * @see org.bouncycastle.crypto.engines.RSABlindedEngine
  */
 public class NativeRSABlindedEngine extends RSABlindedEngine {
+    /**
+     * The constant value of 1 as a {@link BigInteger}.
+     */
     private static final BigInteger ONE = BigInteger.valueOf(1);
+
+    /**
+     * Reference to the native implementation of a {@link org.bouncycastle.crypto.engines.RSACoreEngine}.
+     */
     private MantaNativeRSACoreEngine core = new MantaNativeRSACoreEngine();
+
+    /**
+     * RSA Key parameters.
+     */
     private RSAKeyParameters key;
-    private SecureRandom     random;
+
+    /**
+     * Source of randomness.
+     */
+    private SecureRandom random;
 
     /**
      * initialise the RSA engine.
@@ -26,21 +49,15 @@ public class NativeRSABlindedEngine extends RSABlindedEngine {
      * @param forEncryption true if we are encrypting, false otherwise.
      * @param param the necessary RSA key parameters.
      */
-    public void init(
-            boolean             forEncryption,
-            CipherParameters param)
-    {
+    public void init(final boolean forEncryption, final CipherParameters param) {
         core.init(forEncryption, param);
 
-        if (param instanceof ParametersWithRandom)
-        {
-            ParametersWithRandom    rParam = (ParametersWithRandom)param;
+        if (param instanceof ParametersWithRandom) {
+            ParametersWithRandom rParam = (ParametersWithRandom)param;
 
             key = (RSAKeyParameters)rParam.getParameters();
             random = rParam.getRandom();
-        }
-        else
-        {
+        } else {
             key = (RSAKeyParameters)param;
             random = new SecureRandom();
         }
@@ -53,8 +70,7 @@ public class NativeRSABlindedEngine extends RSABlindedEngine {
      *
      * @return maximum size for an input block.
      */
-    public int getInputBlockSize()
-    {
+    public int getInputBlockSize() {
         return core.getInputBlockSize();
     }
 
@@ -65,8 +81,7 @@ public class NativeRSABlindedEngine extends RSABlindedEngine {
      *
      * @return maximum size for an output block.
      */
-    public int getOutputBlockSize()
-    {
+    public int getOutputBlockSize() {
         return core.getOutputBlockSize();
     }
 
@@ -79,26 +94,20 @@ public class NativeRSABlindedEngine extends RSABlindedEngine {
      * @return the result of the RSA process.
      * @exception DataLengthException the input block is too large.
      */
-    public byte[] processBlock(
-            byte[]  in,
-            int     inOff,
-            int     inLen)
-    {
-        if (key == null)
-        {
+    public byte[] processBlock(final byte[] in, final int inOff, final int inLen) {
+        if (key == null) {
             throw new IllegalStateException("RSA engine not initialised");
         }
 
         BigInteger input = core.convertInput(in, inOff, inLen);
 
         BigInteger result;
-        if (key instanceof RSAPrivateCrtKeyParameters)
-        {
+        if (key instanceof RSAPrivateCrtKeyParameters) {
             RSAPrivateCrtKeyParameters k = (RSAPrivateCrtKeyParameters)key;
 
             BigInteger e = k.getPublicExponent();
-            if (e != null)   // can't do blinding without a public exponent
-            {
+            // can't do blinding without a public exponent
+            if (e != null) {
                 BigInteger m = k.getModulus();
                 BigInteger r = BigIntegers.createRandomInRange(ONE, m.subtract(ONE), random);
 
@@ -108,18 +117,13 @@ public class NativeRSABlindedEngine extends RSABlindedEngine {
                 BigInteger rInv = r.modInverse(m);
                 result = blindedResult.multiply(rInv).mod(m);
                 // defence against Arjen Lenstra’s CRT attack
-                if (!input.equals(result.modPow(e, m)))
-                {
+                if (!input.equals(result.modPow(e, m))) {
                     throw new IllegalStateException("RSA engine faulty decryption/signing detected");
                 }
-            }
-            else
-            {
+            } else {
                 result = core.processBlock(input);
             }
-        }
-        else
-        {
+        } else {
             result = core.processBlock(input);
         }
 

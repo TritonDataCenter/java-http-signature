@@ -22,7 +22,13 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.*;
+import java.security.InvalidKeyException;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.Provider;
+import java.security.Security;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -103,8 +109,8 @@ public final class HttpSignerUtils {
         final String arch = System.getProperty("os.arch").toLowerCase();
 
         final boolean nativeSupported =
-                (os.equals("linux") && arch.equals("amd64")) ||
-                (os.equals("mac os x") && arch.equals("x86_64"));
+                (os.equals("linux") && arch.equals("amd64"))
+             || (os.equals("mac os x") && arch.equals("x86_64"));
 
         // We only support native RSA on 64-bit x86 Linux and OS X
         if (!nativeSupported) {
