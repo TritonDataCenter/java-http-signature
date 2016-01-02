@@ -4,7 +4,7 @@
 
     <groupId>com.joyent.http-signature</groupId>
     <artifactId>java-http-signature</artifactId>
-    <version>1.0.5-SNAPSHOT</version>
+    <version>1.0.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>java-http-signature</name>
