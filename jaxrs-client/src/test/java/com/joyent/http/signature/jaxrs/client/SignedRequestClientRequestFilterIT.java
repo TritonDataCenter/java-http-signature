@@ -13,11 +13,13 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.Test;
 
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URISyntaxException;
@@ -106,14 +108,23 @@ public class SignedRequestClientRequestFilterIT extends Arquillian {
                 TEST_KEY_PATH
         );
 
-        Response response = ClientBuilder.newClient()
+         Invocation.Builder builder = ClientBuilder.newClient()
                 .register(signedRequestClientRequestFilter)
                 .target(endpointBaseUrl.toURI())
                 .path(TEST_JAXRS_APPLICATION_ENDPOINT)
                 .path(TEST_RESOURCE_PATH)
                 .path(TEST_RESOURCE_METHOD_PATH)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get();
+                .request(MediaType.APPLICATION_JSON_TYPE);
+
+        final Response response;
+
+        try {
+            response = builder.get();
+        } catch (RuntimeException e) {
+            String msg = String.format("Error accessing endpoint: %s", endpointBaseUrl);
+            throw new SkipException(msg, e);
+        }
+
         Assert.assertNotNull(response);
         Assert.assertNotNull(response.getStatus());
         Assert.assertEquals(response.getStatus(), 200);
