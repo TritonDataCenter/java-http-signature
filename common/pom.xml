@@ -27,6 +27,17 @@
             <version>${dependency.bouncycastle.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.squareup.jnagmp</groupId>
+            <artifactId>bouncycastle-rsa</artifactId>
+            <version>1.0.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcpkix-jdk15on</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>${dependency.apache-httpclient.version}</version>

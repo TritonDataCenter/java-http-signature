@@ -3,10 +3,16 @@
  */
 package com.joyent.http.signature.google.httpclient;
 
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestFactory;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.testing.http.MockHttpTransport;
 import com.joyent.http.signature.HttpSignerUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.testng.log4testng.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +23,8 @@ import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 
 public class HttpSignerTest {
+    private static final Logger LOG = Logger.getLogger(HttpSignerTest.class);
+
     private static final String testKeyFingerprint = "04:92:7b:23:bc:08:4f:d7:3b:5a:38:9e:4a:17:2e:df";
     private KeyPair testKeyPair;
 
@@ -30,6 +38,7 @@ public class HttpSignerTest {
         final String login = "user";
         HttpSigner signer = new HttpSigner(testKeyPair, login, testKeyFingerprint);
         URI uri = URI.create("http://localhost/foo/bar");
+
         URI signedUri = signer.signURI(uri, "GET", 0L);
 
         String expected = "http://localhost/foo/bar?algorithm=RSA-SHA256"
@@ -45,6 +54,37 @@ public class HttpSignerTest {
                 + "USFBg%3D%3D";
 
         Assert.assertEquals(signedUri.toString(), expected);
+    }
+
+    @Test
+    public void canSignRequest() throws IOException {
+        final String login = "user";
+        HttpSigner signer = new HttpSigner(testKeyPair, login, testKeyFingerprint);
+
+        HttpTransport transport = new MockHttpTransport();
+        HttpRequestFactory factory = transport.createRequestFactory();
+
+        GenericUrl get = new GenericUrl("http://localhost/foo/bar");
+        HttpRequest request = factory.buildGetRequest(get);
+
+        long running = 0L;
+        int iterations = 100;
+
+        for (int i = 0; i < iterations; i++) {
+            long start = System.currentTimeMillis();
+            signer.signRequest(request);
+            long end = System.currentTimeMillis();
+
+            long total = end - start;
+            running += total;
+            System.out.println(String.format("Total signing time for request: %dms", total));
+        }
+
+        long average = Math.round(running / iterations);
+        System.out.println(String.format("Average signing time: %dms", average));
+
+        String authorization = request.getHeaders().getAuthorization();
+        LOG.info("Authorization: " + authorization);
     }
 
     /**

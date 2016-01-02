@@ -21,12 +21,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.InvalidKeyException;
-import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.Security;
-import java.security.Signature;
-import java.security.SignatureException;
+import java.security.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -73,7 +68,7 @@ public final class HttpSignerUtils {
     /**
      * The signing algorithm.
      */
-    public static final String SIGNING_ALGORITHM = "SHA256WithRSAEncryption";
+    public static final String SIGNING_ALGORITHM = "SHA256withRSA";
 
     /**
      * The key format CONVERTER to use when reading key pairs.
@@ -241,7 +236,8 @@ public final class HttpSignerUtils {
         Objects.requireNonNull(keyPair, "Keypair must be present");
 
         try {
-            final Signature sig = Signature.getInstance(SIGNING_ALGORITHM);
+            final Provider provider = new NativeRSAProvider();
+            final Signature sig = Signature.getInstance("SHA256withNativeRSA", provider);
             sig.initSign(keyPair.getPrivate());
             final String signingString = String.format(AUTHZ_SIGNING_STRING, date);
             sig.update(signingString.getBytes("UTF-8"));
