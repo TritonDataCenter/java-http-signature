@@ -3,6 +3,7 @@
  */
 package com.joyent.http.signature;
 
+import com.joyent.http.signature.crypto.NativeRSAProvider;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMDecryptorProvider;
 import org.bouncycastle.openssl.PEMEncryptedKeyPair;
@@ -24,6 +25,7 @@ import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.security.Provider;
 import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
@@ -71,9 +73,19 @@ public final class HttpSignerUtils {
     public static final String AUTHZ_PATTERN = "signature=\"";
 
     /**
-     * The signing algorithm.
+     * Signing algorithm implemented entirely in the JVM.
      */
-    public static final String SIGNING_ALGORITHM = "SHA256WithRSAEncryption";
+    public static final String SIGNING_JVM_ALGORITHM = "SHA256withRSA";
+
+    /**
+     * Signing algorithm that uses JNA extents to libgmp for improved performance.
+     */
+    public static final String SIGNING_NATIVE_ALGORITHM = "SHA256withNativeRSA";
+
+    /**
+     * Cryptographic signature used for signing requests.
+     */
+    public static final Signature SIGNATURE = findBestSignature();
 
     /**
      * The key format CONVERTER to use when reading key pairs.
@@ -85,6 +97,44 @@ public final class HttpSignerUtils {
      * Utility class not intended for direct instantiation.
      */
     private HttpSignerUtils() {
+    }
+
+    /**
+     * Attempts to use a signing algorithm that is implemented using native code.
+     * If that fails, it falls back to the pure JVM implementation.
+     * @return a SHA256 signing algorithm
+     */
+    public static Signature findBestSignature() {
+        final String sysprop = System.getProperty("http.signature.native.rsa");
+        final boolean turnedOff = sysprop != null && sysprop.equals("false");
+
+        final String os = System.getProperty("os.name").toLowerCase();
+        final String arch = System.getProperty("os.arch").toLowerCase();
+
+        final boolean nativeSupported = !turnedOff
+             && ((os.equals("linux") && arch.equals("amd64"))
+                 || (os.equals("mac os x") && arch.equals("x86_64")));
+
+        // We only support native RSA on 64-bit x86 Linux and OS X
+        if (!nativeSupported) {
+            try {
+                return Signature.getInstance(SIGNING_JVM_ALGORITHM);
+            } catch (NoSuchAlgorithmException nsae) {
+                throw new CryptoException(nsae);
+            }
+        }
+
+        try {
+            final Provider provider = new NativeRSAProvider();
+            return Signature.getInstance(SIGNING_NATIVE_ALGORITHM, provider);
+            // if ANYTHING goes wrong, we default to the JVM implementation of the signing algo
+        } catch (Exception e) {
+            try {
+                return Signature.getInstance(SIGNING_JVM_ALGORITHM);
+            } catch (NoSuchAlgorithmException nsae) {
+                throw new CryptoException(nsae);
+            }
+        }
     }
 
     /**
@@ -241,17 +291,14 @@ public final class HttpSignerUtils {
         Objects.requireNonNull(keyPair, "Keypair must be present");
 
         try {
-            final Signature sig = Signature.getInstance(SIGNING_ALGORITHM);
-            sig.initSign(keyPair.getPrivate());
+            SIGNATURE.initSign(keyPair.getPrivate());
             final String signingString = String.format(AUTHZ_SIGNING_STRING, date);
-            sig.update(signingString.getBytes("UTF-8"));
-            final byte[] signedDate = sig.sign();
+            SIGNATURE.update(signingString.getBytes("UTF-8"));
+            final byte[] signedDate = SIGNATURE.sign();
             final byte[] encodedSignedDate = Base64.encode(signedDate);
 
             return String.format(AUTHZ_HEADER, login, fingerprint,
                     new String(encodedSignedDate));
-        } catch (final NoSuchAlgorithmException e) {
-            throw new CryptoException("invalid algorithm", e);
         } catch (final InvalidKeyException e) {
             throw new CryptoException("invalid key", e);
         } catch (final SignatureException e) {
@@ -280,12 +327,9 @@ public final class HttpSignerUtils {
         Objects.requireNonNull(data, "Data must be present");
 
         try {
-            final Signature sig = Signature.getInstance("SHA256WITHRSA");
-            sig.initSign(keyPair.getPrivate());
-            sig.update(data);
-            return sig.sign();
-        } catch (final NoSuchAlgorithmException e) {
-            throw new CryptoException("invalid algorithm", e);
+            SIGNATURE.initSign(keyPair.getPrivate());
+            SIGNATURE.update(data);
+            return SIGNATURE.sign();
         } catch (final InvalidKeyException e) {
             throw new CryptoException("invalid key", e);
         } catch (final SignatureException e) {
@@ -314,13 +358,10 @@ public final class HttpSignerUtils {
         Objects.requireNonNull(signedData, "Data must be present");
 
         try {
-            final Signature verify = Signature.getInstance(SIGNING_ALGORITHM);
-            verify.initVerify(keyPair.getPublic());
-            verify.update(data);
-            return verify.verify(signedData);
+            SIGNATURE.initVerify(keyPair.getPublic());
+            SIGNATURE.update(data);
+            return SIGNATURE.verify(signedData);
 
-        } catch (final NoSuchAlgorithmException e) {
-            throw new CryptoException("invalid algorithm", e);
         } catch (final InvalidKeyException e) {
             throw new CryptoException("invalid key", e);
         } catch (final SignatureException e) {
@@ -363,8 +404,7 @@ public final class HttpSignerUtils {
         String myDate = String.format(AUTHZ_SIGNING_STRING, date);
 
         try {
-            final Signature verify = Signature.getInstance(SIGNING_ALGORITHM);
-            verify.initVerify(keyPair.getPublic());
+            SIGNATURE.initVerify(keyPair.getPublic());
 
             final int startIndex = authzHeader.indexOf(AUTHZ_PATTERN);
             if (startIndex == -1) {
@@ -376,11 +416,9 @@ public final class HttpSignerUtils {
                     authzHeader.length() - 1);
             final byte[] signedDate = Base64.decode(encodedSignedDate.getBytes("UTF-8"));
 
-            verify.update(myDate.getBytes("UTF-8"));
-            return verify.verify(signedDate);
+            SIGNATURE.update(myDate.getBytes("UTF-8"));
+            return SIGNATURE.verify(signedDate);
 
-        } catch (final NoSuchAlgorithmException e) {
-            throw new CryptoException("invalid algorithm", e);
         } catch (final InvalidKeyException e) {
             throw new CryptoException("invalid key", e);
         } catch (final SignatureException e) {

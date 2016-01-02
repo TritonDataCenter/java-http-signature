@@ -12,7 +12,8 @@
 
     <properties>
         <!-- Dependency versions -->
-        <dependency.bouncycastle.version>1.53</dependency.bouncycastle.version>
+        <dependency.bouncycastle.version>1.54</dependency.bouncycastle.version>
+        <dependency.jnagmp.version>1.0.1</dependency.jnagmp.version>
     </properties>
 
     <dependencies>
@@ -25,6 +26,17 @@
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
             <version>${dependency.bouncycastle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.jnagmp</groupId>
+            <artifactId>bouncycastle-rsa</artifactId>
+            <version>${dependency.jnagmp.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcpkix-jdk15on</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
