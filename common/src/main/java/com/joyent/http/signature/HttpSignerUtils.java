@@ -104,7 +104,7 @@ public final class HttpSignerUtils {
 
         final boolean nativeSupported =
                 (os.equals("linux") && arch.equals("amd64")) ||
-                (os.equals("darwin") && arch.equals("amd64"));
+                (os.equals("mac os x") && arch.equals("x86_64"));
 
         // We only support native RSA on 64-bit x86 Linux and OS X
         if (!nativeSupported) {
