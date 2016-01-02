@@ -13,9 +13,11 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 
 /**
- * <p>This is a complete copy of {@link RSABlindedEngine} with the RSA core engine
- * replace with a native implementation. We copied the library code here verbatim
+ * <p>This is a copy of {@link RSABlindedEngine} with the RSA core engine
+ * replace with a native implementation. We copied the library code here
  * because there is no better way to for us to inherit the properties.</p>
+ *
+ * <p>Note: there is a single change on line 118 - we use libgmp to do modpow.</p>
  *
  * <p>Relevant copyright belongs to:<br>
  * Copyright (c) 2000 - 2015 The Legion of the Bouncy Castle Inc. (http://www.bouncycastle.org)

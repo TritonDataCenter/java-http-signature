@@ -10,4 +10,5 @@
     <suppress checks="IllegalThrows" files="^.*Test\.java$" />
     <suppress checks="AvoidStarImport" files="^.*Test\.java$" />
     <suppress checks="ImportControl" files="^.*Test\.java$" />
+    <suppress files="MantaNativeRSACoreEngine.java" />
 </suppressions>

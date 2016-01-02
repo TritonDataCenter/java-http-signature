@@ -105,12 +105,15 @@ public final class HttpSignerUtils {
      * @return a SHA256 signing algorithm
      */
     public static Signature findBestSignature() {
+        final String sysprop = System.getProperty("http.signature.native.rsa");
+        final boolean turnedOff = sysprop != null && sysprop.equals("false");
+
         final String os = System.getProperty("os.name").toLowerCase();
         final String arch = System.getProperty("os.arch").toLowerCase();
 
-        final boolean nativeSupported =
-                (os.equals("linux") && arch.equals("amd64"))
-             || (os.equals("mac os x") && arch.equals("x86_64"));
+        final boolean nativeSupported = !turnedOff
+             && ((os.equals("linux") && arch.equals("amd64"))
+                 || (os.equals("mac os x") && arch.equals("x86_64")));
 
         // We only support native RSA on 64-bit x86 Linux and OS X
         if (!nativeSupported) {

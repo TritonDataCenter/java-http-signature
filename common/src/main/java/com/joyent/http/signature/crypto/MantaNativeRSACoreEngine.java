@@ -13,14 +13,17 @@ import static com.squareup.jnagmp.Gmp.modPowInsecure;
 import static com.squareup.jnagmp.Gmp.modPowSecure;
 
 /**
- * @author Elijah Zupancic
- * @since 1.0.0
+ * <p>Class copied wholesale from the com.squareup.crypto.rsa project that uses
+ * native libgmp to improve RSA performance. The only modifications to this
+ * class are formatting and style.</p>
+ *
+ * @see com.squareup.crypto.rsa.NativeRSACoreEngine
  */
 public class MantaNativeRSACoreEngine {
     private RSAKeyParameters key;
-    private boolean          forEncryption;
-    private boolean          isPrivate;
-    private boolean          isSmallExponent;
+    private boolean forEncryption;
+    private boolean isPrivate;
+    private boolean isSmallExponent;
 
     // cached components for private CRT key
     private GmpInteger p;
@@ -37,34 +40,29 @@ public class MantaNativeRSACoreEngine {
      * initialise the RSA engine.
      *
      * @param forEncryption true if we are encrypting, false otherwise.
-     * @param param the necessary RSA key parameters.
+     * @param param         the necessary RSA key parameters.
      */
     public void init(
-            boolean          forEncryption,
-            CipherParameters param)
-    {
-        if (param instanceof ParametersWithRandom)
-        {
-            ParametersWithRandom    rParam = (ParametersWithRandom)param;
+            boolean forEncryption,
+            CipherParameters param) {
+        if (param instanceof ParametersWithRandom) {
+            ParametersWithRandom rParam = (ParametersWithRandom) param;
 
-            key = (RSAKeyParameters)rParam.getParameters();
-        }
-        else
-        {
-            key = (RSAKeyParameters)param;
+            key = (RSAKeyParameters) rParam.getParameters();
+        } else {
+            key = (RSAKeyParameters) param;
         }
 
         this.forEncryption = forEncryption;
 
-        if (key instanceof RSAPrivateCrtKeyParameters)
-        {
+        if (key instanceof RSAPrivateCrtKeyParameters) {
             isPrivate = true;
             //
             // we have the extra factors, use the Chinese Remainder Theorem - the author
             // wishes to express his thanks to Dirk Bonekaemper at rtsffm.com for
             // advice regarding the expression of this.
             //
-            RSAPrivateCrtKeyParameters crtKey = (RSAPrivateCrtKeyParameters)key;
+            RSAPrivateCrtKeyParameters crtKey = (RSAPrivateCrtKeyParameters) key;
 
             p = new GmpInteger(crtKey.getP());
             q = new GmpInteger(crtKey.getQ());
@@ -73,9 +71,7 @@ public class MantaNativeRSACoreEngine {
             qInv = crtKey.getQInv();
 
             exponent = modulus = null;
-        }
-        else
-        {
+        } else {
             isPrivate = false;
             exponent = new GmpInteger(key.getExponent());
             modulus = new GmpInteger(key.getModulus());
@@ -93,16 +89,12 @@ public class MantaNativeRSACoreEngine {
      *
      * @return maximum size for an input block.
      */
-    public int getInputBlockSize()
-    {
-        int     bitSize = key.getModulus().bitLength();
+    public int getInputBlockSize() {
+        int bitSize = key.getModulus().bitLength();
 
-        if (forEncryption)
-        {
+        if (forEncryption) {
             return (bitSize + 7) / 8 - 1;
-        }
-        else
-        {
+        } else {
             return (bitSize + 7) / 8;
         }
     }
@@ -114,50 +106,38 @@ public class MantaNativeRSACoreEngine {
      *
      * @return maximum size for an output block.
      */
-    public int getOutputBlockSize()
-    {
-        int     bitSize = key.getModulus().bitLength();
+    public int getOutputBlockSize() {
+        int bitSize = key.getModulus().bitLength();
 
-        if (forEncryption)
-        {
+        if (forEncryption) {
             return (bitSize + 7) / 8;
-        }
-        else
-        {
+        } else {
             return (bitSize + 7) / 8 - 1;
         }
     }
 
     public BigInteger convertInput(
-            byte[]  in,
-            int     inOff,
-            int     inLen)
-    {
-        if (inLen > (getInputBlockSize() + 1))
-        {
+            byte[] in,
+            int inOff,
+            int inLen) {
+        if (inLen > (getInputBlockSize() + 1)) {
             throw new DataLengthException("input too large for RSA cipher.");
-        }
-        else if (inLen == (getInputBlockSize() + 1) && !forEncryption)
-        {
+        } else if (inLen == (getInputBlockSize() + 1) && !forEncryption) {
             throw new DataLengthException("input too large for RSA cipher.");
         }
 
-        byte[]  block;
+        byte[] block;
 
-        if (inOff != 0 || inLen != in.length)
-        {
+        if (inOff != 0 || inLen != in.length) {
             block = new byte[inLen];
 
             System.arraycopy(in, inOff, block, 0, inLen);
-        }
-        else
-        {
+        } else {
             block = in;
         }
 
         BigInteger res = new BigInteger(1, block);
-        if (res.compareTo(key.getModulus()) >= 0)
-        {
+        if (res.compareTo(key.getModulus()) >= 0) {
             throw new DataLengthException("input too large for RSA cipher.");
         }
 
@@ -165,15 +145,13 @@ public class MantaNativeRSACoreEngine {
     }
 
     public byte[] convertOutput(
-            BigInteger result)
-    {
-        byte[]      output = result.toByteArray();
+            BigInteger result) {
+        byte[] output = result.toByteArray();
 
-        if (forEncryption)
-        {
+        if (forEncryption) {
             if (output[0] == 0 && output.length > getOutputBlockSize())        // have ended up with an extra zero byte, copy down.
             {
-                byte[]  tmp = new byte[output.length - 1];
+                byte[] tmp = new byte[output.length - 1];
 
                 System.arraycopy(output, 1, tmp, 0, tmp.length);
 
@@ -182,18 +160,16 @@ public class MantaNativeRSACoreEngine {
 
             if (output.length < getOutputBlockSize())     // have ended up with less bytes than normal, lengthen
             {
-                byte[]  tmp = new byte[getOutputBlockSize()];
+                byte[] tmp = new byte[getOutputBlockSize()];
 
                 System.arraycopy(output, 0, tmp, tmp.length - output.length, output.length);
 
                 return tmp;
             }
-        }
-        else
-        {
+        } else {
             if (output[0] == 0)        // have ended up with an extra zero byte, copy down.
             {
-                byte[]  tmp = new byte[output.length - 1];
+                byte[] tmp = new byte[output.length - 1];
 
                 System.arraycopy(output, 1, tmp, 0, tmp.length);
 
@@ -204,10 +180,8 @@ public class MantaNativeRSACoreEngine {
         return output;
     }
 
-    public BigInteger processBlock(BigInteger input)
-    {
-        if (isPrivate)
-        {
+    public BigInteger processBlock(BigInteger input) {
+        if (isPrivate) {
             BigInteger mP, mQ, h, m;
 
             // mP = ((input mod p) ^ dP)) mod p
@@ -226,16 +200,11 @@ public class MantaNativeRSACoreEngine {
             m = m.add(mQ);
 
             return m;
-        }
-        else
-        {
-            if (isSmallExponent)
-            {
+        } else {
+            if (isSmallExponent) {
                 // Public key with reasonable (small) exponent, no need for secure.
                 return modPowInsecure(input, exponent, modulus);
-            }
-            else
-            {
+            } else {
                 // Client mistakenly configured private key as public? Better be safe than sorry.
                 return modPowSecure(input, exponent, modulus);
             }

@@ -68,7 +68,7 @@ public class HttpSignerTest {
         HttpRequest request = factory.buildGetRequest(get);
 
         long running = 0L;
-        int iterations = 1000;
+        int iterations = 100;
 
         for (int i = 0; i < iterations; i++) {
             long start = System.currentTimeMillis();
@@ -77,6 +77,7 @@ public class HttpSignerTest {
 
             long total = end - start;
             running += total;
+            Assert.assertTrue(signer.verifyRequest(request));
             System.out.println(String.format("Total signing time for request: %dms", total));
         }
 
@@ -84,6 +85,7 @@ public class HttpSignerTest {
         System.out.println(String.format("Average signing time: %dms", average));
 
         String authorization = request.getHeaders().getAuthorization();
+
         LOG.info("Authorization: " + authorization);
     }
 
