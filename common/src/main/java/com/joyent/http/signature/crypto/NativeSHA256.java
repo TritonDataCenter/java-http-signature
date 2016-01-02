@@ -1,4 +1,4 @@
-package com.joyent.http.signature;
+package com.joyent.http.signature.crypto;
 
 import org.bouncycastle.asn1.nist.NISTObjectIdentifiers;
 import org.bouncycastle.crypto.digests.SHA256Digest;

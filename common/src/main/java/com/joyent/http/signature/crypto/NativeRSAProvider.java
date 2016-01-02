@@ -1,4 +1,4 @@
-package com.joyent.http.signature;
+package com.joyent.http.signature.crypto;
 
 import java.security.Provider;
 

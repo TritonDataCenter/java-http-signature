@@ -91,7 +91,7 @@ public class SignedRequestClientRequestFilterIT extends Arquillian {
      *
      * This simply tests that the headers are set by the filter, received by a JAX-RS resource, wrapped in a
      * specially formatted JSON object, and returned to the client in a GET request.  The signature is
-     * not actually validated.  Only that the headers are recieved and that the authorization header contains
+     * not actually validated.  Only that the headers are received and that the authorization header contains
      * the correct components (keyId, algorithm, and signature)
      *
      * @throws URISyntaxException if the endpoint URI is malformed.
@@ -117,7 +117,7 @@ public class SignedRequestClientRequestFilterIT extends Arquillian {
         Assert.assertNotNull(response);
         Assert.assertNotNull(response.getStatus());
         Assert.assertEquals(response.getStatus(), 200);
-        logger.debug("reponse status code: {}", response.getStatus());
+        logger.debug("response status code: {}", response.getStatus());
         Assert.assertNotNull(response.getMediaType());
         Assert.assertEquals(response.getMediaType(), MediaType.APPLICATION_JSON_TYPE);
         logger.debug("response media type: {}", response.getMediaType());

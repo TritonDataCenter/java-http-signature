@@ -14,8 +14,6 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.Signature;
 import java.security.SignatureException;
 import java.util.Objects;
 import java.util.UUID;
@@ -24,7 +22,7 @@ import java.util.logging.Logger;
 
 import static com.joyent.http.signature.HttpSignerUtils.AUTHZ_PATTERN;
 import static com.joyent.http.signature.HttpSignerUtils.AUTHZ_SIGNING_STRING;
-import static com.joyent.http.signature.HttpSignerUtils.SIGNING_ALGORITHM;
+import static com.joyent.http.signature.HttpSignerUtils.SIGNATURE;
 
 // I really really don't want to be using JUL for logging, but it is what the
 // google library is using, so we are sticking with it. :(
@@ -183,8 +181,7 @@ public class HttpSigner {
         date = String.format(AUTHZ_SIGNING_STRING, date);
 
         try {
-            final Signature verify = Signature.getInstance(SIGNING_ALGORITHM);
-            verify.initVerify(this.keyPair.getPublic());
+            SIGNATURE.initVerify(this.keyPair.getPublic());
             final String authzHeader = request.getHeaders().getAuthorization();
             final int startIndex = authzHeader.indexOf(AUTHZ_PATTERN);
             if (startIndex == -1) {
@@ -193,10 +190,8 @@ public class HttpSigner {
             final String encodedSignedDate = authzHeader.substring(startIndex + AUTHZ_PATTERN.length(),
                     authzHeader.length() - 1);
             final byte[] signedDate = Base64.decode(encodedSignedDate.getBytes("UTF-8"));
-            verify.update(date.getBytes("UTF-8"));
-            return verify.verify(signedDate);
-        } catch (final NoSuchAlgorithmException e) {
-            throw new CryptoException("invalid algorithm", e);
+            SIGNATURE.update(date.getBytes("UTF-8"));
+            return SIGNATURE.verify(signedDate);
         } catch (final InvalidKeyException e) {
             throw new CryptoException("invalid key", e);
         } catch (final SignatureException e) {
