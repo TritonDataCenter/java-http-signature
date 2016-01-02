@@ -8,7 +8,7 @@ matrix:
   fast_finish: true
   include:
     # checkstyle
-    - jdk: oraclejdk8
+    - jdk: oraclejdk7
       env:
         - DESC="checkstyle"
         - CMD="mvn clean checkstyle:check"
@@ -16,6 +16,16 @@ matrix:
     - jdk: oraclejdk8
       env:
         - DESC="oraclejdk8 unit tests"
+        - CMD="mvn clean test -Dcheckstyle.skip=true"
+    # unit tests (oraclejdk7)
+    - jdk: oraclejdk7
+      env:
+        - DESC="oraclejdk7 unit tests"
+        - CMD="mvn clean test -Dcheckstyle.skip=true"
+    # unit tests (openjdk7)
+    - jdk: openjdk7
+      env:
+        - DESC="openjdk7 unit tests"
         - CMD="mvn clean test -Dcheckstyle.skip=true"
 
 script: echo ${CMD}; ${CMD}
