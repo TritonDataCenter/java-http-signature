@@ -55,7 +55,7 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
      * @param keyPair Public/private RSA keypair object used to sign HTTP requests.
      * @param useNativeCodeToSign true to enable native code acceleration of cryptographic singing
      */
-    public HttpSignatureAuthScheme(final KeyPair keyPair, boolean useNativeCodeToSign) {
+    public HttpSignatureAuthScheme(final KeyPair keyPair, final boolean useNativeCodeToSign) {
         if (keyPair == null) {
             throw new IllegalArgumentException("KeyPair must be present");
         }
