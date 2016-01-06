@@ -72,6 +72,18 @@ public class RequestHttpSigner {
      */
     public RequestHttpSigner(final KeyPair keyPair, final String login, final String fingerprint,
                              final boolean useNativeCodeToSign) {
+        this(keyPair, login, fingerprint, new ThreadLocalSigner(useNativeCodeToSign));
+    }
+
+    /**
+     * Creates a new instance allowing for HTTP signing.
+     * @param keyPair Public/private RSA keypair object used to sign HTTP requests.
+     * @param login Login name/account name used in authorization header
+     * @param fingerprint rsa key fingerprint
+     * @param signer reference to thread-local signer
+     */
+    public RequestHttpSigner(final KeyPair keyPair, final String login, final String fingerprint,
+                             final ThreadLocalSigner signer) {
         if (keyPair == null) {
             throw new IllegalArgumentException("KeyPair must be present");
         }
@@ -87,7 +99,7 @@ public class RequestHttpSigner {
         this.keyPair = keyPair;
         this.login = login;
         this.fingerprint = fingerprint;
-        this.signer = new ThreadLocalSigner(useNativeCodeToSign);
+        this.signer = signer;
     }
 
     /**
