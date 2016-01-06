@@ -2,6 +2,15 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.0] - ?
+### Changed
+ - Renamed HttpSigner to Signer and changed it from a static utility class
+   to an instance class.
+ - Wrapped all Signer instances in ThreadLocal<> because the underlying
+   field Signature is not compatible in any way with multi-threading.
+ - Removed system properties configuration of native extentions and moved
+   to an explicit constructor model.
+
 ## [1.1.0] - 2015-12-10
 ### Added
  - Added support for native RSA SHA256 calculation in order to improve HTTP

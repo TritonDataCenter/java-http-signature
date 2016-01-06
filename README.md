@@ -58,6 +58,20 @@ If you prefer to build from source, you'll also need
 
 ## Usage
 
+### Thread Safety Warning
+
+The Java Cryptographic Extensions Signature class is not thread safe,
+but it is entirely likely that you will want to use multiple threads
+to generate HTTP signatures. You can solve this problem by using the
+included `ThreadLocalSigner` class. However, this class has the limitation
+of storing one Signer class per invoking thread. Be very careful that
+you properly shut down your threads and do not accidentally create a
+memory leak. To nuke all of the thread references, you can call the 
+`clearAll()` method on `ThreadLocalSigner`.
+
+The `ThreadLocal` approach is used by default in the `jaxrs-client`,
+the `google-http-client` and the `apache-http-client` modules.
+
 ### Google HTTP Client Integration
 
 You will need to create a HttpSigner object and then use that object as part

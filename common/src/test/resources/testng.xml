@@ -2,7 +2,7 @@
 <suite name="Java HTTP Signature Test Suite" verbose="1">
     <test name="Common Unit Tests">
         <classes>
-            <class name="com.joyent.http.signature.HttpSignerUtilsTest" />
+            <class name="com.joyent.http.signature.SignerTest" />
         </classes>
     </test>
 </suite>

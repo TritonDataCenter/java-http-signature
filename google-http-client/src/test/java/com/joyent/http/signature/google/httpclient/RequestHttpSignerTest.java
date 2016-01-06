@@ -8,10 +8,10 @@ import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.testing.http.MockHttpTransport;
-import com.joyent.http.signature.HttpSignerUtils;
+import com.joyent.http.signature.Signer;
+import com.joyent.http.signature.ThreadLocalSigner;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 import org.testng.log4testng.Logger;
 
 import java.io.File;
@@ -22,24 +22,45 @@ import java.nio.file.Path;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 
-public class HttpSignerTest {
-    private static final Logger LOG = Logger.getLogger(HttpSignerTest.class);
+public class RequestHttpSignerTest {
+    private static final Logger LOG = Logger.getLogger(RequestHttpSignerTest.class);
 
     private static final String testKeyFingerprint = "04:92:7b:23:bc:08:4f:d7:3b:5a:38:9e:4a:17:2e:df";
     private KeyPair testKeyPair;
+    private boolean useNativeCodeToSign;
+    private ThreadLocalSigner signer;
 
+    @Parameters({"useNativeCodeToSign"})
     @BeforeClass
-    public void beforeClass() throws IOException, NoSuchAlgorithmException {
-        this.testKeyPair = testKeyPair();
+    public void beforeClass(@Optional Boolean useNativeCodeToSign) throws IOException, NoSuchAlgorithmException {
+        if (useNativeCodeToSign == null) {
+            this.useNativeCodeToSign = true;
+        } else {
+            this.useNativeCodeToSign = useNativeCodeToSign;
+        }
+
+        this.signer = new ThreadLocalSigner(this.useNativeCodeToSign);
+        // Removes any existing instances - so that we can reset state
+        this.signer.remove();
+        this.testKeyPair = testKeyPair(signer.get());
+    }
+
+    @AfterClass
+    public void cleanUp() {
+        if (signer != null) {
+            signer.clearAll();
+        }
     }
 
     @Test
     public void canSignUri() throws IOException {
         final String login = "user";
-        HttpSigner signer = new HttpSigner(testKeyPair, login, testKeyFingerprint);
+        final Signer signer = new Signer(this.useNativeCodeToSign);
+        RequestHttpSigner requestSigner = new RequestHttpSigner(testKeyPair,
+                login, testKeyFingerprint, useNativeCodeToSign);
         URI uri = URI.create("http://localhost/foo/bar");
 
-        URI signedUri = signer.signURI(uri, "GET", 0L);
+        URI signedUri = requestSigner.signURI(uri, "GET", 0L);
 
         String expected = "http://localhost/foo/bar?algorithm=RSA-SHA256"
                 + "&expires=0&keyId=%2Fuser%2Fkeys%2F04%3A92%3A7b%3A23%3"
@@ -59,7 +80,9 @@ public class HttpSignerTest {
     @Test
     public void canSignRequest() throws IOException {
         final String login = "user";
-        HttpSigner signer = new HttpSigner(testKeyPair, login, testKeyFingerprint);
+        final Signer signer = new Signer(this.useNativeCodeToSign);
+        RequestHttpSigner requestSigner = new RequestHttpSigner(testKeyPair, login,
+                testKeyFingerprint, useNativeCodeToSign);
 
         HttpTransport transport = new MockHttpTransport();
         HttpRequestFactory factory = transport.createRequestFactory();
@@ -68,16 +91,16 @@ public class HttpSignerTest {
         HttpRequest request = factory.buildGetRequest(get);
 
         long running = 0L;
-        int iterations = 100;
+        int iterations = 1000;
 
         for (int i = 0; i < iterations; i++) {
             long start = System.currentTimeMillis();
-            signer.signRequest(request);
+            requestSigner.signRequest(request);
             long end = System.currentTimeMillis();
 
             long total = end - start;
             running += total;
-            Assert.assertTrue(signer.verifyRequest(request));
+            Assert.assertTrue(requestSigner.verifyRequest(request));
             System.out.println(String.format("Total signing time for request: %dms", total));
         }
 
@@ -92,12 +115,12 @@ public class HttpSignerTest {
     /**
      * @return a static key pair used for testing utility methods
      */
-    private static KeyPair testKeyPair() throws IOException {
-        final ClassLoader loader = HttpSigner.class.getClassLoader();
+    private KeyPair testKeyPair(final Signer signer) throws IOException {
+        final ClassLoader loader = RequestHttpSigner.class.getClassLoader();
 
         // Try to get keypair from class path first
         try (InputStream is = loader.getResourceAsStream("id_rsa")) {
-            KeyPair classPathPair = HttpSignerUtils.getKeyPair(is, null);
+            KeyPair classPathPair = signer.getKeyPair(is, null);
             if (classPathPair != null) {
                 return classPathPair;
             }
@@ -106,6 +129,6 @@ public class HttpSignerTest {
         // We couldn't get the key pair from the class path, so let's try
         // a directory relative to the project root.
         Path keyPath = new File("./src/test/resources/id_rsa").toPath();
-        return HttpSignerUtils.getKeyPair(keyPath);
+        return signer.getKeyPair(keyPath);
     }
 }

@@ -5,7 +5,8 @@ package com.joyent.http.signature.google.httpclient;
 
 import com.google.api.client.http.HttpRequest;
 import com.joyent.http.signature.CryptoException;
-import com.joyent.http.signature.HttpSignerUtils;
+import com.joyent.http.signature.Signer;
+import com.joyent.http.signature.ThreadLocalSigner;
 import org.bouncycastle.util.encoders.Base64;
 
 import java.io.IOException;
@@ -14,15 +15,15 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
+import java.security.Signature;
 import java.security.SignatureException;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.joyent.http.signature.HttpSignerUtils.AUTHZ_PATTERN;
-import static com.joyent.http.signature.HttpSignerUtils.AUTHZ_SIGNING_STRING;
-import static com.joyent.http.signature.HttpSignerUtils.SIGNATURE;
+import static com.joyent.http.signature.Signer.AUTHZ_PATTERN;
+import static com.joyent.http.signature.Signer.AUTHZ_SIGNING_STRING;
 
 // I really really don't want to be using JUL for logging, but it is what the
 // google library is using, so we are sticking with it. :(
@@ -36,11 +37,11 @@ import static com.joyent.http.signature.HttpSignerUtils.SIGNATURE;
  * @author <a href="https://github.com/dekobon">Elijah Zupancic</a>
  * @since 1.0.0
  */
-public class HttpSigner {
+public class RequestHttpSigner {
     /**
      * The static logger instance.
      */
-    private static final Logger LOG = Logger.getLogger(HttpSigner.class.getName());
+    private static final Logger LOG = Logger.getLogger(RequestHttpSigner.class.getName());
 
     /**
      * Public/private RSA keypair object used to sign HTTP requests.
@@ -57,14 +58,20 @@ public class HttpSigner {
      */
     private final String fingerprint;
 
+    /**
+     * HTTP signature generator instance.
+     */
+    private final ThreadLocalSigner signer;
 
     /**
      * Creates a new instance allowing for HTTP signing.
      * @param keyPair Public/private RSA keypair object used to sign HTTP requests.
      * @param login Login name/account name used in authorization header
      * @param fingerprint rsa key fingerprint
+     * @param useNativeCodeToSign true to enable native code acceleration of cryptographic singing
      */
-    public HttpSigner(final KeyPair keyPair, final String login, final String fingerprint) {
+    public RequestHttpSigner(final KeyPair keyPair, final String login, final String fingerprint,
+                             final boolean useNativeCodeToSign) {
         if (keyPair == null) {
             throw new IllegalArgumentException("KeyPair must be present");
         }
@@ -80,8 +87,8 @@ public class HttpSigner {
         this.keyPair = keyPair;
         this.login = login;
         this.fingerprint = fingerprint;
+        this.signer = new ThreadLocalSigner(useNativeCodeToSign);
     }
-
 
     /**
      * Sign an {@link com.google.api.client.http.HttpRequest}.
@@ -95,18 +102,19 @@ public class HttpSigner {
         }
 
         final UUID requestId = UUID.randomUUID();
-        request.getHeaders().set(HttpSignerUtils.X_REQUEST_ID_HEADER,
+        request.getHeaders().set(Signer.X_REQUEST_ID_HEADER,
                 requestId.toString());
 
         final String date;
-        if (request.getHeaders().getDate() != null) {
+        final String headerDate = request.getHeaders().getDate();
+        if (headerDate != null && !headerDate.isEmpty()) {
             date = request.getHeaders().getDate();
         } else {
-            date = HttpSignerUtils.defaultSignDateAsString();
+            date = signer.get().defaultSignDateAsString();
             request.getHeaders().setDate(date);
         }
 
-        final String authzHeader = HttpSignerUtils.createAuthorizationHeader(
+        final String authzHeader = signer.get().createAuthorizationHeader(
                 login, fingerprint, keyPair, date);
         request.getHeaders().setAuthorization(authzHeader);
     }
@@ -149,7 +157,7 @@ public class HttpSigner {
 
         StringBuilder request = new StringBuilder();
         final byte[] sigBytes = sigText.toString().getBytes();
-        final byte[] signed = HttpSignerUtils.sign(getLogin(), getFingerprint(), getKeyPair(), sigBytes);
+        final byte[] signed = signer.get().sign(getLogin(), getFingerprint(), getKeyPair(), sigBytes);
         final String encoded = new String(Base64.encode(signed), charset);
         final String urlEncoded = URLEncoder.encode(encoded, charset);
 
@@ -179,9 +187,10 @@ public class HttpSigner {
         }
 
         date = String.format(AUTHZ_SIGNING_STRING, date);
+        Signature signature = signer.get().getSignature();
 
         try {
-            SIGNATURE.initVerify(this.keyPair.getPublic());
+            signature.initVerify(this.keyPair.getPublic());
             final String authzHeader = request.getHeaders().getAuthorization();
             final int startIndex = authzHeader.indexOf(AUTHZ_PATTERN);
             if (startIndex == -1) {
@@ -190,8 +199,8 @@ public class HttpSigner {
             final String encodedSignedDate = authzHeader.substring(startIndex + AUTHZ_PATTERN.length(),
                     authzHeader.length() - 1);
             final byte[] signedDate = Base64.decode(encodedSignedDate.getBytes("UTF-8"));
-            SIGNATURE.update(date.getBytes("UTF-8"));
-            return SIGNATURE.verify(signedDate);
+            signature.update(date.getBytes("UTF-8"));
+            return signature.verify(signedDate);
         } catch (final InvalidKeyException e) {
             throw new CryptoException("invalid key", e);
         } catch (final SignatureException e) {
@@ -225,5 +234,10 @@ public class HttpSigner {
         return fingerprint;
     }
 
-
+    /**
+     * @return reference to thread-local {@link Signer}
+     */
+    public ThreadLocalSigner getSignerThreadLocal() {
+        return signer;
+    }
 }

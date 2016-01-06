@@ -3,7 +3,8 @@
  */
 package com.joyent.http.signature.jaxrs.client;
 
-import com.joyent.http.signature.HttpSignerUtils;
+import com.joyent.http.signature.Signer;
+import com.joyent.http.signature.ThreadLocalSigner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +54,10 @@ public class SignedRequestClientRequestFilter implements ClientRequestFilter {
      */
     private String keyPath;
 
+    /**
+     * Cryptographic signer instance.
+     */
+    private ThreadLocal<Signer> signer;
 
     /**
      * Creates a new filter instance with the specified credentials for signing requests.
@@ -68,6 +73,7 @@ public class SignedRequestClientRequestFilter implements ClientRequestFilter {
         this.loginName = loginName;
         this.keyId = keyId;
         this.keyPath = keyPath;
+        this.signer = new ThreadLocalSigner();
     }
 
 
@@ -81,16 +87,14 @@ public class SignedRequestClientRequestFilter implements ClientRequestFilter {
     public void filter(final ClientRequestContext requestContext) throws IOException {
         final MultivaluedMap<String, Object> headers = requestContext.getHeaders();
         final Date now = new Date();
-        final String dateHeaderValue = HttpSignerUtils.DATE_FORMAT.format(now);
+        final String dateHeaderValue = Signer.DATE_FORMAT.format(now);
         headers.add(DATE_HEADER_NAME, dateHeaderValue);
-        final String authHeaderValue = HttpSignerUtils.createAuthorizationHeader(
+        final String authHeaderValue = signer.get().createAuthorizationHeader(
                 loginName,
                 keyId,
-                HttpSignerUtils.getKeyPair(Paths.get(keyPath)),
+                signer.get().getKeyPair(Paths.get(keyPath)),
                 now
         );
         headers.add(AUTHORIZATION_HEADER_NAME, authHeaderValue);
     }
-
-
 }
