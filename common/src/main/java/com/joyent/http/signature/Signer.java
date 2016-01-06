@@ -113,6 +113,7 @@ public class Signer {
     /**
      * Attempts to use a signing algorithm that is implemented using native code.
      * If that fails, it falls back to the pure JVM implementation.
+     * @param useNativeCodeToSign true to enable native code acceleration of cryptographic singing
      * @return a SHA256 signing algorithm
      */
     public static Signature chooseSignature(final boolean useNativeCodeToSign) {

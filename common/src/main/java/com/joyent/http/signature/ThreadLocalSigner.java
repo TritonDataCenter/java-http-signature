@@ -3,7 +3,6 @@ package com.joyent.http.signature;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
@@ -14,6 +13,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * @author <a href="https://github.com/dekobon">Elijah Zupancic</a>
  */
 public class ThreadLocalSigner extends ThreadLocal<Signer> {
+    /**
+     * Set of threads that have set ThreadLocal references.
+     */
     private static Set<Thread> threadsReferencing =
             new CopyOnWriteArraySet<>();
 
@@ -27,7 +29,7 @@ public class ThreadLocalSigner extends ThreadLocal<Signer> {
      *
      * @param useNativeCodeToSign true to enable native code acceleration of cryptographic singing
      */
-    public ThreadLocalSigner(boolean useNativeCodeToSign) {
+    public ThreadLocalSigner(final boolean useNativeCodeToSign) {
         this.useNativeCodeToSign = useNativeCodeToSign;
     }
 
@@ -52,7 +54,7 @@ public class ThreadLocalSigner extends ThreadLocal<Signer> {
     }
 
     @Override
-    public void set(Signer value) {
+    public void set(final Signer value) {
         super.set(value);
 
         if (value == null) {
@@ -79,7 +81,8 @@ public class ThreadLocalSigner extends ThreadLocal<Signer> {
                 Object map = getMap.invoke(this, t);
                 remove.invoke(map, this);
             }
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        } catch (ClassNotFoundException | NoSuchMethodException |
+                 IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }
