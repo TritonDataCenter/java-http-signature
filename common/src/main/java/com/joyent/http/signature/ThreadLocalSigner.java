@@ -81,8 +81,8 @@ public class ThreadLocalSigner extends ThreadLocal<Signer> {
                 Object map = getMap.invoke(this, t);
                 remove.invoke(map, this);
             }
-        } catch (ClassNotFoundException | NoSuchMethodException |
-                 IllegalAccessException | InvocationTargetException e) {
+        } catch (ClassNotFoundException | NoSuchMethodException
+                 | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }
