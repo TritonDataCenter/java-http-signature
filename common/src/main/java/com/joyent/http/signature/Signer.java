@@ -45,7 +45,7 @@ import java.util.TimeZone;
  * @author <a href="https://github.com/dekobon">Elijah Zupancic</a>
  * @since 1.0.0
  */
-public final class HttpSignerUtils {
+public class Signer {
     /**
      * HTTP header sent to identify a unique request.
      */
@@ -85,33 +85,42 @@ public final class HttpSignerUtils {
     /**
      * Cryptographic signature used for signing requests.
      */
-    public static final Signature SIGNATURE = findBestSignature();
+    private final Signature signature;
 
     /**
-     * The key format CONVERTER to use when reading key pairs.
+     * The key format converter to use when reading key pairs.
      */
-    private static final JcaPEMKeyConverter CONVERTER =
+    private final JcaPEMKeyConverter converter =
             new JcaPEMKeyConverter().setProvider("BC");
 
     /**
-     * Utility class not intended for direct instantiation.
+     * Creates a new instance of the class and enables native code acceleration of
+     * cryptographic signing by default.
      */
-    private HttpSignerUtils() {
+    public Signer() {
+        this(true);
+    }
+
+    /**
+     * Creates a new instance of the class.
+     *
+     * @param useNativeCodeToSign true to enable native code acceleration of cryptographic singing
+     */
+    public Signer(final boolean useNativeCodeToSign) {
+        signature = chooseSignature(useNativeCodeToSign);
     }
 
     /**
      * Attempts to use a signing algorithm that is implemented using native code.
      * If that fails, it falls back to the pure JVM implementation.
+     * @param useNativeCodeToSign true to enable native code acceleration of cryptographic singing
      * @return a SHA256 signing algorithm
      */
-    public static Signature findBestSignature() {
-        final String sysprop = System.getProperty("http.signature.native.rsa");
-        final boolean turnedOff = sysprop != null && sysprop.equals("false");
-
+    public static Signature chooseSignature(final boolean useNativeCodeToSign) {
         final String os = System.getProperty("os.name").toLowerCase();
         final String arch = System.getProperty("os.arch").toLowerCase();
 
-        final boolean nativeSupported = !turnedOff
+        final boolean nativeSupported = useNativeCodeToSign
              && ((os.equals("linux") && arch.equals("amd64"))
                  || (os.equals("mac os x") && arch.equals("x86_64")));
 
@@ -144,7 +153,7 @@ public final class HttpSignerUtils {
      * @return public-private keypair object
      * @throws IOException If unable to read the private key from the file
      */
-    public static KeyPair getKeyPair(final Path keyPath) throws IOException {
+    public KeyPair getKeyPair(final Path keyPath) throws IOException {
         if (keyPath == null) {
             throw new FileNotFoundException("No key file path specified");
         }
@@ -172,7 +181,7 @@ public final class HttpSignerUtils {
      * @return public-private keypair object
      * @throws IOException If unable to read the private key from the string
      */
-    public static KeyPair getKeyPair(final String privateKeyContent, final char[] password) throws IOException {
+    public KeyPair getKeyPair(final String privateKeyContent, final char[] password) throws IOException {
         byte[] pKeyBytes = privateKeyContent.getBytes();
 
         return getKeyPair(pKeyBytes, password);
@@ -186,7 +195,7 @@ public final class HttpSignerUtils {
      * @return public-private keypair object
      * @throws IOException If unable to read the private key from the string
      */
-    public static KeyPair getKeyPair(final byte[] pKeyBytes, final char[] password) throws IOException {
+    public KeyPair getKeyPair(final byte[] pKeyBytes, final char[] password) throws IOException {
         if (pKeyBytes == null) {
             throw new IllegalArgumentException("pKeyBytes must be present");
         }
@@ -204,8 +213,8 @@ public final class HttpSignerUtils {
      * @return public/private keypair object
      * @throws IOException If unable to read the private key from the string
      */
-    public static KeyPair getKeyPair(final InputStream is,
-                                     final char[] password) throws IOException {
+    public KeyPair getKeyPair(final InputStream is,
+                              final char[] password) throws IOException {
         try (final InputStreamReader isr = new InputStreamReader(is);
              final BufferedReader br = new BufferedReader(isr);
              final PEMParser pemParser = new PEMParser(br)) {
@@ -213,7 +222,7 @@ public final class HttpSignerUtils {
             if (password == null) {
                 Security.addProvider(new BouncyCastleProvider());
                 final Object object = pemParser.readObject();
-                return CONVERTER.getKeyPair((PEMKeyPair) object);
+                return converter.getKeyPair((PEMKeyPair) object);
             } else {
                 PEMDecryptorProvider decProv = new JcePEMDecryptorProviderBuilder().build(password);
 
@@ -221,9 +230,9 @@ public final class HttpSignerUtils {
 
                 final KeyPair kp;
                 if (object instanceof PEMEncryptedKeyPair) {
-                    kp = CONVERTER.getKeyPair(((PEMEncryptedKeyPair) object).decryptKeyPair(decProv));
+                    kp = converter.getKeyPair(((PEMEncryptedKeyPair) object).decryptKeyPair(decProv));
                 } else {
-                    kp = CONVERTER.getKeyPair((PEMKeyPair) object);
+                    kp = converter.getKeyPair((PEMKeyPair) object);
                 }
 
                 return kp;
@@ -240,9 +249,9 @@ public final class HttpSignerUtils {
      * @param keyPair RSA public/private keypair
      * @return value to Authorization header
      */
-    public static String createAuthorizationHeader(final String login,
-                                                   final String fingerprint,
-                                                   final KeyPair keyPair) {
+    public String createAuthorizationHeader(final String login,
+                                            final String fingerprint,
+                                            final KeyPair keyPair) {
         return createAuthorizationHeader(login, fingerprint, keyPair,
                 defaultSignDateAsString());
     }
@@ -256,11 +265,10 @@ public final class HttpSignerUtils {
      * @param date Date to be converted to a RFC 822 compliant string
      * @return value to Authorization header
      */
-
-    public static String createAuthorizationHeader(final String login,
-                                                   final String fingerprint,
-                                                   final KeyPair keyPair,
-                                                   final Date date) {
+    public String createAuthorizationHeader(final String login,
+                                            final String fingerprint,
+                                            final KeyPair keyPair,
+                                            final Date date) {
         final String stringDate;
 
         if (date == null) {
@@ -282,19 +290,19 @@ public final class HttpSignerUtils {
      * @param date Date as RFC 822 compliant string
      * @return value to Authorization header
      */
-    public static String createAuthorizationHeader(final String login,
-                                                   final String fingerprint,
-                                                   final KeyPair keyPair,
-                                                   final String date) {
+    public String createAuthorizationHeader(final String login,
+                                            final String fingerprint,
+                                            final KeyPair keyPair,
+                                            final String date) {
         Objects.requireNonNull(login, "Login must be present");
         Objects.requireNonNull(fingerprint, "Fingerprint must be present");
         Objects.requireNonNull(keyPair, "Keypair must be present");
 
         try {
-            SIGNATURE.initSign(keyPair.getPrivate());
+            signature.initSign(keyPair.getPrivate());
             final String signingString = String.format(AUTHZ_SIGNING_STRING, date);
-            SIGNATURE.update(signingString.getBytes("UTF-8"));
-            final byte[] signedDate = SIGNATURE.sign();
+            signature.update(signingString.getBytes("UTF-8"));
+            final byte[] signedDate = signature.sign();
             final byte[] encodedSignedDate = Base64.encode(signedDate);
 
             return String.format(AUTHZ_HEADER, login, fingerprint,
@@ -317,19 +325,19 @@ public final class HttpSignerUtils {
      * @param data data to be signed
      * @return signed value of data
      */
-    public static byte[] sign(final String login,
-                              final String fingerprint,
-                              final KeyPair keyPair,
-                              final byte[] data) {
+    public byte[] sign(final String login,
+                       final String fingerprint,
+                       final KeyPair keyPair,
+                       final byte[] data) {
         Objects.requireNonNull(login, "Login must be present");
         Objects.requireNonNull(fingerprint, "Fingerprint must be present");
         Objects.requireNonNull(keyPair, "Keypair must be present");
         Objects.requireNonNull(data, "Data must be present");
 
         try {
-            SIGNATURE.initSign(keyPair.getPrivate());
-            SIGNATURE.update(data);
-            return SIGNATURE.sign();
+            signature.initSign(keyPair.getPrivate());
+            signature.update(data);
+            return signature.sign();
         } catch (final InvalidKeyException e) {
             throw new CryptoException("invalid key", e);
         } catch (final SignatureException e) {
@@ -347,7 +355,7 @@ public final class HttpSignerUtils {
      * @param signedData data to verify against signature
      * @return signed value of data
      */
-    public static boolean verify(final String login,
+    public boolean verify(final String login,
                                  final String fingerprint,
                                  final KeyPair keyPair,
                                  final byte[] data,
@@ -358,9 +366,9 @@ public final class HttpSignerUtils {
         Objects.requireNonNull(signedData, "Data must be present");
 
         try {
-            SIGNATURE.initVerify(keyPair.getPublic());
-            SIGNATURE.update(data);
-            return SIGNATURE.verify(signedData);
+            signature.initVerify(keyPair.getPublic());
+            signature.update(data);
+            return signature.verify(signedData);
 
         } catch (final InvalidKeyException e) {
             throw new CryptoException("invalid key", e);
@@ -373,7 +381,7 @@ public final class HttpSignerUtils {
      * The current timestamp in UTC.
      * @return current timestamp in UTC.
      */
-    private static Date defaultSignDate() {
+    private Date defaultSignDate() {
         return Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTime();
     }
 
@@ -381,7 +389,7 @@ public final class HttpSignerUtils {
      * The current timestamp in UTC as a RFC 822 compliant string.
      * @return Date as RFC 822 compliant string
      */
-    public static String defaultSignDateAsString() {
+    public String defaultSignDateAsString() {
         return DATE_FORMAT.format(defaultSignDate());
     }
 
@@ -394,7 +402,7 @@ public final class HttpSignerUtils {
      * @return True if the request is valid, false if not.
      * @throws CryptoException If unable to verify the request.
      */
-    public static boolean verifyAuthorizationHeader(final KeyPair keyPair,
+    public boolean verifyAuthorizationHeader(final KeyPair keyPair,
                                              final String authzHeader,
                                              final String date) {
         Objects.requireNonNull(keyPair, "Keypair must be present");
@@ -404,7 +412,7 @@ public final class HttpSignerUtils {
         String myDate = String.format(AUTHZ_SIGNING_STRING, date);
 
         try {
-            SIGNATURE.initVerify(keyPair.getPublic());
+            signature.initVerify(keyPair.getPublic());
 
             final int startIndex = authzHeader.indexOf(AUTHZ_PATTERN);
             if (startIndex == -1) {
@@ -416,8 +424,8 @@ public final class HttpSignerUtils {
                     authzHeader.length() - 1);
             final byte[] signedDate = Base64.decode(encodedSignedDate.getBytes("UTF-8"));
 
-            SIGNATURE.update(myDate.getBytes("UTF-8"));
-            return SIGNATURE.verify(signedDate);
+            signature.update(myDate.getBytes("UTF-8"));
+            return signature.verify(signedDate);
 
         } catch (final InvalidKeyException e) {
             throw new CryptoException("invalid key", e);
@@ -426,5 +434,12 @@ public final class HttpSignerUtils {
         } catch (final UnsupportedEncodingException e) {
             throw new CryptoException("invalid encoding", e);
         }
+    }
+
+    /**
+     * @return instance of the signature cipher implementation
+     */
+    public Signature getSignature() {
+        return signature;
     }
 }

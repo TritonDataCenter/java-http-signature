@@ -4,7 +4,8 @@
 package com.joyent.http.signature.apache.httpclient;
 
 import com.joyent.http.signature.HttpSignatureException;
-import com.joyent.http.signature.HttpSignerUtils;
+import com.joyent.http.signature.Signer;
+import com.joyent.http.signature.ThreadLocalSigner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
@@ -45,6 +46,25 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
     private final KeyPair keyPair;
 
     /**
+     * Thread local instance of {@link Signer}.
+     */
+    private final ThreadLocal<Signer> signer;
+
+    /**
+     * Creates a new instance allowing for HTTP signing.
+     * @param keyPair Public/private RSA keypair object used to sign HTTP requests.
+     * @param useNativeCodeToSign true to enable native code acceleration of cryptographic singing
+     */
+    public HttpSignatureAuthScheme(final KeyPair keyPair, final boolean useNativeCodeToSign) {
+        if (keyPair == null) {
+            throw new IllegalArgumentException("KeyPair must be present");
+        }
+
+        this.keyPair = keyPair;
+        this.signer = new ThreadLocalSigner(useNativeCodeToSign);
+    }
+
+    /**
      * Creates a new instance allowing for HTTP signing.
      * @param keyPair Public/private RSA keypair object used to sign HTTP requests.
      */
@@ -54,6 +74,7 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
         }
 
         this.keyPair = keyPair;
+        this.signer = new ThreadLocalSigner();
     }
 
     @Override
@@ -92,7 +113,7 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
                                final HttpContext context)
             throws AuthenticationException {
         final UUID requestId = UUID.randomUUID();
-        request.setHeader(HttpSignerUtils.X_REQUEST_ID_HEADER, requestId.toString());
+        request.setHeader(Signer.X_REQUEST_ID_HEADER, requestId.toString());
 
         return signRequestHeader(credentials, request);
     }
@@ -150,14 +171,14 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
         if (date != null) {
             stringDate = date.getValue();
         } else {
-            stringDate = HttpSignerUtils.defaultSignDateAsString();
+            stringDate = signer.get().defaultSignDateAsString();
             request.setHeader(HttpHeaders.DATE, stringDate);
         }
 
         final String authz;
 
         try {
-            authz = HttpSignerUtils.createAuthorizationHeader(
+            authz = signer.get().createAuthorizationHeader(
                     login, fingerprint, keyPair, stringDate);
         } catch (HttpSignatureException e) {
             String details = String.format("Unable to authenticate [%s] with "

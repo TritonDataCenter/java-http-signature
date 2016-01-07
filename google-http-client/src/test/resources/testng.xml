@@ -1,6 +1,14 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 <suite name="Java HTTP Signature Test Suite" verbose="1">
-    <test name="Google HTTP Client Unit Tests">
+    <test name="Google HTTP Client Unit Tests [native]">
+        <parameter name="useNativeCodeToSign" value="true"/>
+        <packages>
+            <package name="com.joyent.http.signature.google.httpclient" />
+        </packages>
+    </test>
+
+    <test name="Google HTTP Client Unit Tests [jvm]">
+        <parameter name="useNativeCodeToSign" value="false"/>
         <packages>
             <package name="com.joyent.http.signature.google.httpclient" />
         </packages>
