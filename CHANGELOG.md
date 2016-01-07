@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [2.0.0] - ?
+## [2.0.0] - 2016-01-07
 ### Changed
  - Renamed HttpSigner to Signer and changed it from a static utility class
    to an instance class.
