@@ -16,8 +16,6 @@ import static com.squareup.jnagmp.Gmp.modPowSecure;
  * <p>Class copied wholesale from the com.squareup.crypto.rsa project that uses
  * native libgmp to improve RSA performance. The only modifications to this
  * class are formatting and style.</p>
- *
- * @see com.squareup.crypto.rsa.NativeRSACoreEngine
  */
 public class MantaNativeRSACoreEngine {
     private RSAKeyParameters key;

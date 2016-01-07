@@ -25,7 +25,7 @@ public class ThreadLocalSigner extends ThreadLocal<Signer> {
     private final boolean useNativeCodeToSign;
 
     /**
-     * Create a new thread-local instance of {@Signer}.
+     * Create a new thread-local instance of {@link Signer}.
      *
      * @param useNativeCodeToSign true to enable native code acceleration of cryptographic singing
      */
@@ -34,7 +34,7 @@ public class ThreadLocalSigner extends ThreadLocal<Signer> {
     }
 
     /**
-     * Create a new thread-local instance of {@Signer}.
+     * Create a new thread-local instance of {@link Signer}.
      *
      */
     public ThreadLocalSigner() {
