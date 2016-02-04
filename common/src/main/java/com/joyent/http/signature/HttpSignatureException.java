@@ -9,7 +9,7 @@ package com.joyent.http.signature;
  * @author <a href="https://github.com/dekobon">Elijah Zupancic</a>
  * @since 1.0.0
  */
-public class HttpSignatureException  extends RuntimeException {
+public class HttpSignatureException extends RuntimeException {
     /**
      * Creates a new exception.
      */
