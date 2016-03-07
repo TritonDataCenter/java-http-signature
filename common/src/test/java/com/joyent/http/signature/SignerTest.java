@@ -27,6 +27,8 @@ public class SignerTest {
             this.useNativeCodeToSign = useNativeCodeToSign;
         }
 
+        System.out.printf("Using native libgmp: %s\n", this.useNativeCodeToSign);
+
         this.testKeyPair = testKeyPair(new Signer(this.useNativeCodeToSign));
     }
 
