@@ -80,9 +80,12 @@ public class RequestHttpSignerTest {
     @Test
     public void canSignRequest() throws IOException {
         final String login = "user";
-        final Signer signer = new Signer(this.useNativeCodeToSign);
         RequestHttpSigner requestSigner = new RequestHttpSigner(testKeyPair, login,
                 testKeyFingerprint, useNativeCodeToSign);
+
+        Signer signer = requestSigner.getSignerThreadLocal().get();
+
+        System.out.printf("Signer implementation: %s", signer);
 
         HttpTransport transport = new MockHttpTransport();
         HttpRequestFactory factory = transport.createRequestFactory();

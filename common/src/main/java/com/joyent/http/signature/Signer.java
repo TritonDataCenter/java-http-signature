@@ -467,4 +467,13 @@ public class Signer {
     public Signature getSignature() {
         return signature;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Signer{");
+        sb.append("signature=").append(signature);
+        sb.append(", converter=").append(converter);
+        sb.append('}');
+        return sb.toString();
+    }
 }
