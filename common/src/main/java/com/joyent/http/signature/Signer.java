@@ -31,6 +31,7 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
@@ -94,6 +95,35 @@ public class Signer {
             new JcaPEMKeyConverter().setProvider("BC");
 
     /**
+     * OS names with native support in jnagmp.
+     * Always keep values sorted because we binary search them.
+     */
+    private static final String[] SUPPORTED_NATIVE_OS =
+            new String[] {"linux", "mac os x", "sunos"};
+
+    /**
+     * Architectures with native support in jnagmp.
+     * Always keep values sorted because we binary search them.
+     */
+    private static final String[] SUPPORTED_NATIVE_ARCH =
+            new String[] {"amd64", "x86_64"};
+
+    /**
+     * When true we are on a platform that supports native libgmp for modpow.
+     */
+    private static final boolean JNAGMP_SUPPORTED;
+
+    static {
+        final String os = System.getProperty("os.name").toLowerCase();
+        final String arch = System.getProperty("os.arch").toLowerCase();
+
+        JNAGMP_SUPPORTED = Arrays.binarySearch(SUPPORTED_NATIVE_OS, os) >= 0
+            && Arrays.binarySearch(SUPPORTED_NATIVE_ARCH, arch) >= 0;
+
+        System.setProperty("native.jnagmp", Objects.toString(JNAGMP_SUPPORTED));
+    }
+
+    /**
      * Creates a new instance of the class and enables native code acceleration of
      * cryptographic signing by default.
      */
@@ -117,12 +147,7 @@ public class Signer {
      * @return a SHA256 signing algorithm
      */
     public static Signature chooseSignature(final boolean useNativeCodeToSign) {
-        final String os = System.getProperty("os.name").toLowerCase();
-        final String arch = System.getProperty("os.arch").toLowerCase();
-
-        final boolean nativeSupported = useNativeCodeToSign
-             && ((os.equals("linux") && arch.equals("amd64"))
-                 || (os.equals("mac os x") && arch.equals("x86_64")));
+        final boolean nativeSupported = useNativeCodeToSign && JNAGMP_SUPPORTED;
 
         // We only support native RSA on 64-bit x86 Linux and OS X
         if (!nativeSupported) {
