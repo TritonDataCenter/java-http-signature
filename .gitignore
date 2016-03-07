@@ -92,6 +92,7 @@ release.properties
 dependency-reduced-pom.xml
 
 common/test-output
+google-http-client/test-output
 jaxrs-client/test-output
 jaxrs-client/derby.log
 jaxrs-client/test-output
