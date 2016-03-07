@@ -7,6 +7,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
  - Added better support for dealing with exceptions thrown when clearing
    threadlocals with `ThreadLocalSigner`. Added relevant exception class:
    `ThreadLocalClearException`.
+ - Upgraded jnagmp library to 1.1.0 so that it supports the JVM on 
+   Illumos/SmartOS/Solaris.
 
 ## [2.0.0] - 2016-01-07
 ### Changed
