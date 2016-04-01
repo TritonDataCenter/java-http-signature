@@ -11,8 +11,10 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthOption;
+import org.apache.http.auth.AuthProtocolState;
 import org.apache.http.auth.AuthScheme;
 import org.apache.http.auth.AuthSchemeProvider;
+import org.apache.http.auth.AuthState;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.MalformedChallengeException;
 import org.apache.http.client.AuthenticationStrategy;
@@ -97,7 +99,22 @@ public class HttpSignatureAuthenticationStrategy implements AuthenticationStrate
                                              final HttpResponse response,
                                              final HttpContext context) {
         final StatusLine line = response.getStatusLine();
-        return line.getStatusCode() == HttpStatus.SC_UNAUTHORIZED;
+
+        if (line.getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
+            return true;
+        }
+
+        final String key = "http.auth.target-scope";
+        final Object contextAuthState = context.getAttribute(key);
+
+        if (contextAuthState == null) {
+            return true;
+        }
+
+        @SuppressWarnings("unchecked")
+        final AuthState authState = (AuthState)contextAuthState;
+
+        return authState.getState().equals(AuthProtocolState.UNCHALLENGED);
     }
 
     @Override
