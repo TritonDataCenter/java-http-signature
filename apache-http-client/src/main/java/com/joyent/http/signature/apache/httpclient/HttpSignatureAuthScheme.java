@@ -33,7 +33,7 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
     /**
      * Name of authentication scheme.
      */
-    private static final String SCHEME_NAME = "Signatures";
+    public static final String SCHEME_NAME = "Signatures";
 
     /**
      * The static logger instance.
@@ -52,7 +52,7 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
 
     /**
      * Creates a new instance allowing for HTTP signing.
-     * @param keyPair Public/private RSA keypair object used to sign HTTP requests.
+     * @param keyPair Public/private keypair object used to sign HTTP requests.
      * @param useNativeCodeToSign true to enable native code acceleration of cryptographic singing
      */
     public HttpSignatureAuthScheme(final KeyPair keyPair, final boolean useNativeCodeToSign) {
@@ -188,7 +188,6 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
         }
 
         final Header authzHeader = new BasicHeader(HttpHeaders.AUTHORIZATION, authz);
-        request.setHeader(authzHeader);
 
         return authzHeader;
     }

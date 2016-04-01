@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+
+## [2.0.3] - 2016-?
+### Changed
+ - Fixed Apache HTTP Client libraries, so that they work as expected.
+
 ## [2.0.2] - 2016-03-07
 ### Changed
  - Added OS detection of Illumos/SmartOS/Solaris so that the library can
