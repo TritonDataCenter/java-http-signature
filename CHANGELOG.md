@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.4] - 2016-04-01
+### Changed
+ - Updated Apache HTTP Client libraries, so they don't always rechallenge.
 
 ## [2.0.3] - 2016-04-01
 ### Changed
