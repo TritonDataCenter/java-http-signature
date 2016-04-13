@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.5] - 2016-04-13
+### Changed
+ - Fixed #11 - Apache HTTP Client helper library will loop infinitely when 
+   authentication fails.
+### Added 
+ - Added helper class HtpSignatureConfigurator that makes configuring 
+   HttpClientBuilder instances easier.
+
 ## [2.0.4] - 2016-04-01
 ### Changed
  - Updated Apache HTTP Client libraries, so they don't always rechallenge.

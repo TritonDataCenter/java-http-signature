@@ -17,15 +17,17 @@ import org.apache.http.auth.AuthSchemeProvider;
 import org.apache.http.auth.AuthState;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.MalformedChallengeException;
+import org.apache.http.client.AuthCache;
 import org.apache.http.client.AuthenticationStrategy;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.config.Lookup;
-import org.apache.http.message.BasicHeader;
+import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.protocol.HttpContext;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 
 /**
@@ -42,9 +44,10 @@ public class HttpSignatureAuthenticationStrategy implements AuthenticationStrate
     private static final Log LOG = LogFactory.getLog(HttpSignatureAuthScheme.class);
 
     /**
-     * Immutable list of challenges that always return HTTP Signatures.
+     * Immutable list of challenges with a single dummy value because for our purposes
+     * all that matters is that this map is not empty.
      */
-    private final Map<String, Header> allChallenges;
+    private final Map<String, Header> challenges = Collections.singletonMap(null, null);
 
     /**
      * AuthOption that always returns {@link HttpSignatureAuthScheme}.
@@ -75,12 +78,7 @@ public class HttpSignatureAuthenticationStrategy implements AuthenticationStrate
      */
     public HttpSignatureAuthenticationStrategy(final AuthScheme authScheme,
                                                final Credentials credentials) {
-        authOption = new AuthOption(authScheme, credentials);
-
-        Map<String, Header> temp;
-        temp = new HashMap<>(1);
-        temp.put("Signatures", new BasicHeader("Authorization", "Signatures"));
-        this.allChallenges = Collections.unmodifiableMap(temp);
+        this.authOption = new AuthOption(authScheme, credentials);
     }
 
     /**
@@ -88,33 +86,37 @@ public class HttpSignatureAuthenticationStrategy implements AuthenticationStrate
      * an authentication challenge that was sent back as a result
      * of authentication failure.
      *
-     * @param authhost authentication host.
+     * @param authHost authentication host.
      * @param response HTTP response.
      * @param context  HTTP context.
      * @return {@code true} if user authentication is required,
-     * {@code false} otherwise.
+     *                      {@code false} otherwise.
      */
     @Override
-    public boolean isAuthenticationRequested(final HttpHost authhost,
+    public boolean isAuthenticationRequested(final HttpHost authHost,
                                              final HttpResponse response,
                                              final HttpContext context) {
         final StatusLine line = response.getStatusLine();
+        final int code = line.getStatusCode();
+        final HttpClientContext clientContext = HttpClientContext.adapt(context);
 
-        if (line.getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
+        final AuthState authState = clientContext.getTargetAuthState();
+        final AuthProtocolState authProtocolState = authState.getState();
+
+        if (code == HttpStatus.SC_UNAUTHORIZED) {
+            if (authProtocolState.equals(AuthProtocolState.CHALLENGED)) {
+                clientContext.getTargetAuthState().setState(AuthProtocolState.FAILURE);
+                authFailed(authHost, authState.getAuthScheme(), context);
+            }
+
             return true;
         }
 
-        final String key = "http.auth.target-scope";
-        final Object contextAuthState = context.getAttribute(key);
-
-        if (contextAuthState == null) {
+        if (clientContext.getTargetAuthState() == null) {
             return true;
         }
 
-        @SuppressWarnings("unchecked")
-        final AuthState authState = (AuthState)contextAuthState;
-
-        return authState.getState().equals(AuthProtocolState.UNCHALLENGED);
+        return false;
     }
 
     @Override
@@ -122,17 +124,31 @@ public class HttpSignatureAuthenticationStrategy implements AuthenticationStrate
                                              final HttpResponse response,
                                              final HttpContext context)
             throws MalformedChallengeException {
-        return allChallenges;
+
+        /* Unfortunately, we have to abuse the challenge functionality in
+         * because it won't enabled authentication unless at least a single
+         * challenge is available. The HTTP response for a HTTP Signatures
+         * API will never contain a challenge header, so effectively any
+         * headers that are added will never match. */
+
+        return this.challenges;
     }
 
     @Override
-    public Queue<AuthOption> select(final Map<String, Header> challenges,
+    public Queue<AuthOption> select(final Map<String, Header> challengeHeaders,
                                     final HttpHost authhost,
                                     final HttpResponse response,
                                     final HttpContext context)
             throws MalformedChallengeException {
-        Queue<AuthOption> queue = new LinkedList<>();
-        queue.add(authOption);
+        final HttpClientContext httpClientContext = HttpClientContext.adapt(context);
+        final AuthState state = httpClientContext.getTargetAuthState();
+        final Queue<AuthOption> queue = new LinkedList<>();
+
+        if (state == null || !state.getState().equals(AuthProtocolState.CHALLENGED)) {
+            queue.add(authOption);
+        } else {
+            System.out.println("does this happen?");
+        }
 
         return queue;
     }
@@ -141,12 +157,43 @@ public class HttpSignatureAuthenticationStrategy implements AuthenticationStrate
     public void authSucceeded(final HttpHost authhost,
                               final AuthScheme authScheme,
                               final HttpContext context) {
+        Objects.requireNonNull(authhost, "Authentication host must be present");
+        Objects.requireNonNull(authScheme, "Authentication scheme must be present");
+        Objects.requireNonNull(context, "HTTP context must be present");
+
         LOG.debug("HTTP Signature authentication succeeded");
+
+        final HttpClientContext clientContext = HttpClientContext.adapt(context);
+
+        AuthCache authCache = clientContext.getAuthCache();
+        if (authCache == null) {
+            authCache = new BasicAuthCache();
+            clientContext.setAuthCache(authCache);
+        }
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Caching '" + authScheme.getSchemeName()
+                    + "' auth scheme for " + authhost);
+        }
+        authCache.put(authhost, authScheme);
     }
 
     @Override
-    public void authFailed(final HttpHost authhost, final AuthScheme authScheme,
+    public void authFailed(final HttpHost authhost,
+                           final AuthScheme authScheme,
                            final HttpContext context) {
+        Objects.requireNonNull(authhost, "Authentication host must be present");
+        Objects.requireNonNull(context, "HTTP context must be present");
+
         LOG.debug("HTTP Signature authentication failed");
+
+        final HttpClientContext clientContext = HttpClientContext.adapt(context);
+
+        final AuthCache authCache = clientContext.getAuthCache();
+        if (authCache != null) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Clearing cached auth scheme for " + authhost);
+            }
+            authCache.remove(authhost);
+        }
     }
 }

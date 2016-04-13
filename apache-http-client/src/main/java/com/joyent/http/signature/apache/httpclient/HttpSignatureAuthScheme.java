@@ -79,7 +79,11 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
 
     @Override
     public void processChallenge(final Header header) throws MalformedChallengeException {
+        /* We error here because HTTP signature based authentication doesn't
+         * work on a challenge response model. Even if we get passed a header there
+         * is no response header available for us to process. */
 
+        throw new IllegalStateException("No challenge should ever occur");
     }
 
     @Override
@@ -134,7 +138,7 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
      * Signs an {@link HttpRequest} and returns a header with the signed
      * authorization value.
      *
-     * @param credentials Credentials containing a username and password
+     * @param credentials Credentials containing a username and key fingerprint as password
      * @param request The {@link HttpRequest} to sign.
      * @return header with signed authorization value
      * @throws AuthenticationException If unable to sign the request.
