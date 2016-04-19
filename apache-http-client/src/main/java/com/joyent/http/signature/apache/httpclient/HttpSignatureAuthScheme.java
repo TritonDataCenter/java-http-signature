@@ -20,7 +20,6 @@ import org.apache.http.protocol.HttpContext;
 
 import java.security.KeyPair;
 import java.util.Locale;
-import java.util.UUID;
 
 /**
  * Apache HTTP Client plugin that allows for HTTP Signature based authentication.
@@ -116,9 +115,6 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
                                final HttpRequest request,
                                final HttpContext context)
             throws AuthenticationException {
-        final UUID requestId = UUID.randomUUID();
-        request.setHeader(Signer.X_REQUEST_ID_HEADER, requestId.toString());
-
         return signRequestHeader(credentials, request);
     }
 

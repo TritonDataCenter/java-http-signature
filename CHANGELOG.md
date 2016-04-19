@@ -2,7 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [2.0.5] - 2016-04-13
+## [2.2.0] - ?
+### Changed
+ - Fixed #12 - Removed request id generation from Apache HTTP client helper 
+   because it best belongs in the consumer of the library.
+ - Fixed #12 - Removed request id generation from Google HTTP client helper
+   because it best belongs in the consumer of the library.
+
+## [2.1.0] - 2016-04-13
 ### Changed
  - Fixed #11 - Apache HTTP Client helper library will loop infinitely when 
    authentication fails.

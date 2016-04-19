@@ -18,7 +18,6 @@ import java.security.KeyPair;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -112,10 +111,6 @@ public class RequestHttpSigner {
         if (LOG.getLevel() != null && LOG.getLevel().equals(Level.FINER)) {
             LOG.finer(String.format("Signing request: %s", request.getHeaders()));
         }
-
-        final UUID requestId = UUID.randomUUID();
-        request.getHeaders().set(Signer.X_REQUEST_ID_HEADER,
-                requestId.toString());
 
         final String date;
         final String headerDate = request.getHeaders().getDate();

@@ -48,11 +48,6 @@ import java.util.TimeZone;
  */
 public class Signer {
     /**
-     * HTTP header sent to identify a unique request.
-     */
-    public static final String X_REQUEST_ID_HEADER = "x-request-id";
-
-    /**
      * The format for the http date header.
      */
     public static final DateFormat DATE_FORMAT = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy zzz");
