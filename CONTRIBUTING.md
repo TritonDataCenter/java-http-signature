@@ -15,6 +15,8 @@ checks pass:
 
     mvn checkstyle:checkstyle -Dcheckstyle.skip=false verify
 
+Add your changes to the CHANGELOG.md and commit.
+
 Push to your fork and [submit a pull request][pr].
 
 [pr]: https://github.com/joyent/java-http-signature/compare/
