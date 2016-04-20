@@ -1,0 +1,108 @@
+Until version 2.2.0, Java HTTP Signature has been licensed under the MIT license.
+As of 2.2.0, it is licensed under the MPL v2 license.
+
+For public record, non-Joyent contributers have agreed to change the license to the
+MPL v2.
+                                                                                                                                                                                                                                                               
+Delivered-To: elijah.zupancic@joyent.com
+Received: by 10.176.64.7 with SMTP id h7csp2185498uad;
+        Tue, 19 Apr 2016 16:45:13 -0700 (PDT)
+X-Received: by 10.129.77.65 with SMTP id a62mr3875834ywb.87.1461109513180;
+        Tue, 19 Apr 2016 16:45:13 -0700 (PDT)
+Return-Path: <phillip.w.g.ross at gmail.com>
+Received: from mail-yw0-x230.google.com (mail-yw0-x230.google.com. [2607:f8b0:4002:c05::230])
+        by mx.google.com with ESMTPS id r85si15968712ywg.169.2016.04.19.16.45.13
+        for <elijah.zupancic@joyent.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 19 Apr 2016 16:45:13 -0700 (PDT)
+Received-SPF: pass (google.com: domain of phillip.w.g.ross at gmail.com designates 2607:f8b0:4002:c05::230 as permitted sender) client-ip=2607:f8b0:4002:c05::230;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@gmail.com;
+       spf=pass (google.com: domain of phillip.w.g.ross at gmail.com designates 2607:f8b0:4002:c05::230 as permitted sender) smtp.mailfrom=phillip.w.g.ross at gmail.com;
+       dmarc=pass (p=NONE dis=NONE) header.from=gmail.com
+Received: by mail-yw0-x230.google.com with SMTP id t10so36163738ywa.0
+        for <elijah.zupancic@joyent.com>; Tue, 19 Apr 2016 16:45:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=mime-version:in-reply-to:references:date:message-id:subject:from:to;
+        bh=mCItCpF6iryE+gFaPVfK9kwGvBYeW+ltbOswLqvWGZQ=;
+        b=bldaKXPMseZjfqqeIf5EPfIWLAESTaTrTfD1H7OgDKBdlfcj/12UvsgTP1hZrTMtRt
+         m/aH8CXDW0gblYkMYzJFkFKcU08fBu/rTBhS9ZTQ5F06uPm9Rom9pAIrj/dMoBnh6LeG
+         Zd/mfmZ0wpRREhAnrEeqcp1WMHMM8dQRsA5l3qfSVUtdJ3j1TWZy/r3KoMulYy8tZnl+
+         5sNyjO1WNK1VywdpO6q+FkLFhmVqEWAs+yJRfsXDtDKimSLI3ZWJJjBwAdaxLWVwXDSn
+         EoK7P20jkxumVqlqLtoOGbWDsf/z3idEaR+SFaCO4vWK/iqjIGyipVc6ezOA9g+/YiEo
+         aY6w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20130820;
+        h=x-gm-message-state:mime-version:in-reply-to:references:date
+         :message-id:subject:from:to;
+        bh=mCItCpF6iryE+gFaPVfK9kwGvBYeW+ltbOswLqvWGZQ=;
+        b=fapasJ3riC0ZhpOnuSVl/A4ldmOEmedK6PddygHy4/6+ZRigC7k5sqNei71fvzdFew
+         03s//FjOQHJJwaEFWKl2KYnafO5KJPU+njgIpaDU//XFgfWaMbwieh8ujw4n4/kBEQA0
+         p/4tXtXk/JByERJJDEOzLx17eONWAp8dz4ht97+gyPILi2KT77BUWHOZemD02xlaJm1k
+         nRL5soP6cwHxbRENWpON1QinVAiXDw7wxhEAdVypWOOuTYIRs/Y2EJ8rfllBIkOdHAHu
+         3WekcWbb7HLo88K3M0XNu+gksyI+Eug9h54tbTF/AHqobn/iG67Q0hh0WJ+D7vf9LCPb
+         rZzQ==
+X-Gm-Message-State: AOPr4FVoDE+rGneBUW6mJWLqIn1hmPt6b48AHl8hZcslT1cdBGoc+Wvv2VKoKgVm/TeoEbtxrKiFmKjxyqhogw==
+MIME-Version: 1.0
+X-Received: by 10.129.154.82 with SMTP id r79mr2619721ywg.85.1461109512941;
+ Tue, 19 Apr 2016 16:45:12 -0700 (PDT)
+Received: by 10.37.34.194 with HTTP; Tue, 19 Apr 2016 16:45:12 -0700 (PDT)
+In-Reply-To: <CAF+KQ6K_qpueyBgCDuxN1-+SMb5QQr7MBekju7Mrz8hF2xso0w@mail.gmail.com>
+References: <CAF+KQ6K_qpueyBgCDuxN1-+SMb5QQr7MBekju7Mrz8hF2xso0w@mail.gmail.com>
+Date: Tue, 19 Apr 2016 19:45:12 -0400
+Message-ID: <CAKcj57DhFTpuNnWkzGUA2yaMgfSTRO2pb6CycYFwHktyJBh8gg@mail.gmail.com>
+Subject: Re: Move to the MPLv2
+From: Phillip Ross <phillip.w.g.ross at gmail.com>
+To: Elijah Zupancic <elijah.zupancic@joyent.com>
+Content-Type: multipart/alternative; boundary=94eb2c0b8d147f38e70530df1167
+
+--94eb2c0b8d147f38e70530df1167
+Content-Type: text/plain; charset=UTF-8
+
+Yep, not a problem in either case.  I hope everything is going well!
+
+Please see the confirmations inline:
+
+On Tue, Apr 19, 2016 at 7:38 PM, Elijah Zupancic <elijah.zupancic@joyent.com
+> wrote:
+
+> Do you agree to change the licensing from the MIT license for the Java
+> Manta Project (https://github.com/joyent/java-manta) to the MPL v2?
+>
+
+Yes.
+
+
+Do you agree to change the licensing from the MIT license for the Java HTTP
+> Signature Project (https://github.com/joyent/java-http-signature) to the
+> MPL v2?
+>
+
+Yes
+
+--94eb2c0b8d147f38e70530df1167
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div>Yep, not a problem in either case.=C2=A0 I hope every=
+thing is going well!</div><div><br></div><div>Please see the confirmations =
+inline:</div><div><br></div><div>On Tue, Apr 19, 2016 at 7:38 PM, Elijah Zu=
+pancic <span dir=3D"ltr">&lt;<a href=3D"mailto:elijah.zupancic@joyent.com" =
+target=3D"_blank">elijah.zupancic@joyent.com</a>&gt;</span> wrote:<br></div=
+><div class=3D"gmail_extra"><div class=3D"gmail_quote"><blockquote class=3D=
+"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding=
+-left:1ex"><div dir=3D"ltr"><div>Do you agree to change the licensing from =
+the MIT license for the Java Manta Project (<a href=3D"https://github.com/j=
+oyent/java-manta" target=3D"_blank">https://github.com/joyent/java-manta</a=
+>) to the MPL v2?</div></div></blockquote><div><br></div><div>Yes.</div><di=
+v>=C2=A0</div><div><br></div><blockquote class=3D"gmail_quote" style=3D"mar=
+gin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex"><div dir=3D"ltr=
+"><div><div><div>Do you agree to change the licensing from the MIT license =
+for the Java HTTP Signature Project (<a href=3D"https://github.com/joyent/j=
+ava-http-signature" target=3D"_blank">https://github.com/joyent/java-http-s=
+ignature</a>) to the MPL v2?</div></div></div></div></blockquote><div><br><=
+/div><div>Yes</div><div>=C2=A0</div><div><br></div><div><br></div></div></d=
+iv></div>
+
+--94eb2c0b8d147f38e70530df1167--
