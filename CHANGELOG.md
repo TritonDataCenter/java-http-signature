@@ -4,6 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [2.2.0] - ?
 ### Changed
+ - Changed license from MIT to the MPL v2.
  - Fixed #12 - Removed request id generation from Apache HTTP client helper 
    because it best belongs in the consumer of the library.
  - Fixed #12 - Removed request id generation from Google HTTP client helper

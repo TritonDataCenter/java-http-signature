@@ -128,3 +128,19 @@ For example:
         .request(MediaType.APPLICATION_JSON_TYPE)
         .get();
 ```                
+
+## Contributions
+
+Contributions welcome! Please read the [CONTRIBUTIONS.MD](CONTRIBUTIONS.MD) document for details
+on getting started.
+
+### Releasing
+
+Please refer to the [release documentation](RELEASING.md).
+
+### Bugs
+
+See <https://github.com/joyent/java-http-signature/issues>.
+
+## License
+Triton Java is licensed under the MPLv2. Please see the `LICENSE.txt` file for more details.
