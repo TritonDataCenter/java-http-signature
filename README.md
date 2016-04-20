@@ -131,7 +131,7 @@ For example:
 
 ## Contributions
 
-Contributions welcome! Please read the [CONTRIBUTIONS.MD](CONTRIBUTIONS.MD) document for details
+Contributions welcome! Please read the [CONTRIBUTING.md](CONTRIBUTING.md) document for details
 on getting started.
 
 ### Releasing
