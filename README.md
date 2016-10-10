@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/joyent/java-http-signature.svg?branch=master)](https://travis-ci.org/joyent/java-http-signature)
+
 # Java HTTP Signature Utilities
 
 [java-http-signature](https://github.com/joyent/java-http-signature) is a 
