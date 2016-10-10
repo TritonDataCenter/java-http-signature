@@ -131,7 +131,7 @@ For example:
 
 ## Contributions
 
-Contributions welcome! Please read the [CONTRIBUTIONS.MD](CONTRIBUTIONS.MD) document for details
+Contributions welcome! Please read the [CONTRIBUTING.md](CONTRIBUTING.md) document for details
 on getting started.
 
 ### Releasing
@@ -143,4 +143,5 @@ Please refer to the [release documentation](RELEASING.md).
 See <https://github.com/joyent/java-http-signature/issues>.
 
 ## License
-Triton Java is licensed under the MPLv2. Please see the `LICENSE.txt` file for more details.
+Java HTTP Signatures is licensed under the MPLv2. Please see the 
+[LICENSE.txt](LICENSE.txt) file for more details.
