@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.2.2] - ?
+### Fixed
+ - [Fixed locales aren't hardcoded to English](https://github.com/joyent/java-http-signature/issues/13) 
+
 ## [2.2.1] - 2016-10-10
 ### Changed
  - Upgraded Apache HTTP Client.

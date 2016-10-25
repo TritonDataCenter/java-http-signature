@@ -31,11 +31,7 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Objects;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  *  HTTP authorization signer. This adheres to the specs of the node-http-signature spec.
@@ -50,7 +46,8 @@ public class Signer {
     /**
      * The format for the http date header.
      */
-    public static final DateFormat DATE_FORMAT = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy zzz");
+    public static final DateFormat DATE_FORMAT = new SimpleDateFormat(
+            "EEE MMM d HH:mm:ss yyyy zzz", Locale.ENGLISH);
 
     /**
      * The template for the Authorization header.
@@ -402,7 +399,8 @@ public class Signer {
      * @return current timestamp in UTC.
      */
     private Date defaultSignDate() {
-        return Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTime();
+        return Calendar.getInstance(TimeZone.getTimeZone("UTC"),
+                Locale.ENGLISH).getTime();
     }
 
     /**
