@@ -2,10 +2,19 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [2.2.2] - ?
+## [2.2.2] - 2016-10-25
 ### Fixed
  - [Fixed locales aren't hardcoded to English](https://github.com/joyent/java-http-signature/issues/13) 
 
+### Changed
+ - Upgraded Bouncy Castle libraries.
+ - Upgraded Slf4j.
+ - Upgraded Logback.
+ - Upgraded Arquillian Glassfish Embedded.
+ - Upgraded Jersey client.
+ - Upgraded Payara Embedded Web.
+ - Upgraded Arquillian TestNG container. 
+ 
 ## [2.2.1] - 2016-10-10
 ### Changed
  - Upgraded Apache HTTP Client.

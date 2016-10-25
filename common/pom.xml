@@ -12,7 +12,7 @@
 
     <properties>
         <!-- Dependency versions -->
-        <dependency.bouncycastle.version>1.54</dependency.bouncycastle.version>
+        <dependency.bouncycastle.version>1.55</dependency.bouncycastle.version>
         <dependency.jnagmp.version>1.1.0</dependency.jnagmp.version>
     </properties>
 
