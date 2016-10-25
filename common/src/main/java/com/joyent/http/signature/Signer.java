@@ -31,7 +31,12 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.TimeZone;
 
 /**
  *  HTTP authorization signer. This adheres to the specs of the node-http-signature spec.
