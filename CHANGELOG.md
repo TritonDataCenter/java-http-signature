@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.0.0] - ?
+## Changed
+ - Deprecated com.joyent.http.signature.google.httpclient.RequestHttpSigner.signURI.
+   This method is now being provided directly in the Manta SDK.
+ - Upgraded to jnagmp 2.0.0.
+## Added
+ - Added HttpSignatureRequestInterceptor as an addition method to perform authentication with Apache HTTP Client. 
+
 ## [2.2.2] - 2016-10-25
 ### Fixed
  - [Fixed locales aren't hardcoded to English](https://github.com/joyent/java-http-signature/issues/13) 
