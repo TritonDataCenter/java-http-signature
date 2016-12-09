@@ -12,7 +12,7 @@ import java.io.IOException;
 /**
  * Alternative to HTTP Client {@link org.apache.http.auth.AuthScheme} approach
  * that uses a {@link org.apache.http.HttpRequestInterceptor} to perform
- * HTTP signature authentication
+ * HTTP signature authentication.
  *
  * @author <a href="https://github.com/dekobon">Elijah Zupancic</a>
  * @since 3.0.0
@@ -24,7 +24,7 @@ public class HttpSignatureRequestInterceptor implements HttpRequestInterceptor {
     private final boolean authEnabled;
 
     /**
-     * Authentication scheme instance to use to create authentication header;
+     * Authentication scheme instance to use to create authentication header.
      */
     private final HttpSignatureAuthScheme authScheme;
 
