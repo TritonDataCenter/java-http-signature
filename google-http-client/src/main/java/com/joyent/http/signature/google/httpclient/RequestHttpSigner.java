@@ -131,6 +131,8 @@ public class RequestHttpSigner {
      * Signs an arbitrary URL using the Manta-compatible HTTP signature
      * method.
      *
+     * Deprecated: Use method provided inside the Java Manta SDK.
+     *
      * @param uri URI with no query pointing to a downloadable resource
      * @param method HTTP request method to be used in the signature
      * @param expires epoch time in seconds when the resource will no longer
@@ -138,6 +140,7 @@ public class RequestHttpSigner {
      * @return a signed version of the input URI
      * @throws IOException thrown when we can't sign or read char data
      */
+    @Deprecated
     public URI signURI(final URI uri, final String method, final long expires)
             throws IOException {
         Objects.requireNonNull(method, "Method must be present");
