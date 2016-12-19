@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [3.0.0] - ?
+## [3.0.0] - 2016-12-19
 ## Changed
  - Deprecated com.joyent.http.signature.google.httpclient.RequestHttpSigner.signURI.
    This method is now being provided directly in the Manta SDK.
