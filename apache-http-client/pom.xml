@@ -4,7 +4,7 @@
     <parent>
         <artifactId>java-http-signature</artifactId>
         <groupId>com.joyent.http-signature</groupId>
-        <version>3.0.0-SNAPSHOT</version>
+        <version>3.0.0</version>
     </parent>
 
     <artifactId>apache-http-client-signature</artifactId>
@@ -12,7 +12,7 @@
 
     <properties>
         <!-- Dependency versions -->
-        <dependency.http-signature-common.version>3.0.0-SNAPSHOT</dependency.http-signature-common.version>
+        <dependency.http-signature-common.version>3.0.0</dependency.http-signature-common.version>
         <dependency.slfj.version>1.7.21</dependency.slfj.version>
         <dependency.logback.version>1.1.7</dependency.logback.version>
     </properties>
