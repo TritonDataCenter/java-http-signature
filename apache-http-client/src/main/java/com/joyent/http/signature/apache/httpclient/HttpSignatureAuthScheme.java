@@ -47,7 +47,7 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
     /**
      * Thread local instance of {@link Signer}.
      */
-    private final ThreadLocal<Signer> signer;
+    private final ThreadLocalSigner signer;
 
     /**
      * Creates a new instance allowing for HTTP signing.
@@ -190,5 +190,9 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
         final Header authzHeader = new BasicHeader(HttpHeaders.AUTHORIZATION, authz);
 
         return authzHeader;
+    }
+
+    public ThreadLocalSigner getSigner() {
+        return signer;
     }
 }
