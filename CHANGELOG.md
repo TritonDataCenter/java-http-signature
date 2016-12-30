@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.0.1] - 2016-12-29
+## Changed
+ - Used additional methods available from jnagmp to accelerate
+   signature generation.
+
 ## [3.0.0] - 2016-12-19
 ## Changed
  - Deprecated com.joyent.http.signature.google.httpclient.RequestHttpSigner.signURI.
