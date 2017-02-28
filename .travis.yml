@@ -1,4 +1,9 @@
+dist: trusty
 language: java
+# We now cache the Maven dependencies directory for faster builds
+cache:
+  directories:
+  - $HOME/.m2
 sudo: false
 
 before_install:
@@ -27,5 +32,11 @@ matrix:
       env:
         - DESC="openjdk7 unit tests"
         - CMD="mvn clean test -Dcheckstyle.skip=true"
+    # unit tests (openjdk8)
+    - jdk: openjdk8
+      env:
+        - DESC="openjdk8 unit tests"
+        - CMD="mvn clean test -Dcheckstyle.skip=true"
+        - LANG=en_US.utf8
 
 script: echo ${CMD}; ${CMD}
