@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.2.3] - 2017-?
+### Added
+ - We now use JCE specified message digests for calculating checksums.
+   This allows for plugging native checksum algorithms.
+
 ## [2.2.2] - 2016-10-25
 ### Fixed
  - [Fixed locales aren't hardcoded to English](https://github.com/joyent/java-http-signature/issues/13) 
