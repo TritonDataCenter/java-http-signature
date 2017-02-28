@@ -194,7 +194,7 @@ public class Signer {
                     String.format("Can't read key file from path: %s", keyPath));
         }
 
-        try (final InputStream is = Files.newInputStream(keyPath)) {
+        try (InputStream is = Files.newInputStream(keyPath)) {
             return getKeyPair(is, null);
         }
     }
@@ -241,9 +241,9 @@ public class Signer {
      */
     public KeyPair getKeyPair(final InputStream is,
                               final char[] password) throws IOException {
-        try (final InputStreamReader isr = new InputStreamReader(is);
-             final BufferedReader br = new BufferedReader(isr);
-             final PEMParser pemParser = new PEMParser(br)) {
+        try (InputStreamReader isr = new InputStreamReader(is);
+             BufferedReader br = new BufferedReader(isr);
+             PEMParser pemParser = new PEMParser(br)) {
 
             if (password == null) {
                 Security.addProvider(new BouncyCastleProvider());

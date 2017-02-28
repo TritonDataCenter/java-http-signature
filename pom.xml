@@ -84,7 +84,7 @@
         <surefire.forkCount>1</surefire.forkCount>
         <surefire.useSystemClassLoader>true</surefire.useSystemClassLoader>
         <!-- Dependency versions -->
-        <dependency.checkstyle.version>6.12.1</dependency.checkstyle.version>
+        <dependency.checkstyle.version>7.5.1</dependency.checkstyle.version>
         <dependency.apache-httpclient.version>4.5.2</dependency.apache-httpclient.version>
         <dependency.testng.version>6.9.9</dependency.testng.version>
         <!-- Plugin versions -->

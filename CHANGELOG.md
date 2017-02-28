@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
    This allows for plugging native checksum algorithms.
 ### Changed
  - Added MPLv2 headers to all of the source files.
+ - Upgraded checkstyle version and added header check.
 
 ## [3.0.1] - 2016-12-29
 ### Changed
