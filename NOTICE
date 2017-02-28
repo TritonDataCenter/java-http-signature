@@ -1,0 +1,5 @@
+The product includes software from the Legion of the Bouncy Castle project
+under the MIT License (see: com.joyent.http.signature.crypto.MantaNativeRSACoreEngine).
+
+The product includes software from the JNA GMP project
+under the Apache License 2.0 (see: com.joyent.http.signature.crypto.NativeRSABlindedEngine).
