@@ -120,10 +120,13 @@ public class NativeRSABlindedEngine extends RSABlindedEngine {
                 BigInteger blindedInput = blindedModPow.multiply(input).mod(m);
                 BigInteger blindedResult = core.processBlock(blindedInput);
 
-                BigInteger rInv = r.modInverse(m);
+                // This is a modification to use the GMP native library method
+                BigInteger rInv = Gmp.modInverse(r, m);
+
                 result = blindedResult.multiply(rInv).mod(m);
                 // defence against Arjen Lenstra’s CRT attack
-                if (!input.equals(result.modPow(e, m))) {
+                // This is a modification to use the GMP native library method
+                if (!input.equals(Gmp.modPowInsecure(result, e, m))) {
                     throw new IllegalStateException("RSA engine faulty decryption/signing detected");
                 }
             } else {

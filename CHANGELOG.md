@@ -2,10 +2,23 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [2.2.3] - 2017-?
+## [3.0.2] - 2017-?
 ### Added
  - We now use JCE specified message digests for calculating checksums.
    This allows for plugging native checksum algorithms.
+
+## [3.0.1] - 2016-12-29
+## Changed
+ - Used additional methods available from jnagmp to accelerate
+   signature generation.
+
+## [3.0.0] - 2016-12-19
+## Changed
+ - Deprecated com.joyent.http.signature.google.httpclient.RequestHttpSigner.signURI.
+   This method is now being provided directly in the Manta SDK.
+ - Upgraded to jnagmp 2.0.0.
+## Added
+ - Added HttpSignatureRequestInterceptor as an addition method to perform authentication with Apache HTTP Client. 
 
 ## [2.2.2] - 2016-10-25
 ### Fixed
