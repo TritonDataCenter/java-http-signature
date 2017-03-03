@@ -22,16 +22,6 @@ matrix:
       env:
         - DESC="oraclejdk8 unit tests"
         - CMD="mvn clean test -Dcheckstyle.skip=true"
-    # unit tests (oraclejdk7)
-    - jdk: oraclejdk7
-      env:
-        - DESC="oraclejdk7 unit tests"
-        - CMD="mvn clean test -Dcheckstyle.skip=true"
-    # unit tests (openjdk7)
-    - jdk: openjdk7
-      env:
-        - DESC="openjdk7 unit tests"
-        - CMD="mvn clean test -Dcheckstyle.skip=true"
     # unit tests (openjdk8)
     - jdk: openjdk8
       env:
