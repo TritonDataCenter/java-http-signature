@@ -62,8 +62,12 @@ public class HttpSignatureRequestInterceptor implements HttpRequestInterceptor {
             return;
         }
 
+        final long start = System.nanoTime();
         final Header authorization = authScheme.authenticate(
                 this.credentials, request, context);
+        final long end = System.nanoTime();
+
         request.setHeader(authorization);
+        request.setHeader("x-http-signing-time-ns", String.valueOf(end - start));
     }
 }

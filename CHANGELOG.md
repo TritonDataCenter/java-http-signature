@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
  - We now use JCE specified message digests for calculating checksums.
    This allows for plugging native checksum algorithms.
+ - We now append total signing time as an HTTP header. 
 ### Changed
  - Added MPLv2 headers to all of the source files.
  - Upgraded checkstyle version and added header check.

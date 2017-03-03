@@ -53,6 +53,7 @@ public class RequestHttpSignerTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void canSignUri() throws IOException {
         final String login = "user";
         final Signer signer = new Signer(this.useNativeCodeToSign);
