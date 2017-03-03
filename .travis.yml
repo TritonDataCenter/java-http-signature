@@ -13,7 +13,7 @@ matrix:
   fast_finish: true
   include:
     # checkstyle
-    - jdk: oraclejdk7
+    - jdk: oraclejdk8
       env:
         - DESC="checkstyle"
         - CMD="mvn clean checkstyle:check"
