@@ -12,13 +12,14 @@ import com.joyent.http.signature.ThreadLocalSigner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.security.KeyPair;
+import java.util.Date;
+import java.util.Objects;
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.core.MultivaluedMap;
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.Date;
-import java.util.Objects;
 
 
 /**
@@ -54,14 +55,15 @@ public class SignedRequestClientRequestFilter implements ClientRequestFilter {
     private String keyId;
 
     /**
-     * Path on the filesystem to the private RSA key used to access the Joyent Cloud or Manta service.
+     * Private RSA key used to access the Joyent Cloud or Manta service.
      */
-    private String keyPath;
+    private KeyPair keyPair;
 
     /**
      * Cryptographic signer instance.
      */
     private ThreadLocal<Signer> signer;
+
 
     /**
      * Creates a new filter instance with the specified credentials for signing requests.
@@ -69,14 +71,27 @@ public class SignedRequestClientRequestFilter implements ClientRequestFilter {
      * @param loginName Login name associated with the Joyent Cloud or Manta service
      * @param keyId RSA key fingerprint of the key used to access the Joyent Cloud or Manta service
      * @param keyPath Path on the filesystem to the private RSA key used to access the Joyent Cloud or Manta service
+     * @throws IOException if an I/O exception occurs loading the key
      */
-    public SignedRequestClientRequestFilter(final String loginName, final String keyId, final String keyPath) {
+    public SignedRequestClientRequestFilter(final String loginName, final String keyId, final String keyPath)
+        throws IOException {
+        this(loginName, keyId, (new Signer()).getKeyPair(Paths.get(keyPath)));
+    }
+
+    /**
+     * Creates a new filter instance with the specified credentials for signing requests.
+     *
+     * @param loginName Login name associated with the Joyent Cloud or Manta service
+     * @param keyId RSA key fingerprint of the key used to access the Joyent Cloud or Manta service
+     * @param keyPair Private RSA key used to access the Joyent Cloud or Manta service
+     */
+    public SignedRequestClientRequestFilter(final String loginName, final String keyId, final KeyPair keyPair) {
         Objects.requireNonNull(loginName, "loginName must be specified");
         Objects.requireNonNull(keyId, "keyId must be specified");
-        Objects.requireNonNull(keyPath, "keyPath must be specified");
+        Objects.requireNonNull(keyPair, "keyPair must be specified");
         this.loginName = loginName;
         this.keyId = keyId;
-        this.keyPath = keyPath;
+        this.keyPair = keyPair;
         this.signer = new ThreadLocalSigner();
     }
 
@@ -96,7 +111,7 @@ public class SignedRequestClientRequestFilter implements ClientRequestFilter {
         final String authHeaderValue = signer.get().createAuthorizationHeader(
                 loginName,
                 keyId,
-                signer.get().getKeyPair(Paths.get(keyPath)),
+                keyPair,
                 now
         );
         headers.add(AUTHORIZATION_HEADER_NAME, authHeaderValue);

@@ -9,6 +9,7 @@ import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.testing.http.MockHttpTransport;
 import com.joyent.http.signature.Signer;
+import com.joyent.http.signature.SignerTestUtil;
 import com.joyent.http.signature.ThreadLocalSigner;
 import org.testng.Assert;
 import org.testng.annotations.*;
@@ -25,7 +26,7 @@ import java.security.NoSuchAlgorithmException;
 public class RequestHttpSignerTest {
     private static final Logger LOG = Logger.getLogger(RequestHttpSignerTest.class);
 
-    private static final String testKeyFingerprint = "04:92:7b:23:bc:08:4f:d7:3b:5a:38:9e:4a:17:2e:df";
+    private static final String testKeyFingerprint = SignerTestUtil.testKeyFingerprint;
     private KeyPair testKeyPair;
     private boolean useNativeCodeToSign;
     private ThreadLocalSigner signer;
@@ -42,7 +43,7 @@ public class RequestHttpSignerTest {
         this.signer = new ThreadLocalSigner(this.useNativeCodeToSign);
         // Removes any existing instances - so that we can reset state
         this.signer.remove();
-        this.testKeyPair = testKeyPair(signer.get());
+        this.testKeyPair = SignerTestUtil.testKeyPair(signer.get());
     }
 
     @AfterClass
@@ -114,25 +115,5 @@ public class RequestHttpSignerTest {
         String authorization = request.getHeaders().getAuthorization();
 
         LOG.info("Authorization: " + authorization);
-    }
-
-    /**
-     * @return a static key pair used for testing utility methods
-     */
-    private KeyPair testKeyPair(final Signer signer) throws IOException {
-        final ClassLoader loader = RequestHttpSigner.class.getClassLoader();
-
-        // Try to get keypair from class path first
-        try (InputStream is = loader.getResourceAsStream("id_rsa")) {
-            KeyPair classPathPair = signer.getKeyPair(is, null);
-            if (classPathPair != null) {
-                return classPathPair;
-            }
-        }
-
-        // We couldn't get the key pair from the class path, so let's try
-        // a directory relative to the project root.
-        Path keyPath = new File("./src/test/resources/id_rsa").toPath();
-        return signer.getKeyPair(keyPath);
     }
 }

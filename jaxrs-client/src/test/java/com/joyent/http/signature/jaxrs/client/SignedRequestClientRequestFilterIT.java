@@ -3,6 +3,8 @@
  */
 package com.joyent.http.signature.jaxrs.client;
 
+import com.joyent.http.signature.Signer;
+import com.joyent.http.signature.SignerTestUtil;
 import com.joyent.http.signature.jaxrs.client.testapp.TestApplication;
 import com.joyent.http.signature.jaxrs.client.testapp.TestResource;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -13,17 +15,17 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
-import org.testng.SkipException;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.net.URISyntaxException;
-import java.net.URL;
 
 
 /**
@@ -37,9 +39,7 @@ public class SignedRequestClientRequestFilterIT extends Arquillian {
 
     private static final String TEST_LOGIN_NAME = "testy";
 
-    private static final String TEST_KEY_FINGERPRINT = "04:92:7b:23:bc:08:4f:d7:3b:5a:38:9e:4a:17:2e:df";
-
-    private static final String TEST_KEY_PATH = "src/test/resources/id_rsa";
+    private static final String TEST_KEY_FINGERPRINT = SignerTestUtil.testKeyFingerprint;
 
     /**
      * URL path element corresponding to the test JAX-RS application.  This value must match
@@ -97,15 +97,16 @@ public class SignedRequestClientRequestFilterIT extends Arquillian {
      * the correct components (keyId, algorithm, and signature)
      *
      * @throws URISyntaxException if the endpoint URI is malformed.
+     * @throws IOException if unable to read test key
      */
     @Test
-    public void testSignedRequestWithFilter() throws URISyntaxException {
+    public void testSignedRequestWithFilter() throws URISyntaxException, IOException {
         Assert.assertNotNull(endpointBaseUrl);
 
         final SignedRequestClientRequestFilter signedRequestClientRequestFilter = new SignedRequestClientRequestFilter(
                 TEST_LOGIN_NAME,
                 TEST_KEY_FINGERPRINT,
-                TEST_KEY_PATH
+                SignerTestUtil.testKeyPair(new Signer())
         );
 
          Invocation.Builder builder = ClientBuilder.newClient()
@@ -121,8 +122,8 @@ public class SignedRequestClientRequestFilterIT extends Arquillian {
         try {
             response = builder.get();
         } catch (RuntimeException e) {
-            String msg = String.format("Error accessing endpoint: %s", endpointBaseUrl);
-            throw new SkipException(msg, e);
+            logger.error("Error accessing endpoint: {}", endpointBaseUrl, e);
+            throw e;
         }
 
         Assert.assertNotNull(response);

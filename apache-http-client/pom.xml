@@ -32,6 +32,13 @@
             <version>${dependency.http-signature-common.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.joyent.http-signature</groupId>
+            <artifactId>http-signature-common</artifactId>
+            <version>${dependency.http-signature-common.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>${dependency.apache-httpclient.version}</version>
