@@ -30,6 +30,13 @@
             <version>${dependency.http-signature-common.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.joyent.http-signature</groupId>
+            <artifactId>http-signature-common</artifactId>
+            <version>${dependency.http-signature-common.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.google.http-client</groupId>
             <artifactId>google-http-client</artifactId>
             <version>${dependency.google-http-client.version}</version>
