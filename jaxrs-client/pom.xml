@@ -111,19 +111,19 @@
                             <goal>integration-test</goal>
                             <goal>verify</goal>
                         </goals>
-                        <configuration>
-                            <argLine>-Djava.awt.headless=true</argLine><!-- prevent the annoying ForkedBooter process from stealing window focus on Mac OSX -->
-                            <skip>${maven.integration.test.skip}</skip>
-                            <suiteXmlFiles>
-                                <suiteXmlFile>src/test/resources/testng-it.xml</suiteXmlFile>
-                            </suiteXmlFiles>
-                            <systemPropertyVariables>
-                                <derby.stream.error.file>${project.build.directory}/derby.log</derby.stream.error.file><!-- prevent embedded container from logging derby activity -->
-                                <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties</java.util.logging.config.file><!-- prevent embedded container from being so verbose -->
-                            </systemPropertyVariables>
-                        </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <argLine>-Djava.awt.headless=true</argLine><!-- prevent the annoying ForkedBooter process from stealing window focus on Mac OSX -->
+                    <skip>${maven.integration.test.skip}</skip>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>src/test/resources/testng-it.xml</suiteXmlFile>
+                    </suiteXmlFiles>
+                    <systemPropertyVariables>
+                        <derby.stream.error.file>${project.build.directory}/derby.log</derby.stream.error.file><!-- prevent embedded container from logging derby activity -->
+                        <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties</java.util.logging.config.file><!-- prevent embedded container from being so verbose -->
+                    </systemPropertyVariables>
+                </configuration>
             </plugin>
         </plugins>
     </build>
