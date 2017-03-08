@@ -30,6 +30,10 @@
         </license>
     </licenses>
 
+    <prerequisites>
+        <maven>${maven.min.version}</maven>
+    </prerequisites>
+
     <developers>
         <developer>
             <email>elijah@zupancic.name</email>
@@ -90,22 +94,28 @@
         <!-- Plugin versions -->
         <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
         <maven-clean-plugin.version>3.0.0</maven-clean-plugin.version>
-        <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
-        <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
+        <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
+        <maven-dependency-plugin.version>3.0.0</maven-dependency-plugin.version>
         <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
         <maven-enforcer-plugin.version>1.4.1</maven-enforcer-plugin.version>
-        <maven-failsafe-plugin.version>2.19</maven-failsafe-plugin.version>
+        <maven-failsafe-plugin.version>2.19.1</maven-failsafe-plugin.version>
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
         <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
-        <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
+        <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
         <maven-jarsigner-plugin.version>1.4</maven-jarsigner-plugin.version>
-        <maven-javadoc-plugin.version>2.10.3</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
         <maven-jxr-plugin.version>2.5</maven-jxr-plugin.version>
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
-        <maven-resources-plugin.version>2.7</maven-resources-plugin.version>
+        <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
         <maven-shade-plugin.version>2.4.2</maven-shade-plugin.version>
-        <maven-source-plugin.version>2.4</maven-source-plugin.version>
-        <maven-surefire-plugin.version>2.19</maven-surefire-plugin.version>
+        <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
+        <maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
+        <maven-jacoco-plugin.version>0.7.8</maven-jacoco-plugin.version>
+        <maven-project-info-reports-plugin.version>2.9</maven-project-info-reports-plugin.version>
+
+        <!-- Maven plugin dependency versions -->
+        <maven-plexus-compiler-javac-errorprone.version>2.8.1</maven-plexus-compiler-javac-errorprone.version>
+        <maven-error-prone-core.version>2.0.15</maven-error-prone-core.version>
     </properties>
 
     <dependencies>
@@ -140,7 +150,7 @@
                 <executions>
                     <execution>
                         <id>checkstyle</id>
-                        <phase>validate</phase>
+                        <phase>compile</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>
@@ -157,9 +167,25 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
+                    <compilerId>javac-with-errorprone</compilerId>
+                    <forceJavacCompilerUse>true</forceJavacCompilerUse>
                     <source>${java.min.version}</source>
                     <target>${java.min.version}</target>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.plexus</groupId>
+                        <artifactId>plexus-compiler-javac-errorprone</artifactId>
+                        <version>${maven-plexus-compiler-javac-errorprone.version}</version>
+                    </dependency>
+                    <!-- override plexus-compiler-javac-errorprone's dependency on
+                         Error Prone with the latest version -->
+                    <dependency>
+                        <groupId>com.google.errorprone</groupId>
+                        <artifactId>error_prone_core</artifactId>
+                        <version>${maven-error-prone-core.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -201,6 +227,7 @@
                         <exampleSystemPropertyName>exampleSystemPropertyValue</exampleSystemPropertyName>
                     </systemPropertyVariables>
                     <useSystemClassLoader>${surefire.useSystemClassLoader}</useSystemClassLoader>
+                    <trimStackTrace>false</trimStackTrace>
                 </configuration>
             </plugin>
             <plugin>
@@ -259,7 +286,27 @@
                         <exampleSystemPropertyName>exampleSystemPropertyValue</exampleSystemPropertyName>
                     </systemPropertyVariables>
                     <useSystemClassLoader>${surefire.useSystemClassLoader}</useSystemClassLoader>
+                    <trimStackTrace>false</trimStackTrace>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${maven-jacoco-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -270,6 +317,22 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
                 <version>${maven-jxr-plugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>${maven-project-info-reports-plugin.version}</version>
             </plugin>
         </plugins>
     </reporting>
