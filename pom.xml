@@ -54,7 +54,8 @@
         <module>google-http-client</module>
         <module>apache-http-client</module>
         <module>jaxrs-client</module>
-    </modules>
+        <module>microbench</module>
+  </modules>
 
     <scm>
         <connection>scm:git:git://github.com/joyent/java-http-signature.git</connection>
@@ -146,6 +147,7 @@
                     <skip>${checkstyle.skip}</skip>
                     <suppressionsLocation>suppressions.xml</suppressionsLocation>
                     <violationSeverity>warning</violationSeverity>
+                    <excludes>**/generated/**/*</excludes>
                 </configuration>
                 <executions>
                     <execution>

@@ -73,7 +73,7 @@ public class HttpSignatureRequestInterceptorTest {
 
         HttpContext context = new BasicHttpContext();
 
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 5; i++) {
             interceptor.process(request, context);
             String signTime = request.getFirstHeader("x-http-signing-time-ns").getValue();
             System.out.printf("Time to sign: %s\n", signTime);
