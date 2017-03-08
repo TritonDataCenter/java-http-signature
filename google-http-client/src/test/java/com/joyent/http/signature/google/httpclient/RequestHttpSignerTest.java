@@ -96,7 +96,7 @@ public class RequestHttpSignerTest {
         HttpRequest request = factory.buildGetRequest(get);
 
         long running = 0L;
-        int iterations = 1000;
+        int iterations = 5;
 
         for (int i = 0; i < iterations; i++) {
             long start = System.currentTimeMillis();

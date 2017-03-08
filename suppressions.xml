@@ -12,4 +12,5 @@
     <suppress checks="ImportControl" files="^.*Test\.java$" />
     <suppress checks="[a-zA-Z0-9]*" files="MantaNativeRSACoreEngine.java" />
     <suppress checks="Header" files="NativeRSABlindedEngine.java" />
+    <suppress checks="Javadoc.*" files="BenchmarkSigner.java" />
 </suppressions>
