@@ -14,19 +14,12 @@ import com.joyent.http.signature.ThreadLocalSigner;
 import org.bouncycastle.util.encoders.Base64;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
-import java.security.InvalidKeyException;
 import java.security.KeyPair;
-import java.security.Signature;
-import java.security.SignatureException;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.joyent.http.signature.Signer.AUTHZ_PATTERN;
-import static com.joyent.http.signature.Signer.AUTHZ_SIGNING_STRING;
 
 // I really really don't want to be using JUL for logging, but it is what the
 // google library is using, so we are sticking with it. :(
@@ -199,29 +192,7 @@ public class RequestHttpSigner {
         if (date == null) {
             throw new CryptoException("No date header in request");
         }
-
-        date = String.format(AUTHZ_SIGNING_STRING, date);
-        Signature signature = signer.get().getSignature();
-
-        try {
-            signature.initVerify(this.keyPair.getPublic());
-            final String authzHeader = request.getHeaders().getAuthorization();
-            final int startIndex = authzHeader.indexOf(AUTHZ_PATTERN);
-            if (startIndex == -1) {
-                throw new CryptoException("invalid authorization header " + authzHeader);
-            }
-            final String encodedSignedDate = authzHeader.substring(startIndex + AUTHZ_PATTERN.length(),
-                    authzHeader.length() - 1);
-            final byte[] signedDate = Base64.decode(encodedSignedDate.getBytes("UTF-8"));
-            signature.update(date.getBytes("UTF-8"));
-            return signature.verify(signedDate);
-        } catch (final InvalidKeyException e) {
-            throw new CryptoException("invalid key", e);
-        } catch (final SignatureException e) {
-            throw new CryptoException("invalid signature", e);
-        } catch (final UnsupportedEncodingException e) {
-            throw new CryptoException("invalid encoding", e);
-        }
+        return signer.get().verifyAuthorizationHeader(this.keyPair, request.getHeaders().getAuthorization(), date);
     }
 
 
