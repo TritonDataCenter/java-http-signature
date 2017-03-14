@@ -7,6 +7,7 @@
  */
 package com.joyent.http.signature.apache.httpclient;
 
+import com.joyent.http.signature.ThreadLocalSigner;
 import org.apache.http.auth.AuthSchemeProvider;
 import org.apache.http.config.Lookup;
 
@@ -40,11 +41,27 @@ public class HttpSignatureAuthSchemeProviderLookup implements Lookup<AuthSchemeP
      * passed key.
      * @param keyPair Public/private keypair object used to sign HTTP requests.
      * @param useNativeCodeToSign true to enable native code acceleration of cryptographic singing
+     *
+     * @deprecated Prefer {@link #HttpSignatureAuthSchemeProviderLookup(KeyPair, ThreadLocalSigner)}
      */
+    @Deprecated
     public HttpSignatureAuthSchemeProviderLookup(
             final KeyPair keyPair, final boolean useNativeCodeToSign) {
         this.authSchemeProvider = new HttpSignatureAuthSchemeProvider(
                 keyPair, useNativeCodeToSign);
+    }
+
+    /**
+     * Create a new instance of the lookup with a new provider setup with the
+     * passed key.
+     *
+     * @param keyPair Public/private keypair object used to sign HTTP requests.
+     * @param signer Configured Signer instance
+     */
+    public HttpSignatureAuthSchemeProviderLookup(
+            final KeyPair keyPair, final ThreadLocalSigner signer) {
+        this.authSchemeProvider = new HttpSignatureAuthSchemeProvider(
+                keyPair, signer);
     }
 
     @Override

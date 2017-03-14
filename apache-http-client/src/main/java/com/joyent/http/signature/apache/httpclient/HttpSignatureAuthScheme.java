@@ -54,31 +54,54 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
     private final ThreadLocalSigner signer;
 
     /**
-     * Creates a new instance allowing for HTTP signing.
+     * Creates a new instance allowing for HTTP signing with default
+     * settings.  An internal {@link
+     * com.joyent.http.signature.ThreadLocalSigner} instance will be
+     * created.
+     *
+     * @param keyPair Public/private  keypair object used to sign HTTP requests.
+     */
+    public HttpSignatureAuthScheme(final KeyPair keyPair) {
+        this(keyPair, true);
+    }
+
+
+    /**
+     * Creates a new instance allowing for HTTP signing with default
+     * settings.  An internal {@link
+     * com.joyent.http.signature.ThreadLocalSigner} instance will be
+     * created.
+     *
      * @param keyPair Public/private keypair object used to sign HTTP requests.
      * @param useNativeCodeToSign true to enable native code acceleration of cryptographic singing
+     *
+     * @deprecated Prefer #HttpSignatureAuthScheme(final KeyPair
+     * keyPair, final Signer) if configuration of Signer algorithm,
+     * hashes, or providers is required.
      */
+    @Deprecated
     public HttpSignatureAuthScheme(final KeyPair keyPair, final boolean useNativeCodeToSign) {
-        if (keyPair == null) {
-            throw new IllegalArgumentException("KeyPair must be present");
-        }
-
-        this.keyPair = keyPair;
-        this.signer = new ThreadLocalSigner(useNativeCodeToSign);
+        this(keyPair, new ThreadLocalSigner());
     }
+
 
     /**
      * Creates a new instance allowing for HTTP signing.
-     * @param keyPair Public/private RSA keypair object used to sign HTTP requests.
+     *
+     * @param keyPair Public/private keypair object used to sign HTTP requests.
+     * @param signer {@link
+     * com.joyent.http.signature.ThreadLocalSigner} to use for all
+     * signed requests.
      */
-    public HttpSignatureAuthScheme(final KeyPair keyPair) {
+    public HttpSignatureAuthScheme(final KeyPair keyPair, final ThreadLocalSigner signer) {
         if (keyPair == null) {
             throw new IllegalArgumentException("KeyPair must be present");
         }
 
         this.keyPair = keyPair;
-        this.signer = new ThreadLocalSigner();
+        this.signer = signer;
     }
+
 
     @Override
     public void processChallenge(final Header header) throws MalformedChallengeException {

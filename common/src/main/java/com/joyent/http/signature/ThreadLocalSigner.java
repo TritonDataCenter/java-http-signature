@@ -27,31 +27,57 @@ public class ThreadLocalSigner extends ThreadLocal<Signer> {
             new CopyOnWriteArraySet<>();
 
     /**
-     * Flag indicating the status of native code acceleration of cryptographic singing.
+     * {@code Signer.Builder} with configuration that will be used to
+     * instantiate new {@code Signer}s on demand.
      */
-    private final boolean useNativeCodeToSign;
+    private Signer.Builder builder;
 
     /**
-     * Create a new thread-local instance of {@link Signer}.
+     * Create a new thread-local instance of {@link Signer} with the
+     * same defaults as in version 3.x.
      *
-     * @param useNativeCodeToSign true to enable native code acceleration of cryptographic singing
+     * @deprecated @see #ThreadLocalSigner(final boolean useNativeCodeToSign)
+     *
      */
-    public ThreadLocalSigner(final boolean useNativeCodeToSign) {
-        this.useNativeCodeToSign = useNativeCodeToSign;
+    @Deprecated
+    public ThreadLocalSigner() {
+        this(true);
     }
 
     /**
-     * Create a new thread-local instance of {@link Signer}.
+     * Create a new thread-local instance of {@link Signer} with the
+     * same defaults as in version 3.0, but optionally toggling {@code
+     * native.jnagmp} acceleration.
      *
+     * @param useNativeCodeToSign true to enable native code acceleration of cryptographic singing
+     *
+     * @deprecated Passing a {@link Signer.Builder} is now the
+     * preferred constructor.  The use of these constructors tends to
+     * encourage error prone use with multiple {@code
+     * ThreadLocalSigner} instances unintentionally operating on the
+     * same keys.
      */
-    public ThreadLocalSigner() {
-        this.useNativeCodeToSign = true;
+    @Deprecated
+    @SuppressWarnings("checkstyle:avoidinlineconditionals")
+    public ThreadLocalSigner(final boolean useNativeCodeToSign) {
+        builder = new Signer.Builder("RSA").providerCode(useNativeCodeToSign ? "native.jnagmp" : "stdlib");
+    }
+
+    /**
+     * Create a new thread-local instance of {@link Signer} with each
+     * {@link Signer} configured by the given {@link Signer.Builder}.
+     *
+     * @param builder {@code Signer.Builder} with configuration that
+     * will be used to instantiate new {@code Signer}s on demand.
+    */
+    public ThreadLocalSigner(final Signer.Builder builder) {
+        this.builder = builder;
     }
 
     @Override
     protected Signer initialValue() {
         threadsReferencing.add(Thread.currentThread());
-        return new Signer(useNativeCodeToSign);
+        return builder.build();
     }
 
     @Override

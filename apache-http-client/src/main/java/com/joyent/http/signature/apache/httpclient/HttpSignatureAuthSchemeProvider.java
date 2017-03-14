@@ -7,6 +7,7 @@
  */
 package com.joyent.http.signature.apache.httpclient;
 
+import com.joyent.http.signature.ThreadLocalSigner;
 import org.apache.http.auth.AuthScheme;
 import org.apache.http.auth.AuthSchemeProvider;
 import org.apache.http.protocol.HttpContext;
@@ -26,19 +27,41 @@ public class HttpSignatureAuthSchemeProvider implements AuthSchemeProvider {
     private final KeyPair keyPair;
 
     /**
-     * Flag that enables native code acceleration of cryptographic singing.
+     * Deprecated flag that enables native code acceleration of cryptographic singing.
      */
     private final boolean useNativeCodeToSign;
+
+    /**
+     * Fully configured {@code Signer} to pass to instantiated {@code
+     * AuthScheme}s.
+     */
+    private final ThreadLocalSigner signer;
 
     /**
      * Create a new instance of the provider.
      * @param keyPair Public/private keypair object used to sign HTTP requests.
      * @param useNativeCodeToSign true to enable native code acceleration of cryptographic singing
+     *
+     * @deprecated Prefer {@link #HttpSignatureAuthSchemeProvider(KeyPair, ThreadLocalSigner)}
      */
+    @Deprecated
     public HttpSignatureAuthSchemeProvider(final KeyPair keyPair,
                                            final boolean useNativeCodeToSign) {
         this.keyPair = keyPair;
         this.useNativeCodeToSign = useNativeCodeToSign;
+        this.signer = null;
+    }
+
+    /**
+     * Create a new instance of the provider.
+     * @param keyPair Public/private keypair object used to sign HTTP requests.
+     * @param signer Configured Signer instance
+     */
+    public HttpSignatureAuthSchemeProvider(final KeyPair keyPair,
+                                           final ThreadLocalSigner signer) {
+        this.keyPair = keyPair;
+        this.useNativeCodeToSign = false;
+        this.signer = signer;
     }
 
     /**
@@ -48,7 +71,12 @@ public class HttpSignatureAuthSchemeProvider implements AuthSchemeProvider {
      * @return new instance of {@link AuthScheme}
      */
     @Override
+    @SuppressWarnings("deprecation")
     public AuthScheme create(final HttpContext context) {
-        return new HttpSignatureAuthScheme(keyPair, useNativeCodeToSign);
+        if (signer != null) {
+            return new HttpSignatureAuthScheme(keyPair, signer);
+        } else {
+            return new HttpSignatureAuthScheme(keyPair, useNativeCodeToSign);
+        }
     }
 }

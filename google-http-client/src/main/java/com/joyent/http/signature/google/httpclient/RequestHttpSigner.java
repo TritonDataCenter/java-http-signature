@@ -65,7 +65,12 @@ public class RequestHttpSigner {
      * @param login Login name/account name used in authorization header
      * @param fingerprint rsa key fingerprint
      * @param useNativeCodeToSign true to enable native code acceleration of cryptographic singing
+     *
+     * @deprecated Prefer using the full configuration of {@link
+     * com.joyent.http.signature.Signer.Builder} to the old boolean {@code useNativeCodeToSign}
+     * switch.
      */
+    @Deprecated
     public RequestHttpSigner(final KeyPair keyPair, final String login, final String fingerprint,
                              final boolean useNativeCodeToSign) {
         this(keyPair, login, fingerprint, new ThreadLocalSigner(useNativeCodeToSign));

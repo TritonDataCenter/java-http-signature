@@ -11,7 +11,7 @@
 
     <groupId>com.joyent.http-signature</groupId>
     <artifactId>java-http-signature</artifactId>
-    <version>3.0.3-SNAPSHOT</version>
+    <version>4.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>java-http-signature</name>
@@ -80,7 +80,7 @@
 
     <properties>
         <checkstyle.skip>false</checkstyle.skip>
-        <java.min.version>1.7</java.min.version>
+        <java.min.version>1.8</java.min.version>
         <maven.min.version>3.1</maven.min.version>
         <maven.test.skip>false</maven.test.skip>
         <maven.integration.test.skip>false</maven.integration.test.skip>
@@ -173,6 +173,9 @@
                     <forceJavacCompilerUse>true</forceJavacCompilerUse>
                     <source>${java.min.version}</source>
                     <target>${java.min.version}</target>
+                    <compilerArgs>
+                        <arg>-Xlint:deprecation</arg>
+                    </compilerArgs>
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -319,6 +322,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
                 <version>${maven-jxr-plugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven-javadoc-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>

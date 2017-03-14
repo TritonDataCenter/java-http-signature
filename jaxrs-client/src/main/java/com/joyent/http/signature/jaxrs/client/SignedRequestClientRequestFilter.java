@@ -7,6 +7,7 @@
  */
 package com.joyent.http.signature.jaxrs.client;
 
+import com.joyent.http.signature.KeyPairLoader;
 import com.joyent.http.signature.Signer;
 import com.joyent.http.signature.ThreadLocalSigner;
 import org.slf4j.Logger;
@@ -75,7 +76,7 @@ public class SignedRequestClientRequestFilter implements ClientRequestFilter {
      */
     public SignedRequestClientRequestFilter(final String loginName, final String keyId, final String keyPath)
         throws IOException {
-        this(loginName, keyId, (new Signer()).getKeyPair(Paths.get(keyPath)));
+        this(loginName, keyId, KeyPairLoader.getKeyPair(Paths.get(keyPath)));
     }
 
     /**
@@ -83,16 +84,31 @@ public class SignedRequestClientRequestFilter implements ClientRequestFilter {
      *
      * @param loginName Login name associated with the Joyent Cloud or Manta service
      * @param keyId RSA key fingerprint of the key used to access the Joyent Cloud or Manta service
-     * @param keyPair Private RSA key used to access the Joyent Cloud or Manta service
+     * @param keyPair Private key used to access the Joyent Cloud or Manta service
      */
     public SignedRequestClientRequestFilter(final String loginName, final String keyId, final KeyPair keyPair) {
+        this(loginName, keyId, keyPair, new ThreadLocalSigner(new Signer.Builder(keyPair)));
+    }
+
+    /**
+     * Creates a new filter instance with the specified credentials for signing requests.
+     *
+     * @param loginName Login name associated with the Joyent Cloud or Manta service
+     * @param keyId RSA key fingerprint of the key used to access the Joyent Cloud or Manta service
+     * @param keyPair Private key used to access the Joyent Cloud or Manta service
+     * @param signer {@link
+     * com.joyent.http.signature.ThreadLocalSigner} to use for all
+     * signed requests.
+     */
+    public SignedRequestClientRequestFilter(final String loginName, final String keyId, final KeyPair keyPair,
+                                            final ThreadLocalSigner signer) {
         Objects.requireNonNull(loginName, "loginName must be specified");
         Objects.requireNonNull(keyId, "keyId must be specified");
         Objects.requireNonNull(keyPair, "keyPair must be specified");
         this.loginName = loginName;
         this.keyId = keyId;
         this.keyPair = keyPair;
-        this.signer = new ThreadLocalSigner();
+        this.signer = signer;
     }
 
 

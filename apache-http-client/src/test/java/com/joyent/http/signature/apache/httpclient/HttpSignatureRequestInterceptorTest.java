@@ -25,19 +25,19 @@ import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 
 public class HttpSignatureRequestInterceptorTest {
-    private static final String testKeyFingerprint = SignerTestUtil.testKeyFingerprint;
     private KeyPair testKeyPair;
+    private String testKeyFingerprint;
     private boolean useNativeCodeToSign;
     private ThreadLocalSigner signer;
 
     private HttpSignatureAuthScheme authScheme;
 
-    private Credentials credentials = new UsernamePasswordCredentials(
-            "username", testKeyFingerprint);
+    private Credentials credentials;
     private HttpSignatureRequestInterceptor interceptor;
 
     @Parameters({"useNativeCodeToSign"})
     @BeforeClass
+    @SuppressWarnings("deprecation")
     public void beforeClass(@Optional Boolean useNativeCodeToSign) throws IOException, NoSuchAlgorithmException {
         if (useNativeCodeToSign == null) {
             this.useNativeCodeToSign = true;
@@ -48,7 +48,9 @@ public class HttpSignatureRequestInterceptorTest {
         this.signer = new ThreadLocalSigner(this.useNativeCodeToSign);
         // Removes any existing instances - so that we can reset state
         this.signer.remove();
-        this.testKeyPair = SignerTestUtil.testKeyPair(signer.get());
+        this.testKeyPair = SignerTestUtil.testKeyPair("rsa_2048");
+        this.testKeyFingerprint = SignerTestUtil.testKeyFingerprint("rsa_2048");
+        credentials = new UsernamePasswordCredentials("username", testKeyFingerprint);
 
         this.authScheme = new HttpSignatureAuthScheme(testKeyPair, this.useNativeCodeToSign);
         this.interceptor = new HttpSignatureRequestInterceptor(authScheme, credentials,

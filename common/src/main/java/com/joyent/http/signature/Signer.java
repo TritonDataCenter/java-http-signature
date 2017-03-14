@@ -8,29 +8,16 @@
 package com.joyent.http.signature;
 
 import com.joyent.http.signature.crypto.NativeRSAProvider;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.openssl.PEMDecryptorProvider;
-import org.bouncycastle.openssl.PEMEncryptedKeyPair;
-import org.bouncycastle.openssl.PEMKeyPair;
-import org.bouncycastle.openssl.PEMParser;
-import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
-import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
 import org.bouncycastle.util.encoders.Base64;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
-import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.text.DateFormat;
@@ -61,28 +48,18 @@ public class Signer {
     /**
      * The template for the Authorization header.
      */
-    public static final String AUTHZ_HEADER =
-            "Signature keyId=\"/%s/keys/%s\",algorithm=\"rsa-sha256\",signature=\"%s\"";
+    private static final String AUTHZ_HEADER =
+            "Signature keyId=\"/%s/keys/%s\",algorithm=\"%s\",signature=\"%s\"";
 
     /**
      * The template for the authorization signing signing string.
      */
-    public static final String AUTHZ_SIGNING_STRING = "date: %s";
+    private static final String AUTHZ_SIGNING_STRING = "date: %s";
 
     /**
      * The prefix for the signature component of the authorization header.
      */
-    public static final String AUTHZ_PATTERN = "signature=\"";
-
-    /**
-     * Signing algorithm implemented entirely in the JVM.
-     */
-    public static final String SIGNING_JVM_ALGORITHM = "SHA256withRSA";
-
-    /**
-     * Signing algorithm that uses JNA extents to libgmp for improved performance.
-     */
-    public static final String SIGNING_NATIVE_ALGORITHM = "SHA256withNativeRSA";
+    private static final String AUTHZ_PATTERN = "signature=\"";
 
     /**
      * Cryptographic signature used for signing requests.
@@ -90,44 +67,17 @@ public class Signer {
     private final Signature signature;
 
     /**
-     * The key format converter to use when reading key pairs.
+     *  Private field with the computer http header algorithm.
      */
-    private final JcaPEMKeyConverter converter =
-            new JcaPEMKeyConverter().setProvider("BC");
-
-    /**
-     * OS names with native support in jnagmp.
-     * Always keep values sorted because we binary search them.
-     */
-    private static final String[] SUPPORTED_NATIVE_OS =
-            new String[] {"linux", "mac os x", "sunos"};
-
-    /**
-     * Architectures with native support in jnagmp.
-     * Always keep values sorted because we binary search them.
-     */
-    private static final String[] SUPPORTED_NATIVE_ARCH =
-            new String[] {"amd64", "x86_64"};
-
-    /**
-     * When true we are on a platform that supports native libgmp for modpow.
-     */
-    private static final boolean JNAGMP_SUPPORTED;
-
-    static {
-        final String os = System.getProperty("os.name").toLowerCase();
-        final String arch = System.getProperty("os.arch").toLowerCase();
-
-        JNAGMP_SUPPORTED = Arrays.binarySearch(SUPPORTED_NATIVE_OS, os) >= 0
-            && Arrays.binarySearch(SUPPORTED_NATIVE_ARCH, arch) >= 0;
-
-        System.setProperty("native.jnagmp", Objects.toString(JNAGMP_SUPPORTED));
-    }
+    private final String httpHeaderAlgorithm;
 
     /**
      * Creates a new instance of the class and enables native code acceleration of
      * cryptographic signing by default.
+     *
+     * @deprecated Prefer use of {@link Signer.Builder}
      */
+    @Deprecated
     public Signer() {
         this(true);
     }
@@ -136,134 +86,101 @@ public class Signer {
      * Creates a new instance of the class.
      *
      * @param useNativeCodeToSign true to enable native code acceleration of cryptographic singing
-     */
-    public Signer(final boolean useNativeCodeToSign) {
-        signature = chooseSignature(useNativeCodeToSign);
-    }
-
-    /**
-     * Attempts to use a signing algorithm that is implemented using native code.
-     * If that fails, it falls back to the pure JVM implementation.
-     * @param useNativeCodeToSign true to enable native code acceleration of cryptographic singing
-     * @return a SHA256 signing algorithm
-     */
-    public static Signature chooseSignature(final boolean useNativeCodeToSign) {
-        final boolean nativeSupported = useNativeCodeToSign && JNAGMP_SUPPORTED;
-
-        // We only support native RSA on 64-bit x86 Linux and OS X
-        if (!nativeSupported) {
-            try {
-                return Signature.getInstance(SIGNING_JVM_ALGORITHM);
-            } catch (NoSuchAlgorithmException nsae) {
-                throw new CryptoException(nsae);
-            }
-        }
-
-        try {
-            final Provider provider = new NativeRSAProvider();
-            return Signature.getInstance(SIGNING_NATIVE_ALGORITHM, provider);
-            // if ANYTHING goes wrong, we default to the JVM implementation of the signing algo
-        } catch (Exception e) {
-            try {
-                return Signature.getInstance(SIGNING_JVM_ALGORITHM);
-            } catch (NoSuchAlgorithmException nsae) {
-                throw new CryptoException(nsae);
-            }
-        }
-    }
-
-    /**
-     * Read KeyPair located at the specified path.
      *
-     * @param keyPath The path to the rsa key
+     * @deprecated Prefer use of {@link Signer.Builder}
+     */
+    @Deprecated
+    @SuppressWarnings("checkstyle:avoidinlineconditionals")
+    public Signer(final boolean useNativeCodeToSign) {
+        this(new Builder("RSA").providerCode(useNativeCodeToSign ? "native.jnagmp" : "stdlib"));
+    }
+
+    /**
+     * {@link Signer.Builder} This is public (a difference from the
+     * normal Builder pattern) for use by {@link ThreadLocalSigner}.
+     *
+     * @param builder {@link Signer.Builder}
+     */
+    public Signer(final Builder builder) {
+        Provider provider = builder.algHelper.makeProvider(builder.providerCode);
+        httpHeaderAlgorithm = builder.httpHeaderAlgorithm();
+        if (provider == null) {
+            try {
+                signature = Signature.getInstance(builder.javaStandardName(provider));
+            } catch (NoSuchAlgorithmException nsae) {
+                throw new CryptoException(nsae);
+            }
+        } else {
+            try {
+                signature = Signature.getInstance(builder.javaStandardName(provider), provider);
+            } catch (NoSuchAlgorithmException nsae) {
+                throw new CryptoException(nsae);
+            }
+        }
+    }
+
+    /**
+     * @see KeyPairLoader#getKeyPair
+     *
+     * @param keyPath The path to the key
      * @return public-private keypair object
      * @throws IOException If unable to read the private key from the file
+     *
+     * @deprecated Since a {@code KeyPair} is needed to instantiate,
+     * is is now backwards for this to be an instance method.
      */
+    @Deprecated
     public KeyPair getKeyPair(final Path keyPath) throws IOException {
-        if (keyPath == null) {
-            throw new FileNotFoundException("No key file path specified");
-        }
-
-        if (!Files.exists(keyPath)) {
-            throw new FileNotFoundException(
-                    String.format("No key file available at path: %s", keyPath));
-        }
-
-        if (!Files.isReadable(keyPath)) {
-            throw new IOException(
-                    String.format("Can't read key file from path: %s", keyPath));
-        }
-
-        try (InputStream is = Files.newInputStream(keyPath)) {
-            return getKeyPair(is, null);
-        }
+        return KeyPairLoader.getKeyPair(keyPath);
     }
 
     /**
-     * Read KeyPair from a string, optionally using password.
+     * @see KeyPairLoader#getKeyPair
      *
      * @param privateKeyContent private key content as a string
      * @param password password associated with key
      * @return public-private keypair object
      * @throws IOException If unable to read the private key from the string
+     *
+     * @deprecated Since a {@code KeyPair} is needed to instantiate,
+     * is is now backwards for this to be an instance method.
      */
+    @Deprecated
     public KeyPair getKeyPair(final String privateKeyContent, final char[] password) throws IOException {
-        byte[] pKeyBytes = privateKeyContent.getBytes();
-
-        return getKeyPair(pKeyBytes, password);
+        return KeyPairLoader.getKeyPair(privateKeyContent, password);
     }
 
     /**
-     * Read KeyPair from a string, optionally using password.
+     * @see KeyPairLoader#getKeyPair
      *
      * @param pKeyBytes private key content as a byte array
      * @param password password associated with key
      * @return public-private keypair object
      * @throws IOException If unable to read the private key from the string
+     *
+     * @deprecated Since a {@code KeyPair} is needed to instantiate,
+     * is is now backwards for this to be an instance method.
      */
+    @Deprecated
     public KeyPair getKeyPair(final byte[] pKeyBytes, final char[] password) throws IOException {
-        if (pKeyBytes == null) {
-            throw new IllegalArgumentException("pKeyBytes must be present");
-        }
-
-        try (InputStream is = new ByteArrayInputStream(pKeyBytes)) {
-            return getKeyPair(is, password);
-        }
+        return KeyPairLoader.getKeyPair(pKeyBytes, password);
     }
 
     /**
-     * Read KeyPair from an input stream, optionally using password.
+     * @see KeyPairLoader#getKeyPair
      *
      * @param is private key content as a stream
      * @param password password associated with key
      * @return public/private keypair object
      * @throws IOException If unable to read the private key from the string
+     *
+     * @deprecated Since a {@code KeyPair} is needed to instantiate,
+     * is is now backwards for this to be an instance method.
      */
+    @Deprecated
     public KeyPair getKeyPair(final InputStream is,
                               final char[] password) throws IOException {
-        try (InputStreamReader isr = new InputStreamReader(is);
-             BufferedReader br = new BufferedReader(isr);
-             PEMParser pemParser = new PEMParser(br)) {
-
-            if (password == null) {
-                Security.addProvider(new BouncyCastleProvider());
-                final Object object = pemParser.readObject();
-                return converter.getKeyPair((PEMKeyPair) object);
-            } else {
-                PEMDecryptorProvider decProv = new JcePEMDecryptorProviderBuilder().build(password);
-
-                Object object = pemParser.readObject();
-
-                final KeyPair kp;
-                if (object instanceof PEMEncryptedKeyPair) {
-                    kp = converter.getKeyPair(((PEMEncryptedKeyPair) object).decryptKeyPair(decProv));
-                } else {
-                    kp = converter.getKeyPair((PEMKeyPair) object);
-                }
-
-                return kp;
-            }
-        }
+        return KeyPairLoader.getKeyPair(is, password);
     }
 
     /**
@@ -331,7 +248,7 @@ public class Signer {
             final byte[] signedDate = signature.sign();
             final byte[] encodedSignedDate = Base64.encode(signedDate);
 
-            return String.format(AUTHZ_HEADER, login, fingerprint,
+            return String.format(AUTHZ_HEADER, login, fingerprint, httpHeaderAlgorithm,
                     new String(encodedSignedDate));
         } catch (final InvalidKeyException e) {
             throw new CryptoException("invalid key", e);
@@ -464,9 +381,11 @@ public class Signer {
     }
 
     /**
+     * This method is visible for tests or benchmarks.
+     *
      * @return instance of the signature cipher implementation
      */
-    public Signature getSignature() {
+    Signature getSignature() {
         return signature;
     }
 
@@ -474,8 +393,378 @@ public class Signer {
     public String toString() {
         final StringBuilder sb = new StringBuilder("Signer{");
         sb.append("signature=").append(signature);
-        sb.append(", converter=").append(converter);
+        sb.append("httpHeaderAlgorithme=").append(httpHeaderAlgorithm);
         sb.append('}');
         return sb.toString();
+    }
+
+    /**
+     * Builder class for {@link Signer}.
+     *
+     * The signing algorithm can be identified by a string (using the
+     * same names as {@link java.security.PrivateKey#getAlgorithm}),
+     * or by just passing in a {@link java.security.KeyPair}.  The
+     * supported singing algorithms are RSA, DSA, and ECDSA.
+     *
+     * Signers can be further configured by specifying a string
+     * representation of a hashing algorithms.  For example, {@code
+     * SHA512} instead of {@code SHA256}.  The default is {@code
+     * SHA256} in for all cases. The supported hash names are:
+     *
+     * <ul>
+     * <li>RSA: {@code SHA1}, {@code SHA256}, {@code SHA512}</li>
+     * <li>DSA: {@code SHA1}, {@code SHA256}</li>
+     * <li>ECDSA: {@code SHA256}, {@code SHA384}, {@code SHA512}</li>
+     * </ul>
+     *
+     * {@code providerCode} is designate and alternative provider to
+     * the standard library. Currently the only algorithm that
+     * supports a custom provider is {@code RSA} with {@code
+     * native.jnagmp}.  This is the default.  See {@link
+     * com.joyent.http.signature.crypto.NativeRSAWithSHA} for more
+     * information.  All singing algorithms support {@code stdlib} to
+     * use the standard library.
+     */
+    @SuppressWarnings("checkstyle:javadocvariable")
+    public static class Builder {
+        private final SigningAlgorithmHelper algHelper;
+        private String hash;
+        private String providerCode;
+
+        /**
+         * Instantiate a new Builder based on the algorithm of the
+         * given keypair.
+         *
+         * @param keyPair The given KeyPair.
+         */
+        public Builder(final KeyPair keyPair) {
+            this.algHelper = SigningAlgorithmHelper.create(keyPair);
+            hash = algHelper.defaultHash();
+            providerCode = algHelper.defaultProviderCode();
+        }
+
+        /**
+         * Instantiate a new Builder based on the explicitly given
+         * algorithm.
+         *
+         * @param algorithm {@link java.security.PrivateKey#getAlgorithm}
+         */
+        public Builder(final String algorithm) {
+            this.algHelper = SigningAlgorithmHelper.create(algorithm);
+            hash = algHelper.defaultHash();
+            providerCode = algHelper.defaultProviderCode();
+        }
+
+        /**
+         * Overrides the default hash type.
+         *
+         * @param hash New hash type
+         * @return This {@code Builder} object
+         */
+        @SuppressWarnings("checkstyle:hiddenfield")
+        public Builder hash(final String hash) {
+            algHelper.checkSupportedHash(hash);
+            this.hash = hash;
+            return this;
+        }
+
+        /**
+         * Overrides the default provider code.
+         *
+         * @param providerCode New provider code
+         * @return This {@code Builder} object
+         */
+        @SuppressWarnings("checkstyle:hiddenfield")
+        public Builder providerCode(final String providerCode) {
+            algHelper.checkSupportedProviderCode(providerCode);
+            this.providerCode = providerCode;
+            return this;
+        }
+
+        /**
+         * From the configured singing algorithm and hash, return a
+         * string representation as used by the @see <a
+         * href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#Signature">Java
+         * Cryptography Architecture Standard Algorithm Name
+         * Documentation</a>.
+         *
+         * @param provider Provider used for signing.
+         * @return The standard representation
+         */
+        private String javaStandardName(final Provider provider) {
+            return hash + "with" + algHelper.providerPrefix(provider) + algHelper.getAlgorithm();
+        }
+
+        /**
+         * From the configured signing algorithm and hash, return the
+         * representation formatted for the HTTP Signature field.
+         *
+         * @return The header string
+         */
+        private String httpHeaderAlgorithm() {
+            return algHelper.getAlgorithm().toLowerCase() + "-" + hash.toLowerCase();
+        }
+
+        /**
+         * Returns a newly-created {@code Signer} based on the contents of the
+         * {@code Builder}.
+         *
+         * @return The new {@code Builder}
+         */
+        public Signer build() {
+            return new Signer(this);
+        }
+
+        /**
+         * Helper class with per algorithm configuration.
+         */
+        private abstract static class SigningAlgorithmHelper {
+
+
+            /**
+             * Create a new {@code SigningAlgorithmHelper} based on
+             * the given {@code KeyPair}.
+             *
+             * @param keyPair {@code} KeyPair to sign for
+             * @return New {@code SigningAlgorithmHelper} instance.
+             */
+            public static SigningAlgorithmHelper create(final KeyPair keyPair) {
+                return create(keyPair.getPrivate().getAlgorithm());
+            }
+
+            /**
+             * Create a new {@code SigningAlgorithmHelper} based on
+             * the given algorithm code.
+
+             * @param algorithm {@see java.security.KeyPair#getAlgorithm}
+             * @return New {@code SigningAlgorithmHelper} instance.
+            */
+            public static SigningAlgorithmHelper create(final String algorithm) {
+                if (algorithm.equals("RSA")) {
+                    return new RsaHelper();
+                } else if (algorithm.equals("DSA")) {
+                    return new DsaHelper();
+                } else if (algorithm.equals("ECDSA")) {
+                    return new EcdsaHelper();
+                } else {
+                    throw new IllegalArgumentException("invalid signing algorithm: " + algorithm);
+                }
+            }
+
+            /**
+             * Return the string code for the instantiated algorithm helper.
+             *
+             * @return {@see java.security.KeyPair#getAlgorithm}
+             */
+            public abstract String getAlgorithm();
+
+            /**
+             * Get all of the hash algorithms supported by the
+             * algorithm, in sorted order.
+             *
+             * @return The sorted hash algorihtm names.
+             */
+            public abstract String[] getSupportedHashes();
+
+            /**
+             * Get the default hash name for this signing algorithm.
+             *
+             * @return The default hash name.
+             */
+            public abstract String defaultHash();
+
+            /**
+             * Get all of the provider codes supported by the
+             * algorithm, in sorted order.
+             *
+             * @return The sorted provider codes.
+             */
+            public abstract String[] getSupportedProviderCodes();
+
+            /**
+             * Get the default provider code for this signing algorithm.
+             *
+             * @return The default provider code
+             */
+            public abstract String defaultProviderCode();
+
+            /**
+             * Throws {@code IllegalArgumentException} if the given
+             * {@code String} does not match a supported hash algorithm.
+             *
+             * @param hash Name to check.
+             */
+            public void checkSupportedHash(final String hash) {
+                if (Arrays.binarySearch(getSupportedHashes(), hash) == -1) {
+                    throw new IllegalArgumentException("invalid hash algorithm: " + hash);
+                }
+            }
+
+            /**
+             * Throws {@code IllegalArgumentException} if the given
+             * {@code String} does not match a supported provider code.
+             *
+             * @param providerCode Name to check.
+             */
+            public void checkSupportedProviderCode(final String providerCode) {
+                if (Arrays.binarySearch(getSupportedProviderCodes(), providerCode) == -1) {
+                    throw new IllegalArgumentException("invalid providerCode algorithm: " + providerCode);
+                }
+            }
+
+            /**
+             * A {@code Provider} outside of the Java standard
+             * library, might have a special "Algorithm Name".  @see
+             * Signer.Builder#javaStandardName and @see #makeProvider
+             *
+             * @param provider The {@code Provider} from @see #makeProvider.
+             * @return The "Algorithm Name" modification, or the empty string.
+             */
+            public String providerPrefix(final Provider provider) {
+                return "";
+            }
+
+            /**
+             * If a special {@link java.security.Provider} is
+             * requested, construct and return it, otherwise return
+             * {@code null} to use the Java standard library.
+             *
+             * @param providerCode The configured {@code Provider}
+             * code.
+             * @return The new {@link java.security.Provider}, or
+             * {@code null} if using the standard library.
+             */
+            public Provider makeProvider(final String providerCode) {
+                return null;
+            }
+        }
+
+        /**
+         * RSA implementation of {@code SigningAlgorithmHelper}.
+         */
+        @SuppressWarnings({"checkstyle:javadocmethod", "checkstyle:javadoctype"})
+        private static class RsaHelper extends SigningAlgorithmHelper {
+            private static final String[] SUPPORTED_HASHES = {"SHA1", "SHA256", "SHA512"};
+            private static final String[] SUPPORTED_PROVIDER_CODES = {"native.jnagmp", "stdlib"};
+
+            /**
+             * OS names with native support in jnagmp.
+             * Always keep values sorted because we binary search them.
+             */
+            private static final String[] SUPPORTED_NATIVE_OS =
+                new String[] {"linux", "mac os x", "sunos"};
+
+            /**
+             * Architectures with native support in jnagmp.
+             * Always keep values sorted because we binary search them.
+             */
+            private static final String[] SUPPORTED_NATIVE_ARCH =
+                new String[] {"amd64", "x86_64"};
+
+            /**
+             * When true we are on a platform that supports native libgmp for modpow.
+             */
+            private static final boolean JNAGMP_SUPPORTED;
+
+            static {
+                final String os = System.getProperty("os.name").toLowerCase();
+                final String arch = System.getProperty("os.arch").toLowerCase();
+
+                JNAGMP_SUPPORTED = Arrays.binarySearch(SUPPORTED_NATIVE_OS, os) >= 0
+                    && Arrays.binarySearch(SUPPORTED_NATIVE_ARCH, arch) >= 0;
+
+                System.setProperty("native.jnagmp", Objects.toString(JNAGMP_SUPPORTED));
+            }
+
+
+            public String getAlgorithm() {
+                return "RSA";
+            }
+            public String[] getSupportedHashes() {
+                return SUPPORTED_HASHES;
+            }
+            public String defaultHash() {
+                return "SHA256";
+            }
+            public String[] getSupportedProviderCodes() {
+                return SUPPORTED_PROVIDER_CODES;
+            }
+            public String defaultProviderCode() {
+                return "native.jnagmp";
+            }
+
+            public String providerPrefix(final Provider provider) {
+                if (provider != null) {
+                    return "Native";
+                } else {
+                    return "";
+                }
+            }
+
+            @Override
+            public Provider makeProvider(final String providerCode) {
+                if (providerCode.equals("native.jnagmp") && JNAGMP_SUPPORTED) {
+                    try {
+                        return new NativeRSAProvider();
+                        // if ANYTHING goes wrong, we default to the JVM implementation of the signing algo
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return null;
+                    }
+                } else {
+                    return null;
+                }
+            }
+        }
+
+        /**
+         * DSA implementation {@code SigningAlgorithmHelper}.
+         */
+        @SuppressWarnings({"checkstyle:javadocmethod", "checkstyle:javadoctype"})
+        private static class DsaHelper extends SigningAlgorithmHelper {
+            private static final String[] SUPPORTED_HASHES = {"SHA1", "SHA256"};
+            private static final String[] SUPPORTED_PROVIDER_CODES = {"stdlib"};
+
+            public String getAlgorithm() {
+                return "DSA";
+            }
+            public String[] getSupportedHashes() {
+                return SUPPORTED_HASHES;
+            }
+            public String defaultHash() {
+                return "SHA256";
+            }
+            public String[] getSupportedProviderCodes() {
+                return SUPPORTED_PROVIDER_CODES;
+            }
+            public String defaultProviderCode() {
+                return "stdlib";
+            }
+        }
+
+        /**
+         * ECDSA implementation {@code SigningAlgorithmHelper}.
+         */
+        @SuppressWarnings({"checkstyle:javadocmethod", "checkstyle:javadoctype"})
+        private static class EcdsaHelper extends SigningAlgorithmHelper {
+            private static final String[] SUPPORTED_HASHES = {"SHA256", "SHA384", "SHA512"};
+            private static final String[] SUPPORTED_PROVIDER_CODES = {"stdlib"};
+
+            public String getAlgorithm() {
+                return "ECDSA";
+            }
+            public String[] getSupportedHashes() {
+                return SUPPORTED_HASHES;
+            }
+            public String defaultHash() {
+                return "SHA256";
+            }
+            public String[] getSupportedProviderCodes() {
+                return SUPPORTED_PROVIDER_CODES;
+            }
+            public String defaultProviderCode() {
+                return "stdlib";
+            }
+        }
     }
 }

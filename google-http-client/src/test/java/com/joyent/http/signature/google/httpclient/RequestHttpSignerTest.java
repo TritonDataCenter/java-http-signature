@@ -23,11 +23,12 @@ import java.nio.file.Path;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 
+@SuppressWarnings("deprecation")
 public class RequestHttpSignerTest {
     private static final Logger LOG = Logger.getLogger(RequestHttpSignerTest.class);
 
-    private static final String testKeyFingerprint = SignerTestUtil.testKeyFingerprint;
     private KeyPair testKeyPair;
+    private String testKeyFingerprint;
     private boolean useNativeCodeToSign;
     private ThreadLocalSigner signer;
 
@@ -43,7 +44,8 @@ public class RequestHttpSignerTest {
         this.signer = new ThreadLocalSigner(this.useNativeCodeToSign);
         // Removes any existing instances - so that we can reset state
         this.signer.remove();
-        this.testKeyPair = SignerTestUtil.testKeyPair(signer.get());
+        this.testKeyPair = SignerTestUtil.testKeyPair("rsa_2048");
+        this.testKeyFingerprint = SignerTestUtil.testKeyFingerprint("rsa_2048");
     }
 
     @AfterClass
@@ -54,7 +56,6 @@ public class RequestHttpSignerTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation")
     public void canSignUri() throws IOException {
         final String login = "user";
         final Signer signer = new Signer(this.useNativeCodeToSign);

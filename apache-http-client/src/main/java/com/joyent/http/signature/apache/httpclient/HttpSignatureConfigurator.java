@@ -7,6 +7,7 @@
  */
 package com.joyent.http.signature.apache.httpclient;
 
+import com.joyent.http.signature.ThreadLocalSigner;
 import org.apache.http.auth.AuthScheme;
 import org.apache.http.auth.Credentials;
 import org.apache.http.client.AuthenticationStrategy;
@@ -49,7 +50,12 @@ public class HttpSignatureConfigurator {
      * @param keyPair public/private keypair object used to sign HTTP requests
      * @param credentials credentials containing a username and key fingerprint as password
      * @param useNativeCodeToSign true to enable native code acceleration of cryptographic singing
+     *
+     * @deprecated Prefer {@link #HttpSignatureConfigurator(KeyPair,
+     * Credentials, ThreadLocalSigner)} if configuration of Signer
+     * algorithm, hashes, or providers is required.
      */
+    @Deprecated
     public HttpSignatureConfigurator(final KeyPair keyPair,
                                      final Credentials credentials,
                                      final boolean useNativeCodeToSign) {
@@ -59,6 +65,24 @@ public class HttpSignatureConfigurator {
         this.authenticationStrategy = new HttpSignatureAuthenticationStrategy(authScheme,
                 credentials);
     }
+
+    /**
+     *  Creates a new instance.
+     *
+     * @param keyPair public/private keypair object used to sign HTTP requests
+     * @param credentials credentials containing a username and key fingerprint as password
+     * @param signer For use with http signature
+     */
+    public HttpSignatureConfigurator(final KeyPair keyPair,
+                                     final Credentials credentials,
+                                     final ThreadLocalSigner signer) {
+        this.keyPair = keyPair;
+        this.credentials = credentials;
+        this.authScheme = new HttpSignatureAuthScheme(keyPair, signer);
+        this.authenticationStrategy = new HttpSignatureAuthenticationStrategy(authScheme,
+                credentials);
+    }
+
 
     /**
      * Configures a {@link HttpClientBuilder} to use HTTP Signature authentication.
