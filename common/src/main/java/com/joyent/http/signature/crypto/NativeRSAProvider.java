@@ -11,7 +11,6 @@ import java.security.Provider;
 
 /**
  * JCE provider used for loading in native RSA SHA256 signing implementation.
- *
  * @author <a href="https://github.com/dekobon">Elijah Zupancic</a>
  */
 public class NativeRSAProvider extends Provider {
@@ -20,6 +19,8 @@ public class NativeRSAProvider extends Provider {
      */
     public NativeRSAProvider() {
         super("native-rsa", 1.0, "SHA Digest with RSA Native implementation");
-        put("Signature.SHA256withNativeRSA", NativeSHA256.class.getCanonicalName());
+        put("Signature.SHA1withNativeRSA", NativeRSAWithSHA.SHA1.class.getName());
+        put("Signature.SHA256withNativeRSA", NativeRSAWithSHA.SHA256.class.getName());
+        put("Signature.SHA512withNativeRSA", NativeRSAWithSHA.SHA512.class.getName());
     }
 }

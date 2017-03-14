@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, Joyent, Inc. All rights reserved.
+ * Copyright (c) 2017, Joyent, Inc. All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -24,33 +24,37 @@ import java.util.concurrent.TimeUnit;
  * information on JMH and running benchmarks.  In general one would
  * "package" this module, and run `java -jar target/benchmark.jar`. */
 @State(Scope.Thread)
-public class BenchmarkSigner {
-    private String testKeyFingerprint;
-    private KeyPair keyPair;
-    private Signer signer;
-    private String verifyNow;
-    private String verifyHeader;
+@SuppressWarnings({"checkstyle:javadocmethod", "checkstyle:javadoctype", "checkstyle:javadocvariable",
+            "checkstyle:visibilitymodifier"})
+public abstract class BenchmarkSigner {
+    protected KeyPair keyPair;
+    protected String testKeyFingerprint;
+    protected Signer signer;
+    protected String verifyNow;
+    protected String verifyHeader;
+    private boolean firstSetup = true;
 
-    @Param({"vanilla", "native"})
-    private String signType;
+    @Param({"SHA1", "SHA256", "SHA512"})
+    private String hash;
+
+
+    @Param({"stdlib", "native.jnagmp"})
+    private String providerCode;
+
+    public abstract String getKeyCode();
 
     @Setup
     public void setup() throws IOException {
-        switch (signType) {
-        case "vanilla":
-            signer = new Signer(false);
-            break;
-        case "native":
-            signer = new Signer(true);
-            break;
-        default:
-            throw new IllegalArgumentException();
-        }
-        testKeyFingerprint = SignerTestUtil.testKeyFingerprint;
-        keyPair = SignerTestUtil.testKeyPair(signer);
+        testKeyFingerprint = SignerTestUtil.testKeyFingerprint(getKeyCode());
+        keyPair = SignerTestUtil.testKeyPair(getKeyCode());
+        signer = new Signer.Builder(keyPair).hash(hash).providerCode(providerCode).build();
 
         verifyNow = signer.defaultSignDateAsString();
         verifyHeader = signHeader(verifyNow);
+        if (firstSetup) {
+            System.out.println("\n#Signature-->Provider: " + signer.getSignature().getProvider().getName());
+            firstSetup = false;
+        }
     }
 
     @Benchmark
@@ -83,12 +87,12 @@ public class BenchmarkSigner {
         return verifyHeader(verifyNow, verifyHeader);
     }
 
-    private String signHeader(final String now) {
+    protected String signHeader(final String now) {
         String authzHeader = signer.createAuthorizationHeader("bench", testKeyFingerprint, keyPair, now);
         return authzHeader;
     }
 
-    private boolean verifyHeader(final String ts, final String header) {
+    protected boolean verifyHeader(final String ts, final String header) {
         return signer.verifyAuthorizationHeader(keyPair, header, ts);
 
     }

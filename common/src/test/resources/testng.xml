@@ -2,7 +2,10 @@
 <suite name="Java HTTP Signature Test Suite" verbose="1">
     <test name="Common Unit Tests">
         <classes>
-            <class name="com.joyent.http.signature.SignerTest" />
+            <class name="com.joyent.http.signature.SignerDSATest" />
+            <class name="com.joyent.http.signature.SignerECDSATest" />
+            <class name="com.joyent.http.signature.SignerLegacyConstructorTest" />
+            <class name="com.joyent.http.signature.SignerRSATest" />
         </classes>
     </test>
 </suite>

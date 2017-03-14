@@ -34,6 +34,7 @@ import static org.testng.Assert.assertEquals;
  * Integration test for testing the Apache HTTP Client with HTTP Signature
  * authentication. This test needs to be run manually at this time.
  */
+@SuppressWarnings("deprecation")
 public class HttpSignatureAuthIT {
     public static final String SDC_KEY_ID_ENV_KEY = "SDC_KEY_ID";
     private static final String SDC_URL_ENV_KEY = "SDC_URL";
