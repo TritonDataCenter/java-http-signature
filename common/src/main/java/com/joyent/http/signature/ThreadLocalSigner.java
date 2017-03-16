@@ -36,7 +36,7 @@ public class ThreadLocalSigner extends ThreadLocal<Signer> {
      * Create a new thread-local instance of {@link Signer} with the
      * same defaults as in version 3.x.
      *
-     * @deprecated @see #ThreadLocalSigner(final boolean useNativeCodeToSign)
+     * @deprecated {@link #ThreadLocalSigner(boolean)})
      *
      */
     @Deprecated
