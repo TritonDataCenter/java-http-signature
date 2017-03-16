@@ -1,6 +1,5 @@
 package com.joyent.http.signature.apache.httpclient;
 
-import com.joyent.http.signature.Signer;
 import com.joyent.http.signature.SignerTestUtil;
 import com.joyent.http.signature.ThreadLocalSigner;
 import org.apache.http.Header;
@@ -17,10 +16,7 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 

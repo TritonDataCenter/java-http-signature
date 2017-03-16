@@ -13,14 +13,14 @@ import com.joyent.http.signature.ThreadLocalSigner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.client.ClientRequestContext;
+import javax.ws.rs.client.ClientRequestFilter;
+import javax.ws.rs.core.MultivaluedMap;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.util.Date;
 import java.util.Objects;
-import javax.ws.rs.client.ClientRequestContext;
-import javax.ws.rs.client.ClientRequestFilter;
-import javax.ws.rs.core.MultivaluedMap;
 
 
 /**

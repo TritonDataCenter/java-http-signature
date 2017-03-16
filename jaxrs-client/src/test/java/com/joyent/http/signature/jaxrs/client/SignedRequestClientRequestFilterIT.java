@@ -3,7 +3,6 @@
  */
 package com.joyent.http.signature.jaxrs.client;
 
-import com.joyent.http.signature.Signer;
 import com.joyent.http.signature.SignerTestUtil;
 import com.joyent.http.signature.jaxrs.client.testapp.TestApplication;
 import com.joyent.http.signature.jaxrs.client.testapp.TestResource;
@@ -17,15 +16,15 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 
 /**
