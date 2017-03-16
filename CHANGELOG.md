@@ -2,6 +2,45 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.0.0] - ????-??-??
+
+### Added
+ - DSA and ECDSA keys (and signing) are now supported.  No changes are
+   needed at this time if only RSA keys are used. See below for
+   related API changes and deprecations.
+ - Multiple hash algorithms (besides SHA256) are now supported.
+   Because signing is almost always more expensive than hashing,
+   changing from the default hashing algorithm is unlikely to yield a
+   significant performance benefit.
+ - A new `microbench` module contains micro-benchmarks to aid in the
+   development of this library.  They are not a stable public
+   contract.
+
+### Changed
+ - The minimum Java version is now 1.8.
+ - To support multiple key types, a builder pattern is now the
+   preferred way to instantiate `Signer` and `ThreadLocalSigner`.  See
+   `Signer.Builder` for more details.  Given a key, the builder can
+   select the appropriate signing algorithm.  The old constructors are
+   now deprecated and will be removed in a future release.
+ - Several public fields and methods of `Signer` that exposed internal
+   details have been removed.  That is the breaking change of this
+   release.
+ - Since a `Signer` now needs a `KeyPair` to be instantiated, the
+   various "get me a key" methods are moved to `KeyPairLoader`.  The
+   old methods are now deprecated and will be removed in a future
+   release.
+ - Previously it was easy to end up with multiple ThreadLocalSigner
+   instances.  This was mostly harmless (except for resources cleanup)
+   when everything was hard coded to be `SHA256withRSA`, but quickly
+   leads to errors when the signers have different configuration.  It
+   is now best to create a single `ThreadLocalSigner` per key (ie
+   usually just one) and pass that downstream.  Several classes in
+   `apache-http-client` and `google-http-client` have changed to
+   encourage this.  Methods that implicitly created an unconfigured
+   `ThreadLocalSigner` are now deprecated and will be removed in a
+   future release.
+
 ## [3.0.2] - 2017-03-03
 ### Added
  - We now use JCE specified message digests for calculating checksums.
