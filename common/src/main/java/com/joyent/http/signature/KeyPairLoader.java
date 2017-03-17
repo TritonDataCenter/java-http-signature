@@ -7,12 +7,12 @@
  */
 package com.joyent.http.signature;
 
+import com.joyent.http.signature.crypto.NssBridgeKeyConverter;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMDecryptorProvider;
 import org.bouncycastle.openssl.PEMEncryptedKeyPair;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
-import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
 
 import java.io.BufferedReader;
@@ -41,8 +41,11 @@ public final class KeyPairLoader {
     /**
      * The key format converter to use when reading key pairs.
      */
-    private static final JcaPEMKeyConverter CONVERTER =
-        new JcaPEMKeyConverter().setProvider("BC");
+    private static final NssBridgeKeyConverter CONVERTER =
+        new NssBridgeKeyConverter();
+    {
+        CONVERTER.setProvider("BC");
+    }
 
     /**
      * Read KeyPair located at the specified path.

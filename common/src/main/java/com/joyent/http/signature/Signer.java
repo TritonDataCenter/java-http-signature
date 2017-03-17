@@ -393,7 +393,8 @@ public class Signer {
     public String toString() {
         final StringBuilder sb = new StringBuilder("Signer{");
         sb.append("signature=").append(signature);
-        sb.append("httpHeaderAlgorithme=").append(httpHeaderAlgorithm);
+        sb.append(",provider=").append(signature.getProvider().getName());
+        sb.append(",httpHeaderAlgorithm=").append(httpHeaderAlgorithm);
         sb.append('}');
         return sb.toString();
     }
@@ -544,7 +545,8 @@ public class Signer {
                     return new RsaHelper();
                 } else if (algorithm.equals("DSA")) {
                     return new DsaHelper();
-                } else if (algorithm.equals("ECDSA")) {
+                    // See NssBridgeKeyConverter on the two names
+                } else if (algorithm.equals("ECDSA") || algorithm.equals("EC")) {
                     return new EcdsaHelper();
                 } else {
                     throw new IllegalArgumentException("invalid signing algorithm: " + algorithm);
