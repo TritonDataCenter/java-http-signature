@@ -62,17 +62,7 @@ public class RequestHttpSignerTest {
 
         URI signedUri = requestSigner.signURI(uri, "GET", 0L);
 
-        String expected = "http://localhost/foo/bar?algorithm=RSA-SHA256"
-                + "&expires=0&keyId=%2Fuser%2Fkeys%2F04%3A92%3A7b%3A23%3"
-                + "Abc%3A08%3A4f%3Ad7%3A3b%3A5a%3A38%3A9e%3A4a%3A17%3A2e"
-                + "%3Adf&signature=sspA6KoRAtTjKN7wI3DNoMKVVWUfs0hvbr%2F"
-                + "wa2Mu36Gz2D4ExjH0X84jRpF6XnadMZNdPc1JtTLkqLPAYpdZ9c34"
-                + "U8zC0bu0cNJw3wri1hjr0XJDwjjF9lAu%2FXEJbh0r7vUcbF5Kwjy"
-                + "hkjDr804Vp3br8IFFlxGl4%2BvsxerLU56PQPjWceHc56V5LcD7jE"
-                + "q%2FNJdA0sVMerq0j2YRKyhhD%2BgndVSh5mG%2BipjJ6glDHnUt%"
-                + "2BI3eME9do3xeua54%2FV7bIIO0%2BJz1kFPHzZL5kMKPa1XqVnra"
-                + "zHUHje3j5QJcDrpmud2nVKKM4cw6FfOjEnrLVdD5w2eiTLiWJOcmT"
-                + "USFBg%3D%3D";
+        String expected = "http://localhost/foo/bar?algorithm=RSA-SHA256&expires=0&keyId=%2Fuser%2Fkeys%2Fa5%3A75%3Ae2%3A5e%3A54%3A0e%3A99%3A9d%3Af0%3Aa9%3A16%3A8c%3A1d%3A88%3Adc%3Ab4&signature=l7ScY1r7R4E%2BmCgDWBJ5ShoOVqp93h2csUuISZXz63V2xBKLJiQEXUW626ur2X3rRRVDa0KS2eWf%2BwWy9SgqMUjwoCAbXivuvsKEkJVuBz9RrDb%2BC9oZgWRqNfGoBY824FoMgIJFZBF0yIFlIa1Qij%2FNOeOP%2BCzMXFdi2J5RjIQ7PZqKUwe%2BAM3vS2TkBoyRk%2FYw0tCTDglx4oOAS7ulNQUHzyKma0k2z5C6jIfv1ab19tl8lYnmgvk6FFV6iLT3dlqMzFtXdD1DeHKkXR2JUIxm9%2BdD3FULGnMl8sunlN%2FUb4paytxc%2Ff81f2o%2BI0369y3Y8N3E9Ly1Q0ATQq6QJQ%3D%3D";
 
         Assert.assertEquals(signedUri.toString(), expected);
     }
