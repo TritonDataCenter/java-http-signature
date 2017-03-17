@@ -153,7 +153,7 @@ public class RequestHttpSigner {
         }
 
         final String charset = "UTF-8";
-        final String algorithm = "RSA-SHA256";
+        final String algorithm = signer.get().getHttpHeaderAlgorithm().toUpperCase();
         final String keyId = String.format("/%s/keys/%s",
                 getLogin(), getFingerprint());
         final String keyIdEncoded = URLEncoder.encode(keyId, charset);

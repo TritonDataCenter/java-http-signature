@@ -67,7 +67,7 @@ public class Signer {
     private final Signature signature;
 
     /**
-     *  Private field with the computer http header algorithm.
+     *  Private field with the computed http header algorithm.
      */
     private final String httpHeaderAlgorithm;
 
@@ -188,8 +188,8 @@ public class Signer {
      * current time as a timestamp.
      *
      * @param login Account/login name
-     * @param fingerprint RSA key fingerprint
-     * @param keyPair RSA public/private keypair
+     * @param fingerprint key fingerprint
+     * @param keyPair public/private keypair
      * @return value to Authorization header
      */
     public String createAuthorizationHeader(final String login,
@@ -203,8 +203,8 @@ public class Signer {
      * Generate a signature for an authorization HTTP header.
      *
      * @param login Account/login name
-     * @param fingerprint RSA key fingerprint
-     * @param keyPair RSA public/private keypair
+     * @param fingerprint key fingerprint
+     * @param keyPair public/private keypair
      * @param date Date to be converted to a RFC 822 compliant string
      * @return value to Authorization header
      */
@@ -228,8 +228,8 @@ public class Signer {
      * Generate a signature for an authorization HTTP header.
      *
      * @param login Account/login name
-     * @param fingerprint RSA key fingerprint
-     * @param keyPair RSA public/private keypair
+     * @param fingerprint key fingerprint
+     * @param keyPair public/private keypair
      * @param date Date as RFC 822 compliant string
      * @return value to Authorization header
      */
@@ -263,8 +263,8 @@ public class Signer {
      * Cryptographically signs an any data input.
      *
      * @param login Account/login name
-     * @param fingerprint RSA key fingerprint
-     * @param keyPair RSA public/private keypair
+     * @param fingerprint key fingerprint
+     * @param keyPair public/private keypair
      * @param data data to be signed
      * @return signed value of data
      */
@@ -292,8 +292,8 @@ public class Signer {
      * Cryptographically signs an any data input.
      *
      * @param login Account/login name
-     * @param fingerprint RSA key fingerprint
-     * @param keyPair RSA public/private keypair
+     * @param fingerprint key fingerprint
+     * @param keyPair public/private keypair
      * @param data data that was signed
      * @param signedData data to verify against signature
      * @return signed value of data
@@ -340,7 +340,7 @@ public class Signer {
     /**
      * Verify a signed HTTP Authorization header.
      *
-     * @param keyPair RSA public/private keypair
+     * @param keyPair public/private keypair
      * @param authzHeader authorization header value
      * @param date Date as RFC 822 compliant string
      * @return True if the request is valid, false if not.
@@ -378,6 +378,16 @@ public class Signer {
         } catch (final UnsupportedEncodingException e) {
             throw new CryptoException("invalid encoding", e);
         }
+    }
+
+    /**
+     * Return a string representation of the full algorithm.  For
+     * example: "rsa-sha256"
+     *
+     * @return Algorithm name.
+     */
+    public String getHttpHeaderAlgorithm() {
+        return httpHeaderAlgorithm;
     }
 
     /**
