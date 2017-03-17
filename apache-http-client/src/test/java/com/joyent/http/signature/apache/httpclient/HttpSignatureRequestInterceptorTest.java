@@ -66,12 +66,12 @@ public class HttpSignatureRequestInterceptorTest {
                 new BasicHeader("User-Agent", "Java-Manta-SDK/3.0.0-SNAPSHOT (Java/1.8.0_76/Oracle Corporation)"),
                 new BasicHeader("Accept-Encoding", "gzip,deflate"),
         };
-        HttpRequest request = new HttpPut("https://us-east.manta.joyent.com:443");
-        request.setHeaders(headers);
 
         HttpContext context = new BasicHttpContext();
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 500; i++) {
+            HttpRequest request = new HttpPut("https://us-east.manta.joyent.com:443");
+            request.setHeaders(headers);
             interceptor.process(request, context);
             String signTime = request.getFirstHeader("x-http-signing-time-ns").getValue();
             System.out.printf("Time to sign: %s\n", signTime);
