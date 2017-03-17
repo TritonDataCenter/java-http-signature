@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class SignerTestUtil {
     public static final Map<String,TestKeyResource> keys = new HashMap<String,TestKeyResource>() {{
-            put("rsa_2048", new TestKeyResource("04:92:7b:23:bc:08:4f:d7:3b:5a:38:9e:4a:17:2e:df",
+            put("rsa_2048", new TestKeyResource("a5:75:e2:5e:54:0e:99:9d:f0:a9:16:8c:1d:88:dc:b4",
                                                 "keys/rsa/id_rsa_2048"));
             put("dsa_1024", new TestKeyResource("5e:9a:ce:fe:5a:24:f9:7a:06:d8:94:b8:e4:ae:c4:99",
                                                 "keys/dsa/id_dsa_1024"));
