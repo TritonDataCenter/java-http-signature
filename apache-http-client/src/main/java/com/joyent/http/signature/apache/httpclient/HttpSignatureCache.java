@@ -13,15 +13,25 @@ import org.apache.http.auth.AuthenticationException;
 import org.apache.http.auth.Credentials;
 
 import java.security.KeyPair;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Class that an interface to caching HTTP signatures for a given
- * {@link Credentials} instance.
+ * <p>Class that an interface to caching HTTP signatures for a given
+ * {@link Credentials} instance.</p>
+ *
+ * <p>HTTP signature dates have a resolution of one second. If a two signatures
+ * are requested for the exact same signature date time (within 1 second), then
+ * we do not need to recalculate the signature (a computationally expensive
+ * operation). In order to accomplish this, this class contains two fields
+ * that cache the last signature date time and the last signature. Using the
+ * cache, when two requests come through with the same date time, then we only
+ * need to calculate the signature for a single request.</p>
+ *
+ * <p>This class maintains a cache per {@link Credentials} object because
+ * the signature will differ due to different credentials using different
+ * signing keys.</p>
  *
  * @author <a href="https://github.com/dekobon">Elijah Zupancic</a>
- * @since 3.0.0
+ * @since 4.0.0
  */
 class HttpSignatureCache {
     /**
@@ -30,14 +40,14 @@ class HttpSignatureCache {
     private final Credentials credentials;
 
     /**
-     * Reference to the date time of the last HTTP signature.
+     * The date time of the last HTTP signature.
      */
-    private final AtomicReference<String> lastDate = new AtomicReference<>("");
+    private String lastDate = "";
 
     /**
-     * Reference to the last generated HTTP signature associated with this credential.
+     * The last generated HTTP signature associated with this credential.
      */
-    private final AtomicReference<String> lastSignature = new AtomicReference<>("");
+    private String lastSignature = "";
 
     /**
      * Creates a new cache for the specified credential.
@@ -77,58 +87,34 @@ class HttpSignatureCache {
      *
      * @throws AuthenticationException thrown if there is a problem authenticating the signature
      */
-    String updateAndGetSignature(final String stringDate,
-                                 final Signer signer,
-                                 final KeyPair keyPair) throws AuthenticationException {
+    synchronized String updateAndGetSignature(final String stringDate,
+                                              final Signer signer,
+                                              final KeyPair keyPair)
+            throws AuthenticationException {
 
-        if (lastDate.get().equals(stringDate)) {
-            final String authz = lastSignature.get();
-            if (!authz.isEmpty()) {
-                return authz;
-            }
-            // if signature is empty, we fall below and store the new value
+        // Signing date time is equal, so we returned cached signature
+        // stringDate parameter should *never* be null or blank
+        if (lastDate.equals(stringDate)) {
+            return lastSignature;
         }
 
-        synchronized (this) {
-            lastDate.set(stringDate);
+        lastDate = stringDate;
 
-            final String login = credentials.getUserPrincipal().getName();
-            final String fingerprint = credentials.getPassword();
+        final String login = credentials.getUserPrincipal().getName();
+        final String fingerprint = credentials.getPassword();
 
-            // If date didn't match, then we calculate signature and store it
+        // If date didn't match, then we calculate signature and store it
+        try {
+            final String authz = signer.createAuthorizationHeader(
+                    login, fingerprint, keyPair, stringDate);
+            lastSignature = authz;
 
-            try {
-                String authz = signer.createAuthorizationHeader(
-                        login, fingerprint, keyPair, stringDate);
-                lastSignature.set(authz);
-
-                return authz;
-            } catch (HttpSignatureException e) {
-                String details = String.format("Unable to authenticate [%s] with "
-                                + "fingerprint [%s] using keypair [%s]",
-                        login, fingerprint, keyPair);
-                throw new AuthenticationException(details, e);
-            }
+            return authz;
+        } catch (HttpSignatureException e) {
+            String details = String.format("Unable to authenticate [%s] with "
+                            + "fingerprint [%s] using keypair [%s]",
+                    login, fingerprint, keyPair);
+            throw new AuthenticationException(details, e);
         }
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        final HttpSignatureCache that = (HttpSignatureCache) o;
-        return Objects.equals(lastDate.get(), that.lastDate.get())
-               && Objects.equals(lastSignature.get(), that.lastSignature.get());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(lastDate.get(), lastSignature.get());
     }
 }
