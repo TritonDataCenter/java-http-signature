@@ -69,7 +69,7 @@ public class HttpSignatureRequestInterceptorTest {
 
         HttpContext context = new BasicHttpContext();
 
-        for (int i = 0; i < 500; i++) {
+        for (int i = 0; i < 5; i++) {
             HttpRequest request = new HttpPut("https://us-east.manta.joyent.com:443");
             request.setHeaders(headers);
             interceptor.process(request, context);
