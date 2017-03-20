@@ -49,13 +49,8 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
      * Anonymous function class that creates new cache instances based
      * on the passed credential.
      */
-    private static final Function<Credentials, HttpSignatureCache> NEW_CACHE_FUNCTION =
-        new Function<Credentials, HttpSignatureCache>() {
-            @Override
-            public HttpSignatureCache apply(final Credentials credentials) {
-                return new HttpSignatureCache(credentials);
-            }
-        };
+    private static final Function<Credentials, HttpSignatureCache>
+            NEW_CACHE_FUNCTION = HttpSignatureCache::new;
 
     /**
     * Keypair used to sign requests.
@@ -204,13 +199,12 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
             request.setHeader(HttpHeaders.DATE, stringDate);
         }
 
+        // Assure that a cache object is always present for each credential
         signatureCacheMap.computeIfAbsent(credentials, NEW_CACHE_FUNCTION);
 
         final String authz = signatureCacheMap.get(credentials)
                 .updateAndGetSignature(stringDate, signer.get(), keyPair);
-        final Header authzHeader = new BasicHeader(HttpHeaders.AUTHORIZATION, authz);
-
-        return authzHeader;
+        return new BasicHeader(HttpHeaders.AUTHORIZATION, authz);
     }
 
     public ThreadLocalSigner getSigner() {
