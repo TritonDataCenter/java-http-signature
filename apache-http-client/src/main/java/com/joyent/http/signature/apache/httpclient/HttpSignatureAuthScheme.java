@@ -7,7 +7,6 @@
  */
 package com.joyent.http.signature.apache.httpclient;
 
-import com.joyent.http.signature.HttpSignatureException;
 import com.joyent.http.signature.Signer;
 import com.joyent.http.signature.ThreadLocalSigner;
 import org.apache.commons.logging.Log;
@@ -24,6 +23,9 @@ import org.apache.http.protocol.HttpContext;
 
 import java.security.KeyPair;
 import java.util.Locale;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
 
 /**
  * Apache HTTP Client plugin that allows for HTTP Signature based authentication.
@@ -44,6 +46,13 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
     private static final Log LOG = LogFactory.getLog(HttpSignatureAuthScheme.class);
 
     /**
+     * Anonymous function class that creates new cache instances based
+     * on the passed credential.
+     */
+    private static final Function<Credentials, HttpSignatureCache>
+            NEW_CACHE_FUNCTION = HttpSignatureCache::new;
+
+    /**
     * Keypair used to sign requests.
     */
     private final KeyPair keyPair;
@@ -52,6 +61,13 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
      * Thread local instance of {@link Signer}.
      */
     private final ThreadLocalSigner signer;
+
+    /**
+     * Map of credentials to cache object used for looking up cached signatures.
+     */
+    private ConcurrentMap<Credentials, HttpSignatureCache> signatureCacheMap =
+        new ConcurrentHashMap<>();
+
 
     /**
      * Creates a new instance allowing for HTTP signing with default
@@ -173,25 +189,6 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
             LOG.debug(String.format("Signing request: %s", request));
         }
 
-        if (credentials == null) {
-            throw new IllegalArgumentException("Credentials must be present");
-        }
-
-        if (credentials.getPassword() == null) {
-            throw new IllegalArgumentException("Password (RSA fingerprint) must be present");
-        }
-
-        if (credentials.getUserPrincipal() == null) {
-            throw new IllegalArgumentException("User principal must be present");
-        }
-
-        if (credentials.getUserPrincipal().getName() == null) {
-            throw new IllegalArgumentException("User principal name must be present");
-        }
-
-        final String login = credentials.getUserPrincipal().getName();
-        final String fingerprint = credentials.getPassword();
-
         final Header date = request.getFirstHeader(HttpHeaders.DATE);
         final String stringDate;
 
@@ -202,21 +199,12 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
             request.setHeader(HttpHeaders.DATE, stringDate);
         }
 
-        final String authz;
+        // Assure that a cache object is always present for each credential
+        signatureCacheMap.computeIfAbsent(credentials, NEW_CACHE_FUNCTION);
 
-        try {
-            authz = signer.get().createAuthorizationHeader(
-                    login, fingerprint, keyPair, stringDate);
-        } catch (HttpSignatureException e) {
-            String details = String.format("Unable to authenticate [%s] with "
-                    + "fingerprint [%s] using keypair [%s]",
-                    login, fingerprint, keyPair);
-            throw new AuthenticationException(details, e);
-        }
-
-        final Header authzHeader = new BasicHeader(HttpHeaders.AUTHORIZATION, authz);
-
-        return authzHeader;
+        final String authz = signatureCacheMap.get(credentials)
+                .updateAndGetSignature(stringDate, signer.get(), keyPair);
+        return new BasicHeader(HttpHeaders.AUTHORIZATION, authz);
     }
 
     public ThreadLocalSigner getSigner() {
