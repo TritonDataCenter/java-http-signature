@@ -2,7 +2,21 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [4.0.0] - ????-??-??
+## [4.0.2] - 2017-03-23
+
+### Changed
+ - Bouncy Castle dependency was upgraded.
+ 
+## [4.0.1] - 2017-03-20
+
+### Added
+ - HTTP signature caching with Apache HTTP Client module - signatures
+   with the same date time value are now cached and signature 
+   generation is skipped. This is useful for high-traffic connections
+   to Manta.
+ - Added support for libnss to do ECDSA signing via the PKCS11 interface.
+
+## [4.0.0] - 2017-03-15
 
 ### Added
  - DSA and ECDSA keys (and signing) are now supported.  No changes are
