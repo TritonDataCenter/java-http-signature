@@ -177,7 +177,7 @@ public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
      * Signs an {@link HttpRequest} and returns a header with the signed
      * authorization value.
      *
-     * @param credentials Credentials containing a username and key fingerprint as password
+     * @param credentials Credentials containing a username
      * @param request The {@link HttpRequest} to sign.
      * @return header with signed authorization value
      * @throws AuthenticationException If unable to sign the request.

@@ -42,7 +42,7 @@ public class RequestHttpSignerTest {
         // Removes any existing instances - so that we can reset state
         this.signer.remove();
         this.testKeyPair = SignerTestUtil.testKeyPair("rsa_2048");
-        this.testKeyFingerprint = SignerTestUtil.testKeyFingerprint("rsa_2048");
+        this.testKeyFingerprint = SignerTestUtil.testKeyMd5Fingerprint("rsa_2048");
     }
 
     @AfterClass

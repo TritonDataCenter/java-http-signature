@@ -9,6 +9,7 @@ package com.joyent.http.signature.google.httpclient;
 
 import com.google.api.client.http.HttpRequest;
 import com.joyent.http.signature.CryptoException;
+import com.joyent.http.signature.KeyFingerprinter;
 import com.joyent.http.signature.Signer;
 import com.joyent.http.signature.ThreadLocalSigner;
 import org.bouncycastle.util.encoders.Base64;
@@ -80,9 +81,12 @@ public class RequestHttpSigner {
      * Creates a new instance allowing for HTTP signing.
      * @param keyPair Public/private RSA keypair object used to sign HTTP requests.
      * @param login Login name/account name used in authorization header
-     * @param fingerprint rsa key fingerprint
+     * @param fingerprint key fingerprint
      * @param signer reference to thread-local signer
+     *
+     * @deprecated The fingerprint is now calculated from the given key.
      */
+    @Deprecated
     public RequestHttpSigner(final KeyPair keyPair, final String login, final String fingerprint,
                              final ThreadLocalSigner signer) {
         if (keyPair == null) {
@@ -93,15 +97,23 @@ public class RequestHttpSigner {
             throw new IllegalArgumentException("Login must be present");
         }
 
-        if (fingerprint == null) {
-            throw new IllegalArgumentException("Fingerprint must be present");
-        }
-
         this.keyPair = keyPair;
         this.login = login;
         this.fingerprint = fingerprint;
         this.signer = signer;
     }
+
+    /**
+     * Creates a new instance allowing for HTTP signing.
+     * @param keyPair Public/private RSA keypair object used to sign HTTP requests.
+     * @param login Login name/account name used in authorization header
+     * @param signer reference to thread-local signer
+     */
+    public RequestHttpSigner(final KeyPair keyPair, final String login,
+                             final ThreadLocalSigner signer) {
+        this(keyPair, login, null, signer);
+    }
+
 
     /**
      * Sign an {@link com.google.api.client.http.HttpRequest}.
@@ -124,7 +136,7 @@ public class RequestHttpSigner {
         }
 
         final String authzHeader = signer.get().createAuthorizationHeader(
-                login, fingerprint, keyPair, date);
+                login, keyPair, date);
         request.getHeaders().setAuthorization(authzHeader);
     }
 
@@ -155,7 +167,7 @@ public class RequestHttpSigner {
         final String charset = "UTF-8";
         final String algorithm = signer.get().getHttpHeaderAlgorithm().toUpperCase();
         final String keyId = String.format("/%s/keys/%s",
-                getLogin(), getFingerprint());
+                                           getLogin(), KeyFingerprinter.md5Fingerprint(getKeyPair()));
         final String keyIdEncoded = URLEncoder.encode(keyId, charset);
 
         StringBuilder sigText = new StringBuilder();
@@ -169,7 +181,7 @@ public class RequestHttpSigner {
 
         StringBuilder request = new StringBuilder();
         final byte[] sigBytes = sigText.toString().getBytes();
-        final byte[] signed = signer.get().sign(getLogin(), getFingerprint(), getKeyPair(), sigBytes);
+        final byte[] signed = signer.get().sign(getLogin(), getKeyPair(), sigBytes);
         final String encoded = new String(Base64.encode(signed), charset);
         final String urlEncoded = URLEncoder.encode(encoded, charset);
 
@@ -219,7 +231,10 @@ public class RequestHttpSigner {
 
     /**
      * @return The RSA key fingerprint.
+     *
+     * @deprecated The fingerprint is now calculated from the given key.
      */
+    @Deprecated
     public String getFingerprint() {
         return fingerprint;
     }

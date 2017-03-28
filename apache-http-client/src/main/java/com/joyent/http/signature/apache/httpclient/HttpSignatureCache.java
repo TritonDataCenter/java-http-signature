@@ -59,10 +59,6 @@ class HttpSignatureCache {
             throw new IllegalArgumentException("Credentials must be present");
         }
 
-        if (credentials.getPassword() == null) {
-            throw new IllegalArgumentException("Password (fingerprint) must be present");
-        }
-
         if (credentials.getUserPrincipal() == null) {
             throw new IllegalArgumentException("User principal must be present");
         }
@@ -101,19 +97,18 @@ class HttpSignatureCache {
         lastDate = stringDate;
 
         final String login = credentials.getUserPrincipal().getName();
-        final String fingerprint = credentials.getPassword();
 
         // If date didn't match, then we calculate signature and store it
         try {
             final String authz = signer.createAuthorizationHeader(
-                    login, fingerprint, keyPair, stringDate);
+                    login, keyPair, stringDate);
             lastSignature = authz;
 
             return authz;
         } catch (HttpSignatureException e) {
-            String details = String.format("Unable to authenticate [%s] with "
-                            + "fingerprint [%s] using keypair [%s]",
-                    login, fingerprint, keyPair);
+            String details = String.format("Unable to authenticate [%s] "
+                            + "using keypair [%s]",
+                    login, keyPair);
             throw new AuthenticationException(details, e);
         }
     }

@@ -31,7 +31,7 @@ public class SignerLegacyConstructorTest {
         System.out.printf("Using native libgmp: %s\n", this.useNativeCodeToSign);
 
         this.testKeyPair = SignerTestUtil.testKeyPair("rsa_2048");
-        this.testKeyFingerprint = SignerTestUtil.testKeyFingerprint("rsa_2048");
+        this.testKeyFingerprint = SignerTestUtil.testKeyMd5Fingerprint("rsa_2048");
     }
 
     @Test
