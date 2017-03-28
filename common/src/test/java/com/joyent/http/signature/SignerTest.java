@@ -31,7 +31,7 @@ public abstract class SignerTest {
     @BeforeClass
     public void beforeClass() throws IOException, NoSuchAlgorithmException {
         this.testKeyPair = SignerTestUtil.testKeyPair(getKeyCode());
-        this.testKeyFingerprint = SignerTestUtil.testKeyFingerprint(getKeyCode());
+        this.testKeyFingerprint = SignerTestUtil.testKeyMd5Fingerprint(getKeyCode());
     }
 
     @Test(dataProvider = "testData")
@@ -39,7 +39,7 @@ public abstract class SignerTest {
         final Signer signer = new Signer.Builder(testKeyPair).hash(hash).providerCode(providerCode).build();
         final String now = signer.defaultSignDateAsString();
         final String authzHeader = signer.createAuthorizationHeader(
-                "testy", testKeyFingerprint, testKeyPair, now);
+                "testy", testKeyPair, now);
         final boolean verified = signer.verifyAuthorizationHeader(
                 testKeyPair, authzHeader, now);
         Assert.assertTrue(verified, "Unable to verify signed authorization header");
@@ -50,9 +50,9 @@ public abstract class SignerTest {
         final Signer signer = new Signer.Builder(testKeyPair).hash(hash).providerCode(providerCode).build();
         final byte[] data = "Hello World".getBytes();
         final byte[] signedData = signer.sign(
-                "testy", testKeyFingerprint, testKeyPair, data);
+                "testy", testKeyPair, data);
         final boolean verified = signer.verify(
-                "testy", testKeyFingerprint, testKeyPair, data, signedData);
+                "testy", testKeyPair, data, signedData);
 
         Assert.assertTrue(verified, "Signature couldn't be verified");
     }

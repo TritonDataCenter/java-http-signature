@@ -188,28 +188,60 @@ public class Signer {
      * current time as a timestamp.
      *
      * @param login Account/login name
-     * @param fingerprint key fingerprint
+     * @param fingerprint key fingerprint (ignored)
+     * @param keyPair public/private keypair
+     * @return value to Authorization header
+     *
+     * @deprecated The fingerprint is now calculated from the given key.
+     */
+    @Deprecated
+    public String createAuthorizationHeader(final String login,
+                                            final String fingerprint,
+                                            final KeyPair keyPair) {
+        return createAuthorizationHeader(login, keyPair, defaultSignDateAsString());
+    }
+
+    /**
+     * Generate a signature for an authorization HTTP header using the
+     * current time as a timestamp.
+     *
+     * @param login Account/login name
      * @param keyPair public/private keypair
      * @return value to Authorization header
      */
     public String createAuthorizationHeader(final String login,
-                                            final String fingerprint,
                                             final KeyPair keyPair) {
-        return createAuthorizationHeader(login, fingerprint, keyPair,
-                defaultSignDateAsString());
+        return createAuthorizationHeader(login, keyPair, defaultSignDateAsString());
     }
 
     /**
      * Generate a signature for an authorization HTTP header.
      *
      * @param login Account/login name
-     * @param fingerprint key fingerprint
+     * @param fingerprint key fingerprint (ignored)
+     * @param keyPair public/private keypair
+     * @param date Date to be converted to a RFC 822 compliant string
+     * @return value to Authorization header
+     *
+     * @deprecated The fingerprint is now calculated from the given key.
+     */
+    @Deprecated
+    public String createAuthorizationHeader(final String login,
+                                            final String fingerprint,
+                                            final KeyPair keyPair,
+                                            final Date date) {
+        return createAuthorizationHeader(login, keyPair, date);
+    }
+
+    /**
+     * Generate a signature for an authorization HTTP header.
+     *
+     * @param login Account/login name
      * @param keyPair public/private keypair
      * @param date Date to be converted to a RFC 822 compliant string
      * @return value to Authorization header
      */
     public String createAuthorizationHeader(final String login,
-                                            final String fingerprint,
                                             final KeyPair keyPair,
                                             final Date date) {
         final String stringDate;
@@ -220,25 +252,43 @@ public class Signer {
             stringDate = DATE_FORMAT.format(date);
         }
 
-        return createAuthorizationHeader(login, fingerprint, keyPair,
-                stringDate);
+        return createAuthorizationHeader(login, keyPair, stringDate);
     }
 
     /**
      * Generate a signature for an authorization HTTP header.
      *
      * @param login Account/login name
-     * @param fingerprint key fingerprint
+     * @param fingerprint key fingerprint (ignored)
      * @param keyPair public/private keypair
      * @param date Date as RFC 822 compliant string
      * @return value to Authorization header
+     *
+     * @deprecated The fingerprint is now calculated from the given key.
      */
+    @Deprecated
     public String createAuthorizationHeader(final String login,
                                             final String fingerprint,
                                             final KeyPair keyPair,
                                             final String date) {
         Objects.requireNonNull(login, "Login must be present");
-        Objects.requireNonNull(fingerprint, "Fingerprint must be present");
+        Objects.requireNonNull(keyPair, "Keypair must be present");
+        return createAuthorizationHeader(login, keyPair, date);
+    }
+
+
+    /**
+     * Generate a signature for an authorization HTTP header.
+     *
+     * @param login Account/login name
+     * @param keyPair public/private keypair
+     * @param date Date as RFC 822 compliant string
+     * @return value to Authorization header
+     */
+    public String createAuthorizationHeader(final String login,
+                                            final KeyPair keyPair,
+                                            final String date) {
+        Objects.requireNonNull(login, "Login must be present");
         Objects.requireNonNull(keyPair, "Keypair must be present");
 
         try {
@@ -247,6 +297,7 @@ public class Signer {
             signature.update(signingString.getBytes("UTF-8"));
             final byte[] signedDate = signature.sign();
             final byte[] encodedSignedDate = Base64.encode(signedDate);
+            final String fingerprint = KeyFingerprinter.md5Fingerprint(keyPair);
 
             return String.format(AUTHZ_HEADER, login, fingerprint, httpHeaderAlgorithm,
                     new String(encodedSignedDate));
@@ -263,17 +314,33 @@ public class Signer {
      * Cryptographically signs an any data input.
      *
      * @param login Account/login name
-     * @param fingerprint key fingerprint
+     * @param fingerprint key fingerprint (ignored)
+     * @param keyPair public/private keypair
+     * @param data data to be signed
+     * @return signed value of data
+     *
+     * @deprecated The fingerprint is now calculated from the given key.
+     */
+    @Deprecated
+    public byte[] sign(final String login,
+                       final String fingerprint,
+                       final KeyPair keyPair,
+                       final byte[] data) {
+        return sign(login, keyPair, data);
+    }
+
+    /**
+     * Cryptographically signs an any data input.
+     *
+     * @param login Account/login name
      * @param keyPair public/private keypair
      * @param data data to be signed
      * @return signed value of data
      */
     public byte[] sign(final String login,
-                       final String fingerprint,
                        final KeyPair keyPair,
                        final byte[] data) {
         Objects.requireNonNull(login, "Login must be present");
-        Objects.requireNonNull(fingerprint, "Fingerprint must be present");
         Objects.requireNonNull(keyPair, "Keypair must be present");
         Objects.requireNonNull(data, "Data must be present");
 
@@ -292,19 +359,36 @@ public class Signer {
      * Cryptographically signs an any data input.
      *
      * @param login Account/login name
-     * @param fingerprint key fingerprint
+     * @param fingerprint key fingerprint (ignored)
      * @param keyPair public/private keypair
      * @param data data that was signed
      * @param signedData data to verify against signature
      * @return signed value of data
+     *
+     * @deprecated The fingerprint is now calculated from the given key.
      */
     public boolean verify(final String login,
                                  final String fingerprint,
                                  final KeyPair keyPair,
                                  final byte[] data,
                                  final byte[] signedData) {
+        return verify(login, keyPair, data, signedData);
+    }
+
+    /**
+     * Cryptographically signs an any data input.
+     *
+     * @param login Account/login name
+     * @param keyPair public/private keypair
+     * @param data data that was signed
+     * @param signedData data to verify against signature
+     * @return signed value of data
+     */
+    public boolean verify(final String login,
+                          final KeyPair keyPair,
+                          final byte[] data,
+                          final byte[] signedData) {
         Objects.requireNonNull(login, "Login must be present");
-        Objects.requireNonNull(fingerprint, "Fingerprint must be present");
         Objects.requireNonNull(keyPair, "Keypair must be present");
         Objects.requireNonNull(signedData, "Data must be present");
 
@@ -312,7 +396,6 @@ public class Signer {
             signature.initVerify(keyPair.getPublic());
             signature.update(data);
             return signature.verify(signedData);
-
         } catch (final InvalidKeyException e) {
             throw new CryptoException("invalid key", e);
         } catch (final SignatureException e) {

@@ -45,7 +45,7 @@ public abstract class BenchmarkSigner {
 
     @Setup
     public void setup() throws IOException {
-        testKeyFingerprint = SignerTestUtil.testKeyFingerprint(getKeyCode());
+        testKeyFingerprint = SignerTestUtil.testKeyMd5Fingerprint(getKeyCode());
         keyPair = SignerTestUtil.testKeyPair(getKeyCode());
         signer = new Signer.Builder(keyPair).hash(hash).providerCode(providerCode).build();
 
@@ -88,7 +88,7 @@ public abstract class BenchmarkSigner {
     }
 
     protected String signHeader(final String now) {
-        String authzHeader = signer.createAuthorizationHeader("bench", testKeyFingerprint, keyPair, now);
+        String authzHeader = signer.createAuthorizationHeader("bench", keyPair, now);
         return authzHeader;
     }
 

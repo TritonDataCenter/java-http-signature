@@ -64,7 +64,6 @@ public class HttpSignatureAuthenticationStrategy implements AuthenticationStrate
      * @param authSchemeProviderLookup Lookup that will return an {@link AuthScheme}
      *                                 when asked for "Signatures"
      * @param credentials credentials containing the HTTP Signature username
-     *                    and fingerprint
      */
     public HttpSignatureAuthenticationStrategy(
             final Lookup<AuthSchemeProvider> authSchemeProviderLookup,
@@ -78,7 +77,6 @@ public class HttpSignatureAuthenticationStrategy implements AuthenticationStrate
      * @param authScheme authentication scheme to use to authenticate
      *                   requests (expecting {@link HttpSignatureAuthScheme})
      * @param credentials credentials containing the HTTP Signature username
-     *                    and fingerprint
      */
     public HttpSignatureAuthenticationStrategy(final AuthScheme authScheme,
                                                final Credentials credentials) {

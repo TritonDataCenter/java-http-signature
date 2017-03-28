@@ -2,6 +2,7 @@
 <suite name="Java HTTP Signature Test Suite" verbose="1">
     <test name="Common Unit Tests">
         <classes>
+            <class name="com.joyent.http.signature.KeyFingerprinterTest" />
             <class name="com.joyent.http.signature.SignerDSATest" />
             <class name="com.joyent.http.signature.SignerECDSATest" />
             <class name="com.joyent.http.signature.SignerLegacyConstructorTest" />

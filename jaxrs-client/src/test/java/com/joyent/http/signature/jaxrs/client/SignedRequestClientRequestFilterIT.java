@@ -38,7 +38,7 @@ public class SignedRequestClientRequestFilterIT extends Arquillian {
 
     private static final String TEST_LOGIN_NAME = "testy";
 
-    private static final String TEST_KEY_FINGERPRINT = SignerTestUtil.testKeyFingerprint("rsa_2048");
+    private static final String TEST_KEY_FINGERPRINT = SignerTestUtil.testKeyMd5Fingerprint("rsa_2048");
 
     /**
      * URL path element corresponding to the test JAX-RS application.  This value must match

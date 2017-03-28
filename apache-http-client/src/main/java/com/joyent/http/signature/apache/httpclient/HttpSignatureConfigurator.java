@@ -29,7 +29,7 @@ public class HttpSignatureConfigurator {
     private final KeyPair keyPair;
 
     /**
-     * Credentials containing a username and key fingerprint as password.
+     * Credentials containing a username.
      */
     private final Credentials credentials;
 
@@ -48,7 +48,7 @@ public class HttpSignatureConfigurator {
      *  Creates a new instance.
      *
      * @param keyPair public/private keypair object used to sign HTTP requests
-     * @param credentials credentials containing a username and key fingerprint as password
+     * @param credentials credentials containing a username
      * @param useNativeCodeToSign true to enable native code acceleration of cryptographic singing
      *
      * @deprecated Prefer {@link #HttpSignatureConfigurator(KeyPair,
@@ -70,7 +70,7 @@ public class HttpSignatureConfigurator {
      *  Creates a new instance.
      *
      * @param keyPair public/private keypair object used to sign HTTP requests
-     * @param credentials credentials containing a username and key fingerprint as password
+     * @param credentials credentials containing a username
      * @param signer For use with http signature
      */
     public HttpSignatureConfigurator(final KeyPair keyPair,
