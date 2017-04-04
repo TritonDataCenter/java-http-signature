@@ -13,7 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
  - Methods that took an explicit fingerprint `String` now ignore it in
-   favor of the internally calcualted one.  These methods have been
+   favor of the internally calculated one.  These methods have been
    deprecated and will be removed in a future version.
 
 ## [4.0.2] - 2017-03-23
