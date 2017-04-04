@@ -2,10 +2,26 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.1.0] - ????-??-??
+
+### Added
+ - The key fingerprint is now internally calculated instead of using a
+   user supplied String.
+ - Utility methods for calculating MD5 fingerprints, calculating
+   SHA256 fingerprints, and verifying OpenSSH's string format have
+   been added.
+
+### Changed
+ - Methods that took an explicit fingerprint `String` now ignore it in
+   favor of the internally calcualted one.  These methods have been
+   deprecated and will be removed in a future version.
+
 ## [4.0.2] - 2017-03-23
 
 ### Changed
  - Bouncy Castle dependency was upgraded.
+ - An unused dependency on Apache httpclient has been removed from the
+  `common` module.
  
 ## [4.0.1] - 2017-03-20
 
