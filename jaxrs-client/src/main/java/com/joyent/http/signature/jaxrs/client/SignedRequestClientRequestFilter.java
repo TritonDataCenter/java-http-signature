@@ -19,7 +19,9 @@ import javax.ws.rs.core.MultivaluedMap;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.security.KeyPair;
-import java.util.Date;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 
@@ -160,8 +162,8 @@ public class SignedRequestClientRequestFilter implements ClientRequestFilter {
     @Override
     public void filter(final ClientRequestContext requestContext) throws IOException {
         final MultivaluedMap<String, Object> headers = requestContext.getHeaders();
-        final Date now = new Date();
-        final String dateHeaderValue = Signer.DATE_FORMAT.format(now);
+        final ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+        final String dateHeaderValue = DateTimeFormatter.RFC_1123_DATE_TIME.format(now);
         headers.add(DATE_HEADER_NAME, dateHeaderValue);
         final String authHeaderValue = signer.get().createAuthorizationHeader(
                 loginName,

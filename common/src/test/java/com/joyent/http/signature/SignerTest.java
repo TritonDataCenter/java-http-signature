@@ -15,7 +15,11 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public abstract class SignerTest {
@@ -42,6 +46,31 @@ public abstract class SignerTest {
                 "testy", testKeyPair, now);
         final boolean verified = signer.verifyAuthorizationHeader(
                 testKeyPair, authzHeader, now);
+        Assert.assertTrue(verified, "Unable to verify signed authorization header");
+    }
+
+    @Test(dataProvider = "testData")
+    @SuppressWarnings("deprecation")
+    public void signHeaderFixedLegacyDate(String hash, String providerCode) {
+        final Signer signer = new Signer.Builder(testKeyPair).hash(hash).providerCode(providerCode).build();
+        final Date legacyDate = new Date(1_000_000_000L * 1000);
+        final String stringDate = "Sun, 9 Sep 2001 01:46:40 GMT";
+        final String authzHeader = signer.createAuthorizationHeader(
+                "testy", testKeyPair, legacyDate);
+        final boolean verified = signer.verifyAuthorizationHeader(
+                testKeyPair, authzHeader, stringDate);
+        Assert.assertTrue(verified, "Unable to verify signed authorization header");
+    }
+
+    @Test(dataProvider = "testData")
+    public void signHeaderDateTime(String hash, String providerCode) {
+        final Signer signer = new Signer.Builder(testKeyPair).hash(hash).providerCode(providerCode).build();
+        final ZonedDateTime dt = ZonedDateTime.ofInstant(Instant.ofEpochSecond(1_000_000_000L), ZoneOffset.UTC);
+        final String stringDate = "Sun, 9 Sep 2001 01:46:40 GMT";
+        final String authzHeader = signer.createAuthorizationHeader(
+                "testy", testKeyPair, dt);
+        final boolean verified = signer.verifyAuthorizationHeader(
+                testKeyPair, authzHeader, stringDate);
         Assert.assertTrue(verified, "Unable to verify signed authorization header");
     }
 
