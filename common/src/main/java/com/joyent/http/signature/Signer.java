@@ -22,12 +22,13 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.TimeZone;
 
 /**
  *  HTTP authorization signer. This adheres to the specs of the node-http-signature spec.
@@ -41,7 +42,11 @@ import java.util.TimeZone;
 public class Signer {
     /**
      * The format for the http date header.
+     *
+     * @deprecated In java8 and later a RFC appropriate format is
+     * defined in the standard library using modern classes.
      */
+    @Deprecated
     public static final DateFormat DATE_FORMAT = new SimpleDateFormat(
             "EEE MMM d HH:mm:ss yyyy zzz", Locale.ENGLISH);
 
@@ -238,18 +243,42 @@ public class Signer {
      *
      * @param login Account/login name
      * @param keyPair public/private keypair
-     * @param date Date to be converted to a RFC 822 compliant string
+     * @param date DateTime to be converted to a RFC 822 compliant string
+     * @return value to Authorization header
+     *
+     * @deprecated Prefer ZonedDateTime to java.util.Date
+     */
+    @Deprecated
+    public String createAuthorizationHeader(final String login,
+                                            final KeyPair keyPair,
+                                            final Date date) {
+        final ZonedDateTime zdt;
+        if (date == null) {
+            zdt = null;
+        } else {
+            zdt = ZonedDateTime.ofInstant(date.toInstant(), ZoneOffset.UTC);
+        }
+
+        return createAuthorizationHeader(login, keyPair, zdt);
+    }
+
+    /**
+     * Generate a signature for an authorization HTTP header.
+     *
+     * @param login Account/login name
+     * @param keyPair public/private keypair
+     * @param dateTime DateTime to be converted to a RFC 822 compliant string
      * @return value to Authorization header
      */
     public String createAuthorizationHeader(final String login,
                                             final KeyPair keyPair,
-                                            final Date date) {
+                                            final ZonedDateTime dateTime) {
         final String stringDate;
 
-        if (date == null) {
+        if (dateTime == null) {
             stringDate = defaultSignDateAsString();
         } else {
-            stringDate = DATE_FORMAT.format(date);
+            stringDate = DateTimeFormatter.RFC_1123_DATE_TIME.format(dateTime);
         }
 
         return createAuthorizationHeader(login, keyPair, stringDate);
@@ -404,20 +433,11 @@ public class Signer {
     }
 
     /**
-     * The current timestamp in UTC.
-     * @return current timestamp in UTC.
-     */
-    private Date defaultSignDate() {
-        return Calendar.getInstance(TimeZone.getTimeZone("UTC"),
-                Locale.ENGLISH).getTime();
-    }
-
-    /**
      * The current timestamp in UTC as a RFC 822 compliant string.
      * @return Date as RFC 822 compliant string
      */
     public String defaultSignDateAsString() {
-        return DATE_FORMAT.format(defaultSignDate());
+        return DateTimeFormatter.RFC_1123_DATE_TIME.format(ZonedDateTime.now(ZoneOffset.UTC));
     }
 
     /**
