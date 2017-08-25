@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 
 @Test
 public class KeyPairLoaderTest {
@@ -56,8 +57,7 @@ public class KeyPairLoaderTest {
 
     public void canLoadPasswordProtectedKeyBytes() throws Exception {
         final KeyPair keyPair = generateKeyPair();
-        final String passphrase = "randompassword";
-        // final byte[] serializedKey = serializePrivateKey(keyPair, passphrase);
+        final String passphrase = UUID.randomUUID().toString();
         final byte[] serializedKey = serializePrivateKey(keyPair, passphrase);
 
         final KeyPair loadedKeyPair = KeyPairLoader.getKeyPair(serializedKey, passphrase.toCharArray());
