@@ -49,7 +49,7 @@ public final class KeyPairLoader {
     }
 
     /**
-     * Read KeyPair from the specified file. Convenience method.
+     * Read KeyPair from the specified file.
      *
      * @param keyFile The file containing the key
      *
@@ -61,7 +61,7 @@ public final class KeyPairLoader {
     }
 
     /**
-     * Read KeyPair located at the specified path.
+     * Read KeyPair from the specified file.
      *
      * @param keyFile The file containing the key
      *
