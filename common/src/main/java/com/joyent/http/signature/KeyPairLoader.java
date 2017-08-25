@@ -64,6 +64,7 @@ public final class KeyPairLoader {
      * Read KeyPair from the specified file.
      *
      * @param keyFile The file containing the key
+     * @param password password associated with key
      *
      * @return public-private keypair object
      * @throws IOException If unable to read the private key from the file

@@ -7,6 +7,7 @@
             <class name="com.joyent.http.signature.SignerECDSATest" />
             <class name="com.joyent.http.signature.SignerLegacyConstructorTest" />
             <class name="com.joyent.http.signature.SignerRSATest" />
+            <class name="com.joyent.http.signature.KeyPairLoaderTest" />
         </classes>
     </test>
 </suite>
