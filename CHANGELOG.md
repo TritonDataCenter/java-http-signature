@@ -10,6 +10,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
  - Utility methods for calculating MD5 fingerprints, calculating
    SHA256 fingerprints, and verifying OpenSSH's string format have
    been added.
+ - It is now possible to load a `KeyPair` from a `Path` or `File` in
+   combination with a passphrase.
 
 ### Changed
  - Methods that took an explicit fingerprint `String` now ignore it in
