@@ -51,10 +51,24 @@ public final class KeyPairLoader {
      * Read KeyPair located at the specified path.
      *
      * @param keyPath The path to the key
+
      * @return public-private keypair object
      * @throws IOException If unable to read the private key from the file
      */
     public static KeyPair getKeyPair(final Path keyPath) throws IOException {
+        return getKeyPair(keyPath, null);
+    }
+
+    /**
+     * Read KeyPair located at the specified path.
+     *
+     * @param keyPath The path to the key
+     * @param password password associated with key
+
+     * @return public-private keypair object
+     * @throws IOException If unable to read the private key from the file
+     */
+    public static KeyPair getKeyPair(final Path keyPath, final char[] password) throws IOException {
         if (keyPath == null) {
             throw new FileNotFoundException("No key file path specified");
         }
@@ -70,7 +84,7 @@ public final class KeyPairLoader {
         }
 
         try (InputStream is = Files.newInputStream(keyPath)) {
-            return getKeyPair(is, null);
+            return getKeyPair(is, password);
         }
     }
 
