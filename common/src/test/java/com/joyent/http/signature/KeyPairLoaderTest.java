@@ -86,6 +86,8 @@ public class KeyPairLoaderTest {
         compareKeyContents(keyPair, loadedKeyPair);
     }
 
+    // TEST UTILITY METHODS
+
     private KeyPair generateKeyPair() throws NoSuchAlgorithmException {
         final KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(1024);
