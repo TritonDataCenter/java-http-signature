@@ -17,6 +17,7 @@ import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,6 +46,30 @@ public final class KeyPairLoader {
         new NssBridgeKeyConverter();
     {
         CONVERTER.setProvider("BC");
+    }
+
+    /**
+     * Read KeyPair from the specified file. Convenience method.
+     *
+     * @param keyFile The file containing the key
+     *
+     * @return public-private keypair object
+     * @throws IOException If unable to read the private key from the file
+     */
+    public static KeyPair getKeyPair(final File keyFile) throws IOException {
+        return getKeyPair(keyFile.toPath(), null);
+    }
+
+    /**
+     * Read KeyPair located at the specified path.
+     *
+     * @param keyFile The file containing the key
+     *
+     * @return public-private keypair object
+     * @throws IOException If unable to read the private key from the file
+     */
+    public static KeyPair getKeyPair(final File keyFile, final char[] password) throws IOException {
+        return getKeyPair(keyFile.toPath(), password);
     }
 
     /**

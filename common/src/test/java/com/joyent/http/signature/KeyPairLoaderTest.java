@@ -1,9 +1,11 @@
 package com.joyent.http.signature;
 
+import org.bouncycastle.openssl.PEMEncryptor;
+import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
+import org.bouncycastle.openssl.jcajce.JcePEMEncryptorBuilder;
 import org.testng.Assert;
 import org.testng.AssertJUnit;
-import org.testng.SkipException;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -50,7 +52,7 @@ public class KeyPairLoaderTest {
         final FileOutputStream fos = new FileOutputStream(keyFile);
         fos.write(serializedKey);
 
-        final KeyPair loadedKeyPair = KeyPairLoader.getKeyPair(keyFile.toPath());
+        final KeyPair loadedKeyPair = KeyPairLoader.getKeyPair(keyFile);
 
         compareKeyContents(keyPair, loadedKeyPair);
     }
@@ -60,11 +62,29 @@ public class KeyPairLoaderTest {
         final String passphrase = UUID.randomUUID().toString();
         final byte[] serializedKey = serializePrivateKey(keyPair, passphrase);
 
+        Assert.assertTrue(new String(serializedKey, StandardCharsets.UTF_8).startsWith(RSA_HEADER));
+
         final KeyPair loadedKeyPair = KeyPairLoader.getKeyPair(serializedKey, passphrase.toCharArray());
 
         compareKeyContents(keyPair, loadedKeyPair);
     }
 
+    public void canLoadPasswordProtectedKeyFromFile() throws Exception {
+        final KeyPair keyPair = generateKeyPair();
+        final String passphrase = UUID.randomUUID().toString();
+        final byte[] serializedKey = serializePrivateKey(keyPair, passphrase);
+
+        Assert.assertTrue(new String(serializedKey, StandardCharsets.UTF_8).startsWith(RSA_HEADER));
+
+        final File keyFile = Files.createTempFile("private-key-with-passphrase", "").toFile();
+        keyFile.deleteOnExit();
+        final FileOutputStream fos = new FileOutputStream(keyFile);
+        fos.write(serializedKey);
+
+        final KeyPair loadedKeyPair = KeyPairLoader.getKeyPair(keyFile, passphrase.toCharArray());
+
+        compareKeyContents(keyPair, loadedKeyPair);
+    }
 
     private KeyPair generateKeyPair() throws NoSuchAlgorithmException {
         final KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
@@ -78,14 +98,9 @@ public class KeyPairLoaderTest {
         final JcaPEMWriter jcaPEMWriter = new JcaPEMWriter(new OutputStreamWriter(baos));
 
         if (passphrase != null) {
-            throw new SkipException("java.lang.ClassCastException: org.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo cannot be cast to org.bouncycastle.openssl.PEMKeyPair");
-
-            // final OutputEncryptor outputEncryptor =
-            //         new JceOpenSSLPKCS8EncryptorBuilder(PKCS8Generator.PBE_SHA1_3DES)
-            //                 .setPasssword(passphrase.toCharArray())
-            //                 .build();
-            //
-            // jcaPEMWriter.writeObject(new JcaPKCS8Generator(keyPair.getPrivate(), outputEncryptor));
+            final PEMEncryptor pemEncryptor = new JcePEMEncryptorBuilder("AES-128-CBC").build(passphrase.toCharArray());
+            final JcaMiscPEMGenerator pemGenerator = new JcaMiscPEMGenerator(keyPair.getPrivate(), pemEncryptor);
+            jcaPEMWriter.writeObject(pemGenerator);
         } else {
             jcaPEMWriter.writeObject(keyPair.getPrivate());
         }
