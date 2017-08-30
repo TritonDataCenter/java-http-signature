@@ -20,7 +20,7 @@
 
     <properties>
         <!-- Dependency versions -->
-        <dependency.bouncycastle.version>1.56</dependency.bouncycastle.version>
+        <dependency.bouncycastle.version>1.58</dependency.bouncycastle.version>
         <dependency.jnagmp.version>2.0.0</dependency.jnagmp.version>
     </properties>
 
