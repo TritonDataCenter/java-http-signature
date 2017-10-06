@@ -89,17 +89,19 @@
         <surefire.forkCount>1</surefire.forkCount>
         <surefire.useSystemClassLoader>true</surefire.useSystemClassLoader>
         <!-- Dependency versions -->
-        <dependency.checkstyle.version>7.5.1</dependency.checkstyle.version>
-        <dependency.apache-httpclient.version>4.5.2</dependency.apache-httpclient.version>
-        <dependency.testng.version>6.9.9</dependency.testng.version>
+        <dependency.checkstyle.version>8.2</dependency.checkstyle.version>
+        <dependency.apache-httpclient.version>4.5.3</dependency.apache-httpclient.version>
+        <dependency.testng.version>6.11</dependency.testng.version>
+        <dependency.slfj.version>1.7.25</dependency.slfj.version>
+        <dependency.logback.version>1.2.3</dependency.logback.version>
         <!-- Plugin versions -->
         <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
         <maven-clean-plugin.version>3.0.0</maven-clean-plugin.version>
-        <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
-        <maven-dependency-plugin.version>3.0.0</maven-dependency-plugin.version>
+        <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
+        <maven-dependency-plugin.version>3.0.2</maven-dependency-plugin.version>
         <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
         <maven-enforcer-plugin.version>1.4.1</maven-enforcer-plugin.version>
-        <maven-failsafe-plugin.version>2.19.1</maven-failsafe-plugin.version>
+        <maven-failsafe-plugin.version>2.20.1</maven-failsafe-plugin.version>
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
         <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
         <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
@@ -110,13 +112,13 @@
         <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
         <maven-shade-plugin.version>2.4.2</maven-shade-plugin.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
-        <maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
-        <maven-jacoco-plugin.version>0.7.8</maven-jacoco-plugin.version>
+        <maven-surefire-plugin.version>2.20.1</maven-surefire-plugin.version>
+        <maven-jacoco-plugin.version>0.7.9</maven-jacoco-plugin.version>
         <maven-project-info-reports-plugin.version>2.9</maven-project-info-reports-plugin.version>
 
         <!-- Maven plugin dependency versions -->
-        <maven-plexus-compiler-javac-errorprone.version>2.8.1</maven-plexus-compiler-javac-errorprone.version>
-        <maven-error-prone-core.version>2.0.15</maven-error-prone-core.version>
+        <maven-plexus-compiler-javac-errorprone.version>2.8.2</maven-plexus-compiler-javac-errorprone.version>
+        <maven-error-prone-core.version>2.1.1</maven-error-prone-core.version>
     </properties>
 
     <dependencies>
@@ -331,6 +333,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${maven-jacoco-plugin.version}</version>
                 <reportSets>
                     <reportSet>
                         <reports>
