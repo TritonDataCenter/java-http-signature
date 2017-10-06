@@ -90,7 +90,7 @@
         <surefire.useSystemClassLoader>true</surefire.useSystemClassLoader>
         <!-- Dependency versions -->
         <dependency.checkstyle.version>8.2</dependency.checkstyle.version>
-        <dependency.apache-httpclient.version>4.5.3</dependency.apache-httpclient.version>
+        <dependency.apache-httpclient.version>4.5.4</dependency.apache-httpclient.version>
         <dependency.testng.version>6.11</dependency.testng.version>
         <dependency.slfj.version>1.7.25</dependency.slfj.version>
         <dependency.logback.version>1.2.3</dependency.logback.version>
