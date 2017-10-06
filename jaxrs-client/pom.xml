@@ -20,16 +20,14 @@
 
     <properties>
         <!-- Dependency versions -->
-        <dependency.arquillian.version>1.1.10.Final</dependency.arquillian.version>
-        <dependency.arquillian-glassfish-embedded-3.1.version>1.0.0.Final</dependency.arquillian-glassfish-embedded-3.1.version>
+        <dependency.arquillian.version>1.1.13.Final</dependency.arquillian.version>
+        <dependency.arquillian-glassfish-embedded-3.1.version>1.0.1</dependency.arquillian-glassfish-embedded-3.1.version>
         <dependency.http-signature-common.version>4.0.4-SNAPSHOT</dependency.http-signature-common.version>
-        <dependency.javaee.version>7.0</dependency.javaee.version>
-        <dependency.jax-rs-api.version>2.0.1</dependency.jax-rs-api.version>
-        <dependency.jersey-client.version>2.23.2</dependency.jersey-client.version>
-        <dependency.logback.version>1.1.7</dependency.logback.version>
-        <dependency.payara-embedded-web.version>4.1.1.154</dependency.payara-embedded-web.version>
-        <dependency.arquillian-testng-container>1.1.11.Final</dependency.arquillian-testng-container>
-        <dependency.slfj.version>1.7.21</dependency.slfj.version>
+        <dependency.javaee.version>8.0</dependency.javaee.version>
+        <dependency.jax-rs-api.version>2.1</dependency.jax-rs-api.version>
+        <dependency.jersey-client.version>2.26</dependency.jersey-client.version>
+        <dependency.payara-embedded-web.version>4.1.2.173.0.1</dependency.payara-embedded-web.version>
+        <dependency.arquillian-testng-container>1.1.13.Final</dependency.arquillian-testng-container>
     </properties>
 
     <dependencyManagement>

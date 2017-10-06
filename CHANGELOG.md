@@ -2,7 +2,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [4.1.0] - 2017-04-04
+## [4.0.4] - 2017-10-?
+
+### Changed
+ - Upgraded all dependencies to the latest version.
+
+## [4.0.3] - 2017-04-04
 
 ### Added
  - The key fingerprint is now internally calculated instead of using a
