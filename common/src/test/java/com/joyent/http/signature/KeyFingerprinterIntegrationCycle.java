@@ -13,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -60,7 +61,8 @@ public class KeyFingerprinterIntegrationCycle {
         if (p.waitFor() > 0) {
             throw new RuntimeException("check cmd failed: " + p);
         }
-        BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream(),
+                StandardCharsets.US_ASCII));
         String line = reader.readLine();
         return line.split(" ")[1];
     }

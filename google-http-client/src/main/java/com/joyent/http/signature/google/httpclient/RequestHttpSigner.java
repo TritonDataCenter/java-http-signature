@@ -17,6 +17,7 @@ import org.bouncycastle.util.encoders.Base64;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -180,7 +181,7 @@ public class RequestHttpSigner {
 
 
         StringBuilder request = new StringBuilder();
-        final byte[] sigBytes = sigText.toString().getBytes();
+        final byte[] sigBytes = sigText.toString().getBytes(StandardCharsets.US_ASCII);
         final byte[] signed = signer.get().sign(getLogin(), getKeyPair(), sigBytes);
         final String encoded = new String(Base64.encode(signed), charset);
         final String urlEncoded = URLEncoder.encode(encoded, charset);

@@ -18,6 +18,7 @@ public class BenchmarkDSASigner extends BenchmarkSigner {
     @Param({"stdlib"})
     private String providerCode;
 
+    @Override
     public String getKeyCode() {
         return "dsa_1024";
     }

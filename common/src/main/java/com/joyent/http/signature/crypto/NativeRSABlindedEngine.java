@@ -73,6 +73,7 @@ public class NativeRSABlindedEngine extends RSABlindedEngine {
      * @param forEncryption true if we are encrypting, false otherwise.
      * @param param the necessary RSA key parameters.
      */
+    @Override
     public void init(final boolean forEncryption, final CipherParameters param) {
         core.init(forEncryption, param);
 
@@ -94,6 +95,7 @@ public class NativeRSABlindedEngine extends RSABlindedEngine {
      *
      * @return maximum size for an input block.
      */
+    @Override
     public int getInputBlockSize() {
         return core.getInputBlockSize();
     }
@@ -105,6 +107,7 @@ public class NativeRSABlindedEngine extends RSABlindedEngine {
      *
      * @return maximum size for an output block.
      */
+    @Override
     public int getOutputBlockSize() {
         return core.getOutputBlockSize();
     }
@@ -118,6 +121,7 @@ public class NativeRSABlindedEngine extends RSABlindedEngine {
      * @return the result of the RSA process.
      * @exception DataLengthException the input block is too large.
      */
+    @Override
     public byte[] processBlock(final byte[] in, final int inOff, final int inLen) {
         if (key == null) {
             throw new IllegalStateException("RSA engine not initialised");

@@ -177,7 +177,9 @@
                     <target>${java.min.version}</target>
                     <showWarnings>true</showWarnings>
                     <compilerArgs>
-                        <arg>-Xlint:all -Xlint:-processing</arg>
+                        <arg>-Xlint:all</arg>
+                        <arg>-Xlint:-processing</arg>
+                        <arg>-XepDisableWarningsInGeneratedCode</arg>
                     </compilerArgs>
                 </configuration>
                 <dependencies>

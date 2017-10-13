@@ -13,6 +13,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
@@ -77,7 +78,7 @@ public abstract class SignerTest {
     @Test(dataProvider = "testData")
     public void signData(String hash, String providerCode) {
         final Signer signer = new Signer.Builder(testKeyPair).hash(hash).providerCode(providerCode).build();
-        final byte[] data = "Hello World".getBytes();
+        final byte[] data = "Hello World".getBytes(StandardCharsets.US_ASCII);
         final byte[] signedData = signer.sign(
                 "testy", testKeyPair, data);
         final boolean verified = signer.verify(

@@ -18,6 +18,7 @@ public class BenchmarkECDSASigner extends BenchmarkSigner {
     @Param({"stdlib"})
     private String providerCode;
 
+    @Override
     public String getKeyCode() {
         return "ecdsa_256";
     }
