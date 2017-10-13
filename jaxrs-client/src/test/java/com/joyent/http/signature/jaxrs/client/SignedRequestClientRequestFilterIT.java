@@ -99,6 +99,7 @@ public class SignedRequestClientRequestFilterIT extends Arquillian {
      * @throws IOException if unable to read test key
      */
     @Test
+    @SuppressWarnings("deprecation")
     public void testSignedRequestWithFilter() throws URISyntaxException, IOException {
         Assert.assertNotNull(endpointBaseUrl);
 
