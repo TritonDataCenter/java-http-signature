@@ -176,7 +176,7 @@
                     <source>${java.min.version}</source>
                     <target>${java.min.version}</target>
                     <compilerArgs>
-                        <arg>-Xlint:deprecation</arg>
+                        <arg>-Xlint:all</arg>
                     </compilerArgs>
                 </configuration>
                 <dependencies>
