@@ -14,6 +14,9 @@ package com.joyent.http.signature;
  * @since 1.0.0
  */
 public class CryptoException extends HttpSignatureException {
+
+    private static final long serialVersionUID = -3558219358777167268L;
+
     /**
      * Creates a new exception.
      */

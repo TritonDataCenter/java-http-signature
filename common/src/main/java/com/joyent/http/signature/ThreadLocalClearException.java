@@ -13,6 +13,9 @@ package com.joyent.http.signature;
  * @author <a href="https://github.com/dekobon">Elijah Zupancic</a>
  */
 public class ThreadLocalClearException extends RuntimeException {
+
+    private static final long serialVersionUID = 4658889695319509040L;
+
     /**
      * Constructs a new runtime exception with the specified cause and a
      * detail message of <tt>(cause==null ? null : cause.toString())</tt>

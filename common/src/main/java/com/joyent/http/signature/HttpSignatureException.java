@@ -14,6 +14,9 @@ package com.joyent.http.signature;
  * @since 1.0.0
  */
 public class HttpSignatureException extends RuntimeException {
+
+    private static final long serialVersionUID = 6548882825292310527L;
+
     /**
      * Creates a new exception.
      */

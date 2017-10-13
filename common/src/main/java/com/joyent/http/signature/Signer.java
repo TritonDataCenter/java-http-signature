@@ -396,6 +396,7 @@ public class Signer {
      *
      * @deprecated The fingerprint is now calculated from the given key.
      */
+    @Deprecated
     public boolean verify(final String login,
                                  final String fingerprint,
                                  final KeyPair keyPair,
