@@ -175,6 +175,7 @@
                     <forceJavacCompilerUse>true</forceJavacCompilerUse>
                     <source>${java.min.version}</source>
                     <target>${java.min.version}</target>
+                    <showWarnings>true</showWarnings>
                     <compilerArgs>
                         <arg>-Xlint:all</arg>
                     </compilerArgs>
