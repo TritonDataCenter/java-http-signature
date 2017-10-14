@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
  - Upgraded all dependencies to the latest version.
+ - Resolved compiler warnings.
 
 ## [4.0.3] - 2017-04-04
 
