@@ -5,13 +5,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [4.0.5] - ?
 
 ### Fixed
- - [Removed use of javax.xml.bind.DatatypeConverter](https://github.com/joyent/java-http-signature/issues/41) 
+ - [Removed use of javax.xml.bind.DatatypeConverter](https://github.com/joyent/java-http-signature/issues/41)
+ - Resolved compiler warnings. 
 
 ## [4.0.4] - 2017-10-06
 
 ### Changed
  - Upgraded all dependencies to the latest version.
- - Resolved compiler warnings.
 
 ## [4.0.3] - 2017-04-04
 
