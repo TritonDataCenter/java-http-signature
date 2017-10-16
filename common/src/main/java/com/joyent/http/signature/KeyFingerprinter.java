@@ -19,16 +19,22 @@ import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Base64;
 import java.util.Objects;
-import javax.xml.bind.DatatypeConverter;
 
 /**
  * Utiility class for calculating and verifying SSH key fingerprints as defined by OpenSSH.
  */
 public final class KeyFingerprinter {
 
-    /** OpenSSH does not pad.
+    /**
+     * OpenSSH does not pad.
      */
     private static Base64.Encoder b64Encoder = Base64.getEncoder().withoutPadding();
+
+    /**
+     * Hexadecimal characters to translate to when converting from a byte[]
+     * array to a hex string.
+     */
+    private static final char[] HEX_CHARS = "0123456789abcdef".toCharArray();
 
     @SuppressWarnings("checkstyle:javadocmethod")
     private KeyFingerprinter() {
@@ -56,7 +62,7 @@ public final class KeyFingerprinter {
         byte[] encoded = SshEncoder.encode(keyPair.getPublic());
         md.update(encoded);
         byte[] digest = md.digest();
-        return colonify(DatatypeConverter.printHexBinary(digest));
+        return colonify(digest);
     }
 
     /**
@@ -115,23 +121,36 @@ public final class KeyFingerprinter {
     }
 
     /**
-     * Given a hex encoded string, space it out with colons and
-     * lowercase each character to match the OpenSSH format.  For
-     * example {@code 9F0B50AEE3DAF6EBB5719A69EE799EC2} becomes {@code
+     * Given a byte array, space it out with colons and
+     * lowercase each character to match the OpenSSH format.
+     * Example output would be {@code
      * 9f:0b:50:ae:e3:da:f6:eb:b5:71:9a:69:ee:79:9e:c2}
      *
-     * @param str The hex encoded string
-     * @return str with colons
+     * @param bytes byte array to convert to hex string
+     * @return hex string with colons
      */
-    private static String colonify(final String str) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < str.length(); i++) {
-            sb.append(Character.toLowerCase(str.charAt(i)));
-            if (i % 2 == 1 && i != str.length() - 1) {
-                sb.append(":");
+    @SuppressWarnings("MagicNumber")
+    static String colonify(final byte[] bytes) {
+        Objects.requireNonNull(bytes, "byte array is null");
+
+        if (bytes.length == 0) {
+            return "";
+        }
+
+        final char[] chars = new char[bytes.length * 3 - 1];
+
+        int charPos = 0;
+        for (int i = 0; i < bytes.length; i++) {
+            final int val = bytes[i] & 0xFF;
+            chars[charPos++] = HEX_CHARS[val >>> 4];
+            chars[charPos++] = HEX_CHARS[val & 0x0F];
+
+            if (charPos + 1 < chars.length) {
+                chars[charPos++] = ':';
             }
         }
-        return sb.toString();
+
+        return new String(chars);
     }
 
     /*
