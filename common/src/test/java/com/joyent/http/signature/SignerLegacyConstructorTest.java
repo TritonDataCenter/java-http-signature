@@ -10,6 +10,7 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 
@@ -48,7 +49,7 @@ public class SignerLegacyConstructorTest {
     @Test
     public void signData() {
         final Signer signer = new Signer(useNativeCodeToSign);
-        final byte[] data = "Hello World".getBytes();
+        final byte[] data = "Hello World".getBytes(StandardCharsets.US_ASCII);
         final byte[] signedData = signer.sign(
                 "testy", testKeyFingerprint, testKeyPair, data);
         final boolean verified = signer.verify(

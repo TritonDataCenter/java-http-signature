@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyPair;
@@ -123,7 +124,7 @@ public final class KeyPairLoader {
      * @throws IOException If unable to read the private key from the string
      */
     public static KeyPair getKeyPair(final String privateKeyContent, final char[] password) throws IOException {
-        byte[] pKeyBytes = privateKeyContent.getBytes();
+        byte[] pKeyBytes = privateKeyContent.getBytes(StandardCharsets.US_ASCII);
 
         return getKeyPair(pKeyBytes, password);
     }
@@ -156,7 +157,7 @@ public final class KeyPairLoader {
      */
     public static KeyPair getKeyPair(final InputStream is,
                               final char[] password) throws IOException {
-        try (InputStreamReader isr = new InputStreamReader(is);
+        try (InputStreamReader isr = new InputStreamReader(is, StandardCharsets.US_ASCII);
              BufferedReader br = new BufferedReader(isr);
              PEMParser pemParser = new PEMParser(br)) {
 

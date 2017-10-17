@@ -97,7 +97,8 @@ public class KeyPairLoaderTest {
     private byte[] serializePrivateKey(final KeyPair keyPair,
                                        final String passphrase) throws Exception {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        final JcaPEMWriter jcaPEMWriter = new JcaPEMWriter(new OutputStreamWriter(baos));
+        final JcaPEMWriter jcaPEMWriter = new JcaPEMWriter(new OutputStreamWriter(baos,
+                StandardCharsets.US_ASCII));
 
         if (passphrase != null) {
             final PEMEncryptor pemEncryptor = new JcePEMEncryptorBuilder("AES-128-CBC").build(passphrase.toCharArray());

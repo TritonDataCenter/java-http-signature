@@ -56,6 +56,29 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
     <build>
         <plugins>
+            <!-- We compile without error prone because
+                 errorprone can't properly inspect the generated code. -->
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <!-- disable errorprone on JMH source tree -->
+                        <configuration>
+                            <compilerId>javac-with-errorprone</compilerId>
+                            <compilerArgs>
+                                <arg>-Xlint:all</arg>
+                                <arg>-Xlint:-processing</arg>
+                                <arg>-XepDisableAllChecks</arg>
+                            </compilerArgs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>

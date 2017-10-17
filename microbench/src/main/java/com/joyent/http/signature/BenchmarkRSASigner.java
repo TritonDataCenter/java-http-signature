@@ -18,6 +18,7 @@ public class BenchmarkRSASigner extends BenchmarkSigner {
     @Param({"stdlib", "native.jnagmp"})
     private String providerCode;
 
+    @Override
     public String getKeyCode() {
         return "rsa_2048";
     }

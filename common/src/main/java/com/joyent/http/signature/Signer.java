@@ -13,6 +13,7 @@ import org.bouncycastle.util.encoders.Base64;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
@@ -329,7 +330,7 @@ public class Signer {
             final String fingerprint = KeyFingerprinter.md5Fingerprint(keyPair);
 
             return String.format(AUTHZ_HEADER, login, fingerprint, httpHeaderAlgorithm,
-                    new String(encodedSignedDate));
+                    new String(encodedSignedDate, StandardCharsets.US_ASCII));
         } catch (final InvalidKeyException e) {
             throw new CryptoException("invalid key", e);
         } catch (final SignatureException e) {
@@ -396,6 +397,7 @@ public class Signer {
      *
      * @deprecated The fingerprint is now calculated from the given key.
      */
+    @Deprecated
     public boolean verify(final String login,
                                  final String fingerprint,
                                  final KeyPair keyPair,
@@ -791,23 +793,32 @@ public class Signer {
                 System.setProperty("native.jnagmp", Objects.toString(JNAGMP_SUPPORTED));
             }
 
-
+            @Override
             public String getAlgorithm() {
                 return "RSA";
             }
+
+            @Override
             public String[] getSupportedHashes() {
                 return SUPPORTED_HASHES;
             }
+
+            @Override
             public String defaultHash() {
                 return "SHA256";
             }
+
+            @Override
             public String[] getSupportedProviderCodes() {
                 return SUPPORTED_PROVIDER_CODES;
             }
+
+            @Override
             public String defaultProviderCode() {
                 return "native.jnagmp";
             }
 
+            @Override
             public String providerPrefix(final Provider provider) {
                 if (provider != null) {
                     return "Native";
@@ -840,18 +851,26 @@ public class Signer {
             private static final String[] SUPPORTED_HASHES = {"SHA1", "SHA256"};
             private static final String[] SUPPORTED_PROVIDER_CODES = {"stdlib"};
 
+            @Override
             public String getAlgorithm() {
                 return "DSA";
             }
+            @Override
             public String[] getSupportedHashes() {
                 return SUPPORTED_HASHES;
             }
+
+            @Override
             public String defaultHash() {
                 return "SHA256";
             }
+
+            @Override
             public String[] getSupportedProviderCodes() {
                 return SUPPORTED_PROVIDER_CODES;
             }
+
+            @Override
             public String defaultProviderCode() {
                 return "stdlib";
             }
@@ -865,18 +884,27 @@ public class Signer {
             private static final String[] SUPPORTED_HASHES = {"SHA256", "SHA384", "SHA512"};
             private static final String[] SUPPORTED_PROVIDER_CODES = {"stdlib"};
 
+            @Override
             public String getAlgorithm() {
                 return "ECDSA";
             }
+
+            @Override
             public String[] getSupportedHashes() {
                 return SUPPORTED_HASHES;
             }
+
+            @Override
             public String defaultHash() {
                 return "SHA256";
             }
+
+            @Override
             public String[] getSupportedProviderCodes() {
                 return SUPPORTED_PROVIDER_CODES;
             }
+
+            @Override
             public String defaultProviderCode() {
                 return "stdlib";
             }

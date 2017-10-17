@@ -178,6 +178,8 @@
                     <showWarnings>true</showWarnings>
                     <compilerArgs>
                         <arg>-Xlint:all</arg>
+                        <arg>-Xlint:-processing</arg>
+                        <arg>-XepDisableWarningsInGeneratedCode</arg>
                     </compilerArgs>
                 </configuration>
                 <dependencies>

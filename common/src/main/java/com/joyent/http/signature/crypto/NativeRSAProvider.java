@@ -14,6 +14,9 @@ import java.security.Provider;
  * @author <a href="https://github.com/dekobon">Elijah Zupancic</a>
  */
 public class NativeRSAProvider extends Provider {
+
+    private static final long serialVersionUID = -8156926325751209127L;
+
     /**
      * Creates an instance of a JCE provider that supports native RSA via jnagmp.
      */
