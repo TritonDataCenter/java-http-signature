@@ -53,10 +53,14 @@ public class SignerTestUtil {
     }
 
     public static KeyPair testKeyPair(String keyId) throws IOException {
+        return testKeyPair(keyId, null);
+    }
+
+    public static KeyPair testKeyPair(String keyId, String provider) throws IOException {
         final ClassLoader loader = SignerTestUtil.class.getClassLoader();
 
         try (InputStream is = loader.getResourceAsStream(keys.get(keyId).resourcePath)) {
-            KeyPair classPathPair = KeyPairLoader.getKeyPair(is, null);
+            KeyPair classPathPair = KeyPairLoader.getKeyPair(is, null, provider);
             return classPathPair;
         }
     }

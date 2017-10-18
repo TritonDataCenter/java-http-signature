@@ -6,11 +6,14 @@ import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.openssl.jcajce.JcePEMEncryptorBuilder;
 import org.testng.Assert;
 import org.testng.AssertJUnit;
+import org.testng.SkipException;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -18,12 +21,18 @@ import java.nio.file.Path;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.Security;
 import java.util.UUID;
+
+import static com.joyent.http.signature.KeyPairLoader.PROVIDER_BOUNCY_CASTLE;
+import static com.joyent.http.signature.KeyPairLoader.PROVIDER_PKCS11_NSS;
 
 @Test
 public class KeyPairLoaderTest {
 
     private static final String RSA_HEADER = "-----BEGIN RSA PRIVATE KEY-----";
+
+    private static final ClassLoader CLASS_LOADER = KeyPairLoaderTest.class.getClassLoader();
 
     public void willThrowOnNullInputs() {
         Assert.assertThrows(() ->
@@ -86,6 +95,36 @@ public class KeyPairLoaderTest {
         compareKeyContents(keyPair, loadedKeyPair);
     }
 
+    public void canLoadKeyPairUsingSpecifiedProvider() throws Exception {
+
+        if (Security.getProvider(PROVIDER_PKCS11_NSS) == null) {
+            throw new SkipException(PROVIDER_PKCS11_NSS + " provider is missing.");
+        }
+
+        for (final String keyId : SignerTestUtil.keys.keySet()) {
+            final SignerTestUtil.TestKeyResource keyResource = SignerTestUtil.keys.get(keyId);
+            final KeyPair bouncyKeyPair = loadTestKeyPair(keyResource.resourcePath, PROVIDER_BOUNCY_CASTLE);
+            final String bouncyAlgo = bouncyKeyPair.getPrivate().getAlgorithm().toUpperCase();
+            String classAlgoName = bouncyAlgo;
+            if (bouncyAlgo.equals("ECDSA")) {
+                classAlgoName = "EC";
+            }
+
+            Assert.assertEquals(KeyFingerprinter.md5Fingerprint(bouncyKeyPair), keyResource.md5Fingerprint);
+            Assert.assertTrue(bouncyKeyPair.getPrivate().getClass().getSimpleName().contains("BC" + classAlgoName + "Private"));
+            Assert.assertTrue(bouncyKeyPair.getPublic().getClass().getSimpleName().contains("BC" + classAlgoName + "Public"));
+
+            final String nssAlgo = bouncyKeyPair.getPrivate().getAlgorithm().toUpperCase();
+            Assert.assertEquals(bouncyAlgo, nssAlgo);
+
+            final KeyPair nssKeyPair = loadTestKeyPair(keyResource.resourcePath, PROVIDER_PKCS11_NSS);
+            Assert.assertEquals(KeyFingerprinter.md5Fingerprint(nssKeyPair), keyResource.md5Fingerprint);
+            Assert.assertTrue(nssKeyPair.getPrivate().getClass().getSimpleName().contains("P11" + classAlgoName));
+            Assert.assertTrue(nssKeyPair.getPublic().getClass().getSimpleName().contains("P11" + classAlgoName));
+
+        }
+    }
+
     // TEST UTILITY METHODS
 
     private KeyPair generateKeyPair() throws NoSuchAlgorithmException {
@@ -122,4 +161,12 @@ public class KeyPairLoaderTest {
                 actualKeyPair.getPublic().getEncoded());
     }
 
+    private KeyPair loadTestKeyPair(final String resourcePath, final String provider) throws IOException {
+        final KeyPair loadedKeyPair;
+        try (final InputStream inputKey = CLASS_LOADER.getResourceAsStream(resourcePath)) {
+            loadedKeyPair = KeyPairLoader.getKeyPair(inputKey, null, provider);
+
+        }
+        return loadedKeyPair;
+    }
 }
