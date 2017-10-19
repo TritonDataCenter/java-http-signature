@@ -47,10 +47,13 @@ public final class KeyPairLoader {
     public static final String PROVIDER_BOUNCY_CASTLE = "BC";
 
     /**
-     * The key format converter to use when reading key pairs.
+     * The key format converter to use when reading key pairs and libnss is enabled (or specifically requested).
      */
     private static final JcaPEMKeyConverter CONVERTER_PKCS11_NSS;
 
+    /**
+     * The key format converter to user when libnss is disabled (or BC is specifically requested).
+     */
     private static final JcaPEMKeyConverter CONVERTER_BOUNCY_CASTLE;
 
     static {
