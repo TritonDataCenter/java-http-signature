@@ -52,7 +52,7 @@ public final class KeyPairLoader {
     private static final JcaPEMKeyConverter CONVERTER_PKCS11_NSS;
 
     /**
-     * The key format converter to user when libnss is disabled (or BC is specifically requested).
+     * The key format converter to use when libnss is disabled (or BC is specifically requested).
      */
     private static final JcaPEMKeyConverter CONVERTER_BOUNCY_CASTLE;
 
@@ -229,6 +229,13 @@ public final class KeyPairLoader {
             throw new KeyLoadException("Unexpected PEM object loaded: " + pemObject.getClass().getCanonicalName());
         }
 
+        // throw if the user has specifically requested NSS and it is unavailable
+        if (provider != null && provider.equals(PROVIDER_PKCS11_NSS) && CONVERTER_PKCS11_NSS == null) {
+            throw new KeyLoadException(PROVIDER_PKCS11_NSS + " provider requested but unavailable. "
+                    + "Is java.security configured correctly?");
+        }
+
+        // Attempt to load with NSS, otherwise fallback to BC
         if (CONVERTER_PKCS11_NSS != null
                 && (provider == null || provider.equals(PROVIDER_PKCS11_NSS))) {
             return CONVERTER_PKCS11_NSS.getKeyPair(pemKeyPair);

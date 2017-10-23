@@ -9,6 +9,7 @@ import org.testng.AssertJUnit;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -21,6 +22,7 @@ import java.nio.file.Path;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.Provider;
 import java.security.Security;
 import java.util.UUID;
 
@@ -123,6 +125,22 @@ public class KeyPairLoaderTest {
             Assert.assertTrue(nssKeyPair.getPublic().getClass().getSimpleName().contains("P11" + classAlgoName));
 
         }
+    }
+
+    public void willThrowWhenPkcs11IsRequestedButUnavailable() throws Exception {
+        final Provider pkcs11Provider = Security.getProvider(PROVIDER_PKCS11_NSS);
+
+        if (pkcs11Provider != null) {
+            throw new SkipException("PKCS11 provider is available, can't perform skip test");
+        }
+
+        final KeyPair keyPair = generateKeyPair();
+        final byte[] serializedKey = serializePrivateKey(keyPair, null);
+
+        Assert.assertTrue(new String(serializedKey, StandardCharsets.UTF_8).startsWith(RSA_HEADER));
+
+        Assert.assertThrows(KeyLoadException.class, () ->
+                KeyPairLoader.getKeyPair(new ByteArrayInputStream(serializedKey), null, PROVIDER_PKCS11_NSS));
     }
 
     // TEST UTILITY METHODS
