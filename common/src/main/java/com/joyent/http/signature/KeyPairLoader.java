@@ -56,6 +56,21 @@ public final class KeyPairLoader {
      */
     private static final JcaPEMKeyConverter CONVERTER_BOUNCY_CASTLE;
 
+    /**
+     * Set of security providers users can request.
+     */
+    @SuppressWarnings("checkstyle:JavaDocVariable")
+    public enum DesiredSecurityProvider {
+        PKCS11_NSS(PROVIDER_PKCS11_NSS),
+        BOUNCY_CASTLE(PROVIDER_BOUNCY_CASTLE);
+
+        private final String providerCode;
+
+         DesiredSecurityProvider(final String providerCode) {
+            this.providerCode = providerCode;
+        }
+    }
+
     static {
         final Provider providerPkcs11NSS = Security.getProvider(PROVIDER_PKCS11_NSS);
 
@@ -190,7 +205,8 @@ public final class KeyPairLoader {
     }
 
     /**
-     * Read KeyPair from an input stream, optionally using password.
+     * Read KeyPair from an input stream, optionally using password and desired Security Provider. Most implementations
+     * should continue calling the one and two-argument methods
      *
      * @param is       private key content as a stream
      * @param password password associated with key
@@ -200,7 +216,7 @@ public final class KeyPairLoader {
      */
     public static KeyPair getKeyPair(final InputStream is,
                                      final char[] password,
-                                     final String provider) throws IOException {
+                                     final DesiredSecurityProvider provider) throws IOException {
         final Object pemObject;
         try (InputStreamReader isr = new InputStreamReader(is, StandardCharsets.US_ASCII);
              BufferedReader br = new BufferedReader(isr);
@@ -230,14 +246,15 @@ public final class KeyPairLoader {
         }
 
         // throw if the user has specifically requested NSS and it is unavailable
-        if (provider != null && provider.equals(PROVIDER_PKCS11_NSS) && CONVERTER_PKCS11_NSS == null) {
+        if (provider != null && provider.equals(DesiredSecurityProvider.PKCS11_NSS) && CONVERTER_PKCS11_NSS == null) {
             throw new KeyLoadException(PROVIDER_PKCS11_NSS + " provider requested but unavailable. "
                     + "Is java.security configured correctly?");
         }
 
-        // Attempt to load with NSS, otherwise fallback to BC
-        if (CONVERTER_PKCS11_NSS != null
-                && (provider == null || provider.equals(PROVIDER_PKCS11_NSS))) {
+        // Attempt to load with NSS if it is available and requested (or no provider was specified)
+        final boolean attemptPKCS11NSS = provider == null || provider.equals(DesiredSecurityProvider.PKCS11_NSS);
+
+        if (CONVERTER_PKCS11_NSS != null && attemptPKCS11NSS) {
             return CONVERTER_PKCS11_NSS.getKeyPair(pemKeyPair);
         }
 

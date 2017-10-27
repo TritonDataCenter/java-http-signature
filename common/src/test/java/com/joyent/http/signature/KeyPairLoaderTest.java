@@ -1,5 +1,6 @@
 package com.joyent.http.signature;
 
+import com.joyent.http.signature.KeyPairLoader.DesiredSecurityProvider;
 import org.bouncycastle.openssl.PEMEncryptor;
 import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
@@ -140,7 +141,7 @@ public class KeyPairLoaderTest {
         Assert.assertTrue(new String(serializedKey, StandardCharsets.UTF_8).startsWith(RSA_HEADER));
 
         Assert.assertThrows(KeyLoadException.class, () ->
-                KeyPairLoader.getKeyPair(new ByteArrayInputStream(serializedKey), null, PROVIDER_PKCS11_NSS));
+                KeyPairLoader.getKeyPair(new ByteArrayInputStream(serializedKey), null, DesiredSecurityProvider.PKCS11_NSS));
     }
 
     // TEST UTILITY METHODS
@@ -181,8 +182,15 @@ public class KeyPairLoaderTest {
 
     private KeyPair loadTestKeyPair(final String resourcePath, final String provider) throws IOException {
         final KeyPair loadedKeyPair;
+        final DesiredSecurityProvider desiredProvider;
+        if (provider != null) {
+            desiredProvider = DesiredSecurityProvider.valueOf(provider);
+        } else {
+            desiredProvider = null;
+        }
+
         try (final InputStream inputKey = CLASS_LOADER.getResourceAsStream(resourcePath)) {
-            loadedKeyPair = KeyPairLoader.getKeyPair(inputKey, null, provider);
+            loadedKeyPair = KeyPairLoader.getKeyPair(inputKey, null, desiredProvider);
 
         }
         return loadedKeyPair;
