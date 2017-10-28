@@ -59,15 +59,20 @@ public final class KeyPairLoader {
     /**
      * Set of security providers users can request.
      */
-    @SuppressWarnings("checkstyle:JavaDocVariable")
+    @SuppressWarnings({"checkstyle:JavaDocVariable", "checkstyle:JavadocMethod"})
     public enum DesiredSecurityProvider {
-        PKCS11_NSS(PROVIDER_PKCS11_NSS),
-        BOUNCY_CASTLE(PROVIDER_BOUNCY_CASTLE);
+        BC(PROVIDER_BOUNCY_CASTLE),
+        NSS(PROVIDER_PKCS11_NSS);
 
         private final String providerCode;
 
          DesiredSecurityProvider(final String providerCode) {
             this.providerCode = providerCode;
+        }
+
+        @Override
+        public String toString() {
+             return providerCode;
         }
     }
 
@@ -246,13 +251,13 @@ public final class KeyPairLoader {
         }
 
         // throw if the user has specifically requested NSS and it is unavailable
-        if (provider != null && provider.equals(DesiredSecurityProvider.PKCS11_NSS) && CONVERTER_PKCS11_NSS == null) {
+        if (provider != null && provider.equals(DesiredSecurityProvider.NSS) && CONVERTER_PKCS11_NSS == null) {
             throw new KeyLoadException(PROVIDER_PKCS11_NSS + " provider requested but unavailable. "
                     + "Is java.security configured correctly?");
         }
 
         // Attempt to load with NSS if it is available and requested (or no provider was specified)
-        final boolean attemptPKCS11NSS = provider == null || provider.equals(DesiredSecurityProvider.PKCS11_NSS);
+        final boolean attemptPKCS11NSS = provider == null || provider.equals(DesiredSecurityProvider.NSS);
 
         if (CONVERTER_PKCS11_NSS != null && attemptPKCS11NSS) {
             return CONVERTER_PKCS11_NSS.getKeyPair(pemKeyPair);

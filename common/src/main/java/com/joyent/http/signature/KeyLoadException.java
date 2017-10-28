@@ -15,6 +15,8 @@ package com.joyent.http.signature;
  */
 public class KeyLoadException extends HttpSignatureException {
 
+    private static final long serialVersionUID = 3842266217250311085L;
+
     /**
      * Creates a new exception with the specified message.
      * @param message Message to embed

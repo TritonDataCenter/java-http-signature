@@ -23,11 +23,9 @@ import java.nio.file.Path;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.security.Provider;
 import java.security.Security;
 import java.util.UUID;
 
-import static com.joyent.http.signature.KeyPairLoader.PROVIDER_BOUNCY_CASTLE;
 import static com.joyent.http.signature.KeyPairLoader.PROVIDER_PKCS11_NSS;
 
 @Test
@@ -106,7 +104,7 @@ public class KeyPairLoaderTest {
 
         for (final String keyId : SignerTestUtil.keys.keySet()) {
             final SignerTestUtil.TestKeyResource keyResource = SignerTestUtil.keys.get(keyId);
-            final KeyPair bouncyKeyPair = loadTestKeyPair(keyResource.resourcePath, PROVIDER_BOUNCY_CASTLE);
+            final KeyPair bouncyKeyPair = loadTestKeyPair(keyResource.resourcePath, DesiredSecurityProvider.BC);
             final String bouncyAlgo = bouncyKeyPair.getPrivate().getAlgorithm().toUpperCase();
             String classAlgoName = bouncyAlgo;
             if (bouncyAlgo.equals("ECDSA")) {
@@ -120,7 +118,7 @@ public class KeyPairLoaderTest {
             final String nssAlgo = bouncyKeyPair.getPrivate().getAlgorithm().toUpperCase();
             Assert.assertEquals(bouncyAlgo, nssAlgo);
 
-            final KeyPair nssKeyPair = loadTestKeyPair(keyResource.resourcePath, PROVIDER_PKCS11_NSS);
+            final KeyPair nssKeyPair = loadTestKeyPair(keyResource.resourcePath, DesiredSecurityProvider.NSS);
             Assert.assertEquals(KeyFingerprinter.md5Fingerprint(nssKeyPair), keyResource.md5Fingerprint);
             Assert.assertTrue(nssKeyPair.getPrivate().getClass().getSimpleName().contains("P11" + classAlgoName));
             Assert.assertTrue(nssKeyPair.getPublic().getClass().getSimpleName().contains("P11" + classAlgoName));
@@ -129,9 +127,7 @@ public class KeyPairLoaderTest {
     }
 
     public void willThrowWhenPkcs11IsRequestedButUnavailable() throws Exception {
-        final Provider pkcs11Provider = Security.getProvider(PROVIDER_PKCS11_NSS);
-
-        if (pkcs11Provider != null) {
+        if (Security.getProvider(PROVIDER_PKCS11_NSS) != null) {
             throw new SkipException("PKCS11 provider is available, can't perform skip test");
         }
 
@@ -141,7 +137,7 @@ public class KeyPairLoaderTest {
         Assert.assertTrue(new String(serializedKey, StandardCharsets.UTF_8).startsWith(RSA_HEADER));
 
         Assert.assertThrows(KeyLoadException.class, () ->
-                KeyPairLoader.getKeyPair(new ByteArrayInputStream(serializedKey), null, DesiredSecurityProvider.PKCS11_NSS));
+                KeyPairLoader.getKeyPair(new ByteArrayInputStream(serializedKey), null, DesiredSecurityProvider.NSS));
     }
 
     // TEST UTILITY METHODS
@@ -180,18 +176,12 @@ public class KeyPairLoaderTest {
                 actualKeyPair.getPublic().getEncoded());
     }
 
-    private KeyPair loadTestKeyPair(final String resourcePath, final String provider) throws IOException {
+    private KeyPair loadTestKeyPair(final String resourcePath,
+                                    final DesiredSecurityProvider provider) throws IOException {
         final KeyPair loadedKeyPair;
-        final DesiredSecurityProvider desiredProvider;
-        if (provider != null) {
-            desiredProvider = DesiredSecurityProvider.valueOf(provider);
-        } else {
-            desiredProvider = null;
-        }
 
         try (final InputStream inputKey = CLASS_LOADER.getResourceAsStream(resourcePath)) {
-            loadedKeyPair = KeyPairLoader.getKeyPair(inputKey, null, desiredProvider);
-
+            loadedKeyPair = KeyPairLoader.getKeyPair(inputKey, null, provider);
         }
         return loadedKeyPair;
     }
