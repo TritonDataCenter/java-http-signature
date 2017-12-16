@@ -13,7 +13,6 @@ import java.security.KeyPair;
 import java.util.HashMap;
 import java.util.Map;
 
-
 public class SignerTestUtil {
     @SuppressWarnings("serial")
     public static final Map<String,TestKeyResource> keys = new HashMap<String,TestKeyResource>() {{
@@ -56,7 +55,7 @@ public class SignerTestUtil {
         final ClassLoader loader = SignerTestUtil.class.getClassLoader();
 
         try (InputStream is = loader.getResourceAsStream(keys.get(keyId).resourcePath)) {
-            KeyPair classPathPair = KeyPairLoader.getKeyPair(is, null);
+            KeyPair classPathPair = KeyPairLoader.getKeyPair(is, null, null);
             return classPathPair;
         }
     }

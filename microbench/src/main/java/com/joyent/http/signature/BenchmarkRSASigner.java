@@ -9,6 +9,9 @@ package com.joyent.http.signature;
 
 import org.openjdk.jmh.annotations.Param;
 
+import static com.joyent.http.signature.KeyPairLoader.PROVIDER_BOUNCY_CASTLE;
+import static com.joyent.http.signature.KeyPairLoader.PROVIDER_PKCS11_NSS;
+
 
 @SuppressWarnings({"checkstyle:javadocmethod", "checkstyle:javadoctype", "checkstyle:javadocvariable"})
 public class BenchmarkRSASigner extends BenchmarkSigner {
@@ -17,6 +20,9 @@ public class BenchmarkRSASigner extends BenchmarkSigner {
 
     @Param({"stdlib", "native.jnagmp"})
     private String providerCode;
+
+    @Param({PROVIDER_PKCS11_NSS, PROVIDER_BOUNCY_CASTLE})
+    private String keyProviderCode;
 
     @Override
     public String getKeyCode() {

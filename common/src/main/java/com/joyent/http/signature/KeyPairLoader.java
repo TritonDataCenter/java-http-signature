@@ -7,12 +7,12 @@
  */
 package com.joyent.http.signature;
 
-import com.joyent.http.signature.crypto.NssBridgeKeyConverter;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMDecryptorProvider;
 import org.bouncycastle.openssl.PEMEncryptedKeyPair;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
 
 import java.io.BufferedReader;
@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyPair;
+import java.security.Provider;
 import java.security.Security;
 
 
@@ -35,18 +36,66 @@ import java.security.Security;
  */
 public final class KeyPairLoader {
 
+    /**
+     * Provider name for libnss.
+     */
+    public static final String PROVIDER_PKCS11_NSS = "SunPKCS11-NSS";
+
+    /**
+     * Provider name for Bouncy Castle.
+     */
+    public static final String PROVIDER_BOUNCY_CASTLE = "BC";
+
+    /**
+     * The key format converter to use when reading key pairs and libnss is enabled (or specifically requested).
+     */
+    private static final JcaPEMKeyConverter CONVERTER_PKCS11_NSS;
+
+    /**
+     * The key format converter to use when libnss is disabled (or BC is specifically requested).
+     */
+    private static final JcaPEMKeyConverter CONVERTER_BOUNCY_CASTLE;
+
+    /**
+     * Set of security providers users can request.
+     */
+    @SuppressWarnings({"checkstyle:JavaDocVariable", "checkstyle:JavadocMethod"})
+    public enum DesiredSecurityProvider {
+        BC(PROVIDER_BOUNCY_CASTLE),
+        NSS(PROVIDER_PKCS11_NSS);
+
+        private final String providerCode;
+
+         DesiredSecurityProvider(final String providerCode) {
+            this.providerCode = providerCode;
+        }
+
+        @Override
+        public String toString() {
+             return providerCode;
+        }
+    }
+
+    static {
+        final Provider providerPkcs11NSS = Security.getProvider(PROVIDER_PKCS11_NSS);
+
+        if (providerPkcs11NSS != null) {
+            CONVERTER_PKCS11_NSS = new JcaPEMKeyConverter().setProvider(PROVIDER_PKCS11_NSS);
+        } else {
+            CONVERTER_PKCS11_NSS = null;
+        }
+
+        final Provider providerBouncyCastle = Security.getProvider(PROVIDER_BOUNCY_CASTLE);
+
+        if (providerBouncyCastle == null) {
+            Security.addProvider(new BouncyCastleProvider());
+        }
+
+        CONVERTER_BOUNCY_CASTLE = new JcaPEMKeyConverter().setProvider(PROVIDER_BOUNCY_CASTLE);
+    }
 
     @SuppressWarnings("checkstyle:javadocmethod")
     private KeyPairLoader() {
-    }
-
-    /**
-     * The key format converter to use when reading key pairs.
-     */
-    private static final NssBridgeKeyConverter CONVERTER =
-        new NssBridgeKeyConverter();
-    {
-        CONVERTER.setProvider("BC");
     }
 
     /**
@@ -150,36 +199,71 @@ public final class KeyPairLoader {
     /**
      * Read KeyPair from an input stream, optionally using password.
      *
-     * @param is private key content as a stream
+     * @param is       private key content as a stream
      * @param password password associated with key
      * @return public/private keypair object
      * @throws IOException If unable to read the private key from the string
      */
     public static KeyPair getKeyPair(final InputStream is,
-                              final char[] password) throws IOException {
+                                     final char[] password) throws IOException {
+        return getKeyPair(is, password, null);
+    }
+
+    /**
+     * Read KeyPair from an input stream, optionally using password and desired Security Provider. Most implementations
+     * should continue calling the one and two-argument methods
+     *
+     * @param is       private key content as a stream
+     * @param password password associated with key
+     * @param provider security provider to use when loading the key
+     * @return public/private keypair object
+     * @throws IOException If unable to read the private key from the string
+     */
+    public static KeyPair getKeyPair(final InputStream is,
+                                     final char[] password,
+                                     final DesiredSecurityProvider provider) throws IOException {
+        final Object pemObject;
         try (InputStreamReader isr = new InputStreamReader(is, StandardCharsets.US_ASCII);
              BufferedReader br = new BufferedReader(isr);
              PEMParser pemParser = new PEMParser(br)) {
 
-            if (password == null) {
-                Security.addProvider(new BouncyCastleProvider());
-                final Object object = pemParser.readObject();
-                return CONVERTER.getKeyPair((PEMKeyPair) object);
-            } else {
-                PEMDecryptorProvider decProv = new JcePEMDecryptorProviderBuilder().build(password);
-
-                Object object = pemParser.readObject();
-
-                final KeyPair kp;
-                if (object instanceof PEMEncryptedKeyPair) {
-                    kp = CONVERTER.getKeyPair(((PEMEncryptedKeyPair) object).decryptKeyPair(decProv));
-                } else {
-                    kp = CONVERTER.getKeyPair((PEMKeyPair) object);
-                }
-
-                return kp;
-            }
+            pemObject = pemParser.readObject();
         }
+
+        final PEMKeyPair pemKeyPair;
+
+        if (pemObject instanceof PEMEncryptedKeyPair) {
+            if (password == null) {
+                throw new KeyLoadException("Loaded key is encrypted but no password was supplied.");
+            }
+
+            final PEMDecryptorProvider decryptorProvider = new JcePEMDecryptorProviderBuilder().build(password);
+            final PEMEncryptedKeyPair encryptedPemObject = ((PEMEncryptedKeyPair) pemObject);
+            pemKeyPair = encryptedPemObject.decryptKeyPair(decryptorProvider);
+        } else if (pemObject instanceof PEMKeyPair) {
+            if (password != null) {
+                throw new KeyLoadException("Loaded key is not encrypted but a password was supplied.");
+            }
+
+            pemKeyPair = (PEMKeyPair) pemObject;
+        } else {
+            throw new KeyLoadException("Unexpected PEM object loaded: " + pemObject.getClass().getCanonicalName());
+        }
+
+        // throw if the user has specifically requested NSS and it is unavailable
+        if (provider != null && provider.equals(DesiredSecurityProvider.NSS) && CONVERTER_PKCS11_NSS == null) {
+            throw new KeyLoadException(PROVIDER_PKCS11_NSS + " provider requested but unavailable. "
+                    + "Is java.security configured correctly?");
+        }
+
+        // Attempt to load with NSS if it is available and requested (or no provider was specified)
+        final boolean attemptPKCS11NSS = provider == null || provider.equals(DesiredSecurityProvider.NSS);
+
+        if (CONVERTER_PKCS11_NSS != null && attemptPKCS11NSS) {
+            return CONVERTER_PKCS11_NSS.getKeyPair(pemKeyPair);
+        }
+
+        return CONVERTER_BOUNCY_CASTLE.getKeyPair(pemKeyPair);
     }
 
 }

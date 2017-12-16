@@ -81,6 +81,8 @@ local.properties
 # TeXlipse plugin
 .texlipse
 
+# OS X
+.DS_Store
 
 ### Maven ###
 target/
