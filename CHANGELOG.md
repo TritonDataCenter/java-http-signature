@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [4.0.6] - ?
+## [4.0.6] - 2017-12-18
 
 ### Fixed
  - [Removed reflective mofification of PKCS#11 Security Provider's algorithms map](https://github.com/joyent/java-http-signature/issues/45) which was incorrectly serializing ECDSA keys.
