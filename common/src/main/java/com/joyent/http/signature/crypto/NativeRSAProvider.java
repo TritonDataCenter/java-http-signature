@@ -21,6 +21,7 @@ public class NativeRSAProvider extends Provider {
      * Creates an instance of a JCE provider that supports native RSA via jnagmp.
      */
     public NativeRSAProvider() {
+        // This constructor signature will need to be upgraded in the future
         super("native-rsa", 1.0, "SHA Digest with RSA Native implementation");
         put("Signature.SHA1withNativeRSA", NativeRSAWithSHA.SHA1.class.getName());
         put("Signature.SHA256withNativeRSA", NativeRSAWithSHA.SHA256.class.getName());

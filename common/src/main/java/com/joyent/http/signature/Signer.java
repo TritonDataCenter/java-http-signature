@@ -48,6 +48,7 @@ public class Signer {
      * defined in the standard library using modern classes.
      */
     @Deprecated
+    @SuppressWarnings("DateFormatConstant")
     public static final DateFormat DATE_FORMAT = new SimpleDateFormat(
             "EEE MMM d HH:mm:ss yyyy zzz", Locale.ENGLISH);
 

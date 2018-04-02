@@ -36,6 +36,8 @@ public class HttpSignatureAuthIT {
     private static final String SDC_ACCOUNT_ENV_KEY = "SDC_ACCOUNT";
     private static final String SDC_KEY_PATH_ENV_KEY = "SDC_KEY_PATH";
 
+    private static final ThreadLocalSigner SIGNER = new ThreadLocalSigner();
+
 //    @Test
     public void canAuthenticate() throws IOException {
         final KeyPair keyPair = createKeyPair();
@@ -60,15 +62,6 @@ public class HttpSignatureAuthIT {
 
             HttpHead head = new HttpHead(uri);
             HttpClientContext context = new HttpClientContext();
-
-//            AuthCache authCache = new BasicAuthCache();
-//            context.setAuthCache(authCache);
-//            AuthState authState = new AuthState();
-//            authState.update(configurator.getAuthScheme(), credentials);
-//
-//            context.setAttribute(HttpClientContext.TARGET_AUTH_STATE,
-//                    authState);
-//            context.getTargetAuthState().setState(AuthProtocolState.UNCHALLENGED);
             HttpResponse response = conn.execute(head, context);
 
             assertEquals(response.getStatusLine().getStatusCode(),
@@ -113,10 +106,9 @@ public class HttpSignatureAuthIT {
         final KeyPair keyPair;
         final String keyPath = System.getenv(SDC_KEY_PATH_ENV_KEY);
         Objects.requireNonNull(keyPath, SDC_KEY_PATH_ENV_KEY + " must be set");
-        final ThreadLocalSigner signer = new ThreadLocalSigner();
 
         try {
-            keyPair = signer.get().getKeyPair(new File(keyPath).toPath());
+            keyPair = SIGNER.get().getKeyPair(new File(keyPath).toPath());
         } catch (IOException e) {
             String msg = String.format("Unable to read key files from path: %s",
                     keyPath);

@@ -28,8 +28,8 @@ import org.apache.http.config.Lookup;
 import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.protocol.HttpContext;
 
+import java.util.ArrayDeque;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
@@ -140,11 +140,10 @@ public class HttpSignatureAuthenticationStrategy implements AuthenticationStrate
     public Queue<AuthOption> select(final Map<String, Header> challengeHeaders,
                                     final HttpHost authhost,
                                     final HttpResponse response,
-                                    final HttpContext context)
-            throws MalformedChallengeException {
+                                    final HttpContext context) {
         final HttpClientContext httpClientContext = HttpClientContext.adapt(context);
         final AuthState state = httpClientContext.getTargetAuthState();
-        final Queue<AuthOption> queue = new LinkedList<>();
+        final Queue<AuthOption> queue = new ArrayDeque<>();
 
         if (state == null || !state.getState().equals(AuthProtocolState.CHALLENGED)) {
             queue.add(authOption);

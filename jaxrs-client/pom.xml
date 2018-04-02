@@ -20,14 +20,14 @@
 
     <properties>
         <!-- Dependency versions -->
-        <dependency.arquillian.version>1.1.13.Final</dependency.arquillian.version>
-        <dependency.arquillian-glassfish-embedded-3.1.version>1.0.1</dependency.arquillian-glassfish-embedded-3.1.version>
+        <dependency.arquillian.version>1.4.0.Final</dependency.arquillian.version>
+        <dependency.arquillian-glassfish-embedded-3.1.version>1.0.2</dependency.arquillian-glassfish-embedded-3.1.version>
         <dependency.http-signature-common.version>4.0.6-SNAPSHOT</dependency.http-signature-common.version>
         <dependency.javaee.version>8.0</dependency.javaee.version>
         <dependency.jax-rs-api.version>2.1</dependency.jax-rs-api.version>
         <dependency.jersey-client.version>2.26</dependency.jersey-client.version>
-        <dependency.payara-embedded-web.version>4.1.2.173.0.1</dependency.payara-embedded-web.version>
-        <dependency.arquillian-testng-container>1.1.13.Final</dependency.arquillian-testng-container>
+        <dependency.payara-embedded-web.version>5.181</dependency.payara-embedded-web.version>
+        <dependency.arquillian-testng-container>1.4.0.Final</dependency.arquillian-testng-container>
     </properties>
 
     <dependencyManagement>
