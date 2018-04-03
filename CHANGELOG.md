@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [4.0.7] - ?
+## [4.0.7] - 2018-04-02
 
 ### Fixed
  - [jaxrs-client-signature integration tests fail to work in Java 9](https://github.com/joyent/java-http-signature/issues/48)
