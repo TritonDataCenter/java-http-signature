@@ -13,10 +13,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.stream.Stream;
 
 /**
  * Utility stress test class for comparing generated fingerprints to
@@ -87,13 +89,12 @@ public class KeyFingerprinterIntegrationCycle {
                 throw new RuntimeException(e);
             }
         }
-        try {
-            Files.walk(tmpDir)
-                .map(Path::toFile)
+        try (Stream<Path> paths = Files.walk(tmpDir)){
+            paths.map(Path::toFile)
                 .sorted((o1, o2) -> -o1.compareTo(o2))
                 .forEach(File::delete);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
