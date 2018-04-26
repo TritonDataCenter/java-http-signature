@@ -22,7 +22,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.util.UUID;
 
@@ -33,13 +32,52 @@ public class KeyPairLoaderTest {
 
     private static final String RSA_HEADER = "-----BEGIN RSA PRIVATE KEY-----";
 
+    /**
+     * Since serializing a public key to the OpenSSH format would require an external library we've generated
+     * a key just for testing. The corresponding private key was destroyed.
+     */
+    private static final String TEST_PUBLIC_KEY =
+            "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDZbnRl5z0dd3NAvRprIrUcRJxJzhnNvozxlBUYj47+OtxP6dlETjrvMHtqg7/+NZ" +
+                    "C+4/HyXF8MBYmNKQXXzOOThIlG/Cxx4rSNRx3TBeKijQ8+gw2c5QwM/0SHv73WGgL81Br07Fk3y2I7eqHvyBD428jBoOgH" +
+                    "+ecGT4pdL/Zyrw==";
+
     private static final ClassLoader CLASS_LOADER = KeyPairLoaderTest.class.getClassLoader();
 
     public void willThrowOnNullInputs() {
         Assert.assertThrows(() ->
-                KeyPairLoader.getKeyPair((String) null, null));
+                KeyPairLoader.getKeyPair((File) null, null));
         Assert.assertThrows(() ->
                 KeyPairLoader.getKeyPair((Path) null, null));
+        Assert.assertThrows(() ->
+                KeyPairLoader.getKeyPair((String) null, null));
+        Assert.assertThrows(() ->
+                KeyPairLoader.getKeyPair((InputStream) null, null));
+    }
+
+    public void willThrowUsefulExceptionsOnEmptyFile() throws IOException {
+        final Path emptyFile = Files.createTempFile("id_rsa", "");
+
+        final IOException emptyFileException = Assert.expectThrows(IOException.class, () ->
+                KeyPairLoader.getKeyPair(emptyFile));
+
+        // error message should contain the path specified and the words "private key"
+        Assert.assertTrue(emptyFileException.getMessage().contains(emptyFile.toString()));
+        Assert.assertTrue(emptyFileException.getMessage().contains("private key"));
+    }
+
+    public void willThrowUsefulExceptionsOnPublicKeyFile() throws Exception {
+        final Path publicKeyFile = Files.createTempFile("id_rsa", ".pub");
+
+        try (final FileOutputStream fos = new FileOutputStream(publicKeyFile.toFile())) {
+            fos.write(TEST_PUBLIC_KEY.getBytes(StandardCharsets.UTF_8));
+        }
+
+        final IOException publicKeyFileException = Assert.expectThrows(IOException.class, () ->
+                KeyPairLoader.getKeyPair(publicKeyFile));
+
+        // error message should contain the path specified and the words "private key"
+        Assert.assertTrue(publicKeyFileException.getMessage().contains(publicKeyFile.toString()));
+        Assert.assertTrue(publicKeyFileException.getMessage().contains("private key"));
     }
 
     public void canLoadGeneratedBytesKeyPair() throws Exception {
@@ -142,7 +180,7 @@ public class KeyPairLoaderTest {
 
     // TEST UTILITY METHODS
 
-    private KeyPair generateKeyPair() throws NoSuchAlgorithmException {
+    private KeyPair generateKeyPair() throws Exception {
         final KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(1024);
         return generator.generateKeyPair();
@@ -167,7 +205,7 @@ public class KeyPairLoaderTest {
         return baos.toByteArray();
     }
 
-    private void compareKeyContents(KeyPair expectedKeyPair, KeyPair actualKeyPair) {
+    private void compareKeyContents(final KeyPair expectedKeyPair, final KeyPair actualKeyPair) {
         AssertJUnit.assertArrayEquals(
                 expectedKeyPair.getPrivate().getEncoded(),
                 actualKeyPair.getPrivate().getEncoded());
