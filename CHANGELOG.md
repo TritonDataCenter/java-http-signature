@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [4.0.8]
+## [4.0.8] - 2018-04-29
 
 ### Fixed
 - [NullPointerException when key file is not a valid private key](https://github.com/joyent/java-http-signature/issues/50)
