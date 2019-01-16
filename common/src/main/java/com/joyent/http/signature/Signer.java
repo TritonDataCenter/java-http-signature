@@ -12,7 +12,6 @@ import org.bouncycastle.util.encoders.Base64;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.security.InvalidKeyException;
@@ -325,7 +324,7 @@ public class Signer {
         try {
             signature.initSign(keyPair.getPrivate());
             final String signingString = String.format(AUTHZ_SIGNING_STRING, date);
-            signature.update(signingString.getBytes("UTF-8"));
+            signature.update(signingString.getBytes(StandardCharsets.UTF_8));
             final byte[] signedDate = signature.sign();
             final byte[] encodedSignedDate = Base64.encode(signedDate);
             final String fingerprint = KeyFingerprinter.md5Fingerprint(keyPair);
@@ -336,8 +335,6 @@ public class Signer {
             throw new CryptoException("invalid key", e);
         } catch (final SignatureException e) {
             throw new CryptoException("invalid signature", e);
-        } catch (final UnsupportedEncodingException e) {
-            throw new CryptoException("invalid encoding", e);
         }
     }
 
@@ -472,17 +469,15 @@ public class Signer {
 
             final String encodedSignedDate = authzHeader.substring(startIndex + AUTHZ_PATTERN.length(),
                     authzHeader.length() - 1);
-            final byte[] signedDate = Base64.decode(encodedSignedDate.getBytes("UTF-8"));
+            final byte[] signedDate = Base64.decode(encodedSignedDate.getBytes(StandardCharsets.UTF_8));
 
-            signature.update(myDate.getBytes("UTF-8"));
+            signature.update(myDate.getBytes(StandardCharsets.UTF_8));
             return signature.verify(signedDate);
 
         } catch (final InvalidKeyException e) {
             throw new CryptoException("invalid key", e);
         } catch (final SignatureException e) {
             throw new CryptoException("invalid signature", e);
-        } catch (final UnsupportedEncodingException e) {
-            throw new CryptoException("invalid encoding", e);
         }
     }
 
