@@ -46,7 +46,7 @@ public final class KeyFingerprinter {
      * still the one used by Triton and Manta as the key id.
      *
      * @param keyPair The KeyPair to calculate the fingerprint of
-     * @return The fingerprint (ex: {@code 9f:0b:50:ae:e3:da:f6:eb:b5:71:9a:69:ee:79:9e:c2})
+     * @return The MD5 fingerprint (ex: {@code 9f:0b:50:ae:e3:da:f6:eb:b5:71:9a:69:ee:79:9e:c2})
      */
     public static String md5Fingerprint(final KeyPair keyPair) {
         Objects.requireNonNull(keyPair);
@@ -70,7 +70,7 @@ public final class KeyFingerprinter {
      * SHA256 of the serialized public key as a fingerprint.
      *
      * @param keyPair The KeyPair to calculate the fingerprint of
-     * @return The fingerprint (ex: {@code: LP3pWCEhg6rdmE05GhUKbZ7uOZqsJd0sK0AR3sVoMq4})
+     * @return The SHA fingerprint (ex: {@code LP3pWCEhg6rdmE05GhUKbZ7uOZqsJd0sK0AR3sVoMq4})
      */
     public static String sha256Fingerprint(final KeyPair keyPair) {
         Objects.requireNonNull(keyPair);

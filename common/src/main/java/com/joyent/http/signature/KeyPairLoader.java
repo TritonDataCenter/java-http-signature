@@ -161,6 +161,8 @@ public final class KeyPairLoader {
 
         try (InputStream is = Files.newInputStream(keyPath)) {
             return getKeyPair(is, password);
+        } catch (final KeyLoadException kle) {
+            throw new IOException("Unable to load private key at path: " + keyPath, kle);
         }
     }
 
@@ -246,6 +248,8 @@ public final class KeyPairLoader {
             }
 
             pemKeyPair = (PEMKeyPair) pemObject;
+        } else if (pemObject == null) {
+            throw new KeyLoadException("Failed to load PEM object, please verify the input is a private key");
         } else {
             throw new KeyLoadException("Unexpected PEM object loaded: " + pemObject.getClass().getCanonicalName());
         }
