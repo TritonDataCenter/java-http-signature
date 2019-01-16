@@ -89,9 +89,9 @@
         <surefire.forkCount>1</surefire.forkCount>
         <surefire.useSystemClassLoader>true</surefire.useSystemClassLoader>
         <!-- Dependency versions -->
-        <dependency.checkstyle.version>8.8</dependency.checkstyle.version>
-        <dependency.apache-httpclient.version>4.5.5</dependency.apache-httpclient.version>
-        <dependency.testng.version>6.14.2</dependency.testng.version>
+        <dependency.checkstyle.version>8.16</dependency.checkstyle.version>
+        <dependency.apache-httpclient.version>4.5.6</dependency.apache-httpclient.version>
+        <dependency.testng.version>6.14.3</dependency.testng.version>
         <dependency.slfj.version>1.7.25</dependency.slfj.version>
         <dependency.logback.version>1.2.3</dependency.logback.version>
         <!-- Plugin versions -->
@@ -117,8 +117,8 @@
         <maven-project-info-reports-plugin.version>2.9</maven-project-info-reports-plugin.version>
 
         <!-- Maven plugin dependency versions -->
-        <maven-plexus-compiler-javac-errorprone.version>2.8.3</maven-plexus-compiler-javac-errorprone.version>
-        <maven-error-prone-core.version>2.2.0</maven-error-prone-core.version>
+        <maven-plexus-compiler-javac-errorprone.version>2.8.5</maven-plexus-compiler-javac-errorprone.version>
+        <maven-error-prone-core.version>2.3.2</maven-error-prone-core.version>
     </properties>
 
     <dependencies>

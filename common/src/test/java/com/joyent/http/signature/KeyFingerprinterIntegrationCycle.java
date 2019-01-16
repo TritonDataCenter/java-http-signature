@@ -57,6 +57,7 @@ public class KeyFingerprinterIntegrationCycle {
     }
 
     // NOTE: need -E md5 for openssh > 6.7
+    @SuppressWarnings("StringSplitter")
     public String readMd5Fingerprint(int iteration) throws IOException, InterruptedException {
         Process p = Runtime.getRuntime().exec(new String[] {
                 "ssh-keygen", "-l", "-f", privateFileName(iteration) + ".pub"});

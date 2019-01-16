@@ -24,10 +24,10 @@
         <dependency.arquillian-glassfish-embedded-3.1.version>1.0.2</dependency.arquillian-glassfish-embedded-3.1.version>
         <dependency.http-signature-common.version>4.0.8-SNAPSHOT</dependency.http-signature-common.version>
         <dependency.javaee.version>8.0</dependency.javaee.version>
-        <dependency.jax-rs-api.version>2.1</dependency.jax-rs-api.version>
-        <dependency.jersey-client.version>2.26</dependency.jersey-client.version>
-        <dependency.payara-embedded-web.version>5.181</dependency.payara-embedded-web.version>
-        <dependency.arquillian-testng-container>1.4.0.Final</dependency.arquillian-testng-container>
+        <dependency.jax-rs-api.version>2.1.1</dependency.jax-rs-api.version>
+        <dependency.jersey-client.version>2.27</dependency.jersey-client.version>
+        <dependency.payara-embedded-web.version>5.184</dependency.payara-embedded-web.version>
+        <dependency.arquillian-testng-container>1.4.1.Final</dependency.arquillian-testng-container>
     </properties>
 
     <dependencyManagement>

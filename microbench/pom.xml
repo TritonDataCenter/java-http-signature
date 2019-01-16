@@ -21,7 +21,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
     <properties>
         <!-- Dependency versions -->
         <dependency.http-signature-common.version>4.0.8-SNAPSHOT</dependency.http-signature-common.version>
-        <dependency.jmh.version>1.19</dependency.jmh.version>
+        <dependency.jmh.version>1.21</dependency.jmh.version>
         <uberjar.name>benchmarks</uberjar.name>
     </properties>
 
