@@ -114,11 +114,8 @@ public class HttpSignatureAuthenticationStrategy implements AuthenticationStrate
             return true;
         }
 
-        if (clientContext.getTargetAuthState() == null) {
-            return true;
-        }
+        return clientContext.getTargetAuthState() == null;
 
-        return false;
     }
 
     @Override

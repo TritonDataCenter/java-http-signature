@@ -8,6 +8,7 @@ import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.testing.http.MockHttpTransport;
+import com.google.common.primitives.Ints;
 import com.joyent.http.signature.Signer;
 import com.joyent.http.signature.SignerTestUtil;
 import com.joyent.http.signature.ThreadLocalSigner;
@@ -97,7 +98,7 @@ public class RequestHttpSignerTest {
             System.out.println(String.format("Total signing time for request: %dms", total));
         }
 
-        long average = Math.round(running / iterations);
+        long average = Ints.saturatedCast(running / iterations);
         System.out.println(String.format("Average signing time: %dms", average));
 
         String authorization = request.getHeaders().getAuthorization();
