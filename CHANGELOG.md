@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.0.10] - 2019-02-27
+
+### Changed
+ - Upgraded dependency versions for BC and Apache-Http-Client.
+ - [Upgrade Apache-Http-Client Dependency](https://github.com/joyent/java-http-signature/commit/9ee3137ac7fdc518f5136ee16a3e8161619461f9)
+ - [Upgraded BC Version To 1.61](https://github.com/joyent/java-http-signature/commit/1e72d58f2b05adc7e401ce29cea02233c4bdd725)
+ 
 ## [4.0.9] - 2019-01-15
 
 ### Changed
@@ -10,7 +17,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [4.0.8] - 2018-04-29
 
 ### Fixed
-- [NullPointerException when key file is not a valid private key](https://github.com/joyent/java-http-signature/issues/50)
+ - [NullPointerException when key file is not a valid private key](https://github.com/joyent/java-http-signature/issues/50)
 
 ## [4.0.7] - 2018-04-02
 
@@ -215,5 +222,5 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [1.0.0] - 2015-11-10
 ### Added
-- Forked HTTP signature from the Java Manta project.
-- Created three artifacts - common, google-http-client and apache-http-client
+ - Forked HTTP signature from the Java Manta project.
+ - Created three artifacts - common, google-http-client and apache-http-client
