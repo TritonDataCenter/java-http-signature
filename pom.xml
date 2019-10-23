@@ -42,6 +42,12 @@
             <organizationUrl>joyent.com</organizationUrl>
         </developer>
         <developer>
+            <email>ashwin@nair.name</email>
+            <name>Ashwin A Nair</name>
+            <organization>Joyent</organization>
+            <organizationUrl>joyent.com</organizationUrl>
+        </developer>
+        <developer>
             <name>Phillip Ross</name>
             <email>phillip.w.g.ross at gmail.com</email>
             <organization>Luminosity Labs LLC</organization>
