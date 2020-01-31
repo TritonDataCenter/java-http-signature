@@ -95,7 +95,7 @@
         <surefire.forkCount>1</surefire.forkCount>
         <surefire.useSystemClassLoader>true</surefire.useSystemClassLoader>
         <!-- Dependency versions -->
-        <dependency.checkstyle.version>8.16</dependency.checkstyle.version>
+        <dependency.checkstyle.version>8.29</dependency.checkstyle.version>
         <dependency.apache-httpclient.version>4.5.7</dependency.apache-httpclient.version>
         <dependency.testng.version>6.14.3</dependency.testng.version>
         <dependency.slfj.version>1.7.25</dependency.slfj.version>
