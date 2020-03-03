@@ -112,7 +112,7 @@ public class Signer {
         httpHeaderAlgorithm = builder.httpHeaderAlgorithm();
         if (provider == null) {
             try {
-                signature = Signature.getInstance(builder.javaStandardName(provider));
+                signature = Signature.getInstance(builder.javaStandardName(null));
             } catch (NoSuchAlgorithmException nsae) {
                 throw new CryptoException(nsae);
             }
@@ -215,6 +215,7 @@ public class Signer {
      * @param keyPair public/private keypair
      * @return value to Authorization header
      */
+    @SuppressWarnings("unused")
     public String createAuthorizationHeader(final String login,
                                             final KeyPair keyPair) {
         return createAuthorizationHeader(login, keyPair, defaultSignDateAsString());
@@ -652,15 +653,17 @@ public class Signer {
              * @return New {@code SigningAlgorithmHelper} instance.
             */
             public static SigningAlgorithmHelper create(final String algorithm) {
-                if (algorithm.equals("RSA")) {
-                    return new RsaHelper();
-                } else if (algorithm.equals("DSA")) {
-                    return new DsaHelper();
+                switch (algorithm) {
+                    case "RSA":
+                        return new RsaHelper();
+                    case "DSA":
+                        return new DsaHelper();
                     // See NssBridgeKeyConverter on the two names
-                } else if (algorithm.equals("ECDSA") || algorithm.equals("EC")) {
-                    return new EcdsaHelper();
-                } else {
-                    throw new IllegalArgumentException("invalid signing algorithm: " + algorithm);
+                    case "ECDSA":
+                    case "EC":
+                        return new EcdsaHelper();
+                    default:
+                        throw new IllegalArgumentException("invalid signing algorithm: " + algorithm);
                 }
             }
 

@@ -2,6 +2,24 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.1.0] 
+
+### Changed
+ - [Upgraded dependencies to latest stable versions:](https://github.com/joyent/java-http-signature/commit/aa0ad5dd209b86129dfe56e22553054056e7b3bb)
+        - HTTP Signatures dependency: 4.0.9 → 4.0.10
+        - BouncyCastle: 1.61 → 1.64
+        - Apache HttpClient: 4.5.7 → 4.5.11
+        - Google HttpClient: 1.28.0 → 1.32.1
+        - Jersey-Client 2.27 → 2.30.1
+        - Arquillian 1.4.0.Final → 1.6.0.Final
+        - Arquillian-TestNG 1.4.0.Final → 1.6.0.Final
+        - Slfj 1.7.25 → 1.7.30
+        - Checkstyle 8.16 → 8.30
+        - Commons-Codec 1.11 → 1.13
+ - Upgraded maven and maven-plugin dependencies.
+ - Added checkstyle warnings to [HttpSignatureAuthScheme.java](https://github.com/joyent/java-http-signature/blob/master/apache-http-client/src/main/java/com/joyent/http/signature/apache/httpclient/HttpSignatureAuthScheme.java), 
+   [HttpSignatureConfigurator.java](https://github.com/joyent/java-http-signature/blob/master/apache-http-client/src/main/java/com/joyent/http/signature/apache/httpclient/HttpSignatureConfigurator.java) and fixed checkstyle errors.
+
 ## [4.0.10] - 2019-02-27
 
 ### Changed
@@ -9,7 +27,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
  - [Upgrade Apache-Http-Client Dependency](https://github.com/joyent/java-http-signature/commit/9ee3137ac7fdc518f5136ee16a3e8161619461f9)
  - [Upgraded BC Version To 1.61](https://github.com/joyent/java-http-signature/commit/1e72d58f2b05adc7e401ce29cea02233c4bdd725)
  
-## [4.0.9] - 2019-01-15
+ ## [4.0.9] - 2019-01-15
 
 ### Changed
  - Upgraded dependency versions.

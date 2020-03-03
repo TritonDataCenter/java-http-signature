@@ -33,7 +33,8 @@ import java.util.function.Function;
  * @author <a href="https://github.com/dekobon">Elijah Zupancic</a>
  * @since 1.0.0
  */
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"deprecation", "checkstyle:javadocmethod", "checkstyle:javadoctype",
+        "checkstyle:javadocvariable"})
 public class HttpSignatureAuthScheme implements ContextAwareAuthScheme {
     /**
      * Name of authentication scheme.

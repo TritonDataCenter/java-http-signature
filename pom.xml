@@ -95,36 +95,36 @@
         <surefire.forkCount>1</surefire.forkCount>
         <surefire.useSystemClassLoader>true</surefire.useSystemClassLoader>
         <!-- Dependency versions -->
-        <dependency.checkstyle.version>8.16</dependency.checkstyle.version>
-        <dependency.apache-httpclient.version>4.5.7</dependency.apache-httpclient.version>
+        <dependency.checkstyle.version>8.30</dependency.checkstyle.version>
+        <dependency.apache-httpclient.version>4.5.11</dependency.apache-httpclient.version>
         <dependency.testng.version>6.14.3</dependency.testng.version>
-        <dependency.slfj.version>1.7.25</dependency.slfj.version>
+        <dependency.slfj.version>1.7.30</dependency.slfj.version>
         <dependency.logback.version>1.2.3</dependency.logback.version>
         <!-- Plugin versions -->
-        <maven-checkstyle-plugin.version>3.0.0</maven-checkstyle-plugin.version>
-        <maven-clean-plugin.version>3.0.0</maven-clean-plugin.version>
-        <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
-        <maven-dependency-plugin.version>3.0.2</maven-dependency-plugin.version>
-        <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
-        <maven-enforcer-plugin.version>1.4.1</maven-enforcer-plugin.version>
-        <maven-failsafe-plugin.version>2.21.0</maven-failsafe-plugin.version>
+        <maven-checkstyle-plugin.version>3.1.1</maven-checkstyle-plugin.version>
+        <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
+        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+        <maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
+        <maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
+        <maven-enforcer-plugin.version>3.0.0-M2</maven-enforcer-plugin.version>
+        <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
-        <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
-        <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
-        <maven-jarsigner-plugin.version>1.4</maven-jarsigner-plugin.version>
-        <maven-javadoc-plugin.version>3.0.0</maven-javadoc-plugin.version>
-        <maven-jxr-plugin.version>2.5</maven-jxr-plugin.version>
+        <maven-install-plugin.version>3.0.0-M1</maven-install-plugin.version>
+        <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
+        <maven-jarsigner-plugin.version>3.0.0</maven-jarsigner-plugin.version>
+        <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
+        <maven-jxr-plugin.version>3.0.0</maven-jxr-plugin.version>
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
-        <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
-        <maven-shade-plugin.version>2.4.2</maven-shade-plugin.version>
-        <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
-        <maven-surefire-plugin.version>2.21.0</maven-surefire-plugin.version>
-        <maven-jacoco-plugin.version>0.8.1</maven-jacoco-plugin.version>
-        <maven-project-info-reports-plugin.version>2.9</maven-project-info-reports-plugin.version>
+        <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
+        <maven-shade-plugin.version>3.2.2</maven-shade-plugin.version>
+        <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
+        <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+        <maven-jacoco-plugin.version>0.8.5</maven-jacoco-plugin.version>
+        <maven-project-info-reports-plugin.version>3.0.0</maven-project-info-reports-plugin.version>
 
         <!-- Maven plugin dependency versions -->
-        <maven-plexus-compiler-javac-errorprone.version>2.8.5</maven-plexus-compiler-javac-errorprone.version>
-        <maven-error-prone-core.version>2.3.2</maven-error-prone-core.version>
+        <maven-plexus-compiler-javac-errorprone.version>2.8.6</maven-plexus-compiler-javac-errorprone.version>
+        <maven-error-prone-core.version>2.3.4</maven-error-prone-core.version>
     </properties>
 
     <dependencies>

@@ -88,8 +88,7 @@ public abstract class BenchmarkSigner {
     }
 
     protected String signHeader(final String now) {
-        String authzHeader = signer.createAuthorizationHeader("bench", keyPair, now);
-        return authzHeader;
+        return signer.createAuthorizationHeader("bench", keyPair, now);
     }
 
     protected boolean verifyHeader(final String ts, final String header) {
