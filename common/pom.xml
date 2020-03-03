@@ -12,7 +12,7 @@
     <parent>
         <artifactId>java-http-signature</artifactId>
         <groupId>com.joyent.http-signature</groupId>
-        <version>4.1.0</version>
+        <version>4.1.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>http-signature-common</artifactId>
