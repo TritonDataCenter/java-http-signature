@@ -127,7 +127,6 @@ public class SignedRequestClientRequestFilterIT extends Arquillian {
         }
 
         Assert.assertNotNull(response);
-        Assert.assertNotNull(response.getStatus());
         Assert.assertEquals(response.getStatus(), 200);
         logger.debug("response status code: {}", response.getStatus());
         Assert.assertNotNull(response.getMediaType());
@@ -161,6 +160,4 @@ public class SignedRequestClientRequestFilterIT extends Arquillian {
                         && authorizationString.contains("signature=")
         );
     }
-
-
 }
