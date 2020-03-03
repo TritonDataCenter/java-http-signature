@@ -22,6 +22,8 @@ import java.security.KeyPair;
  * @author <a href="https://github.com/dekobon">Elijah Zupancic</a>
  * @since 2.0.5
  */
+@SuppressWarnings({"checkstyle:javadocmethod", "checkstyle:javadoctype",
+        "checkstyle:javadocvariable", "unused"})
 public class HttpSignatureConfigurator {
     /**
      * Public/private keypair object used to sign HTTP requests.
