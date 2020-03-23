@@ -2,7 +2,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [4.1.0] 
+## [4.1.1] - 2020-03-23
+
+### Changed
+- [Dependency upgrade for jnagmp from 2.1.0 -> 3.0.0](https://github.com/joyent/java-http-signature/pull/60)
+
+## [4.1.0] - 2020-03-03
 
 ### Changed
  - [Upgraded dependencies to latest stable versions:](https://github.com/joyent/java-http-signature/commit/aa0ad5dd209b86129dfe56e22553054056e7b3bb)
