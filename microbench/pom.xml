@@ -12,7 +12,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
     <parent>
         <artifactId>java-http-signature</artifactId>
         <groupId>com.joyent.http-signature</groupId>
-        <version>4.1.1</version>
+        <version>4.1.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>microbench</artifactId>
@@ -20,7 +20,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
     <properties>
         <!-- Dependency versions -->
-        <dependency.http-signature-common.version>4.1.1</dependency.http-signature-common.version>
+        <dependency.http-signature-common.version>4.1.2-SNAPSHOT</dependency.http-signature-common.version>
         <dependency.jmh.version>1.21</dependency.jmh.version>
         <uberjar.name>benchmarks</uberjar.name>
     </properties>
