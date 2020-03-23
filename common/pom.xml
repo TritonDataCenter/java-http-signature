@@ -21,7 +21,7 @@
     <properties>
         <!-- Dependency versions -->
         <dependency.bouncycastle.version>1.64</dependency.bouncycastle.version>
-        <dependency.jnagmp.version>2.1.0</dependency.jnagmp.version>
+        <dependency.jnagmp.version>3.0.0</dependency.jnagmp.version>
         <dependency.commons-codec.version>1.13</dependency.commons-codec.version>
     </properties>
 
