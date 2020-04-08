@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.1.2]
+
+### Changed 
+- [Dependency upgrade for BC, Checkstyle & Codec libraries](https://github.com/joyent/java-http-signature/pull/62)
+        - BouncyCastle: 1.64 → 1.65
+        - Commons-Codec: 1.13 → 1.14
+        - Checkstyle: 8.30 → 8.3
+
 ## [4.1.1] - 2020-03-23
 
 ### Changed
