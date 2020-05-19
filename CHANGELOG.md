@@ -8,7 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - [Dependency upgrade for BC, Checkstyle & Codec libraries](https://github.com/joyent/java-http-signature/pull/62)
         - BouncyCastle: 1.64 → 1.65
         - Commons-Codec: 1.13 → 1.14
-        - Checkstyle: 8.30 → 8.3
+        - Checkstyle: 8.30 → 8.31
 
 ## [4.1.1] - 2020-03-23
 
